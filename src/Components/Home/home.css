@@ -18,7 +18,7 @@ body{
   padding: 35px;
   padding-top: 70px; /* To account for fixed navbar */
     /* min-height: 80vh; /* Adjust as needed  */
-} */
+} 
 
 .dashboard-nav {
   display: flex;
