@@ -1,0 +1,550 @@
+/* Clean and Professional CEO Page Styling */
+
+/* Base styles */
+.about-content {
+  width: 100%;
+  background-color: #ffffff;
+  font-family: 'Times New Roman', Times, serif;
+  padding-top: 80px; /* Add padding to account for fixed navbar */
+}
+
+/* Navbar styles - imported from about.css */
+.dashboard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color:#f9f9f9; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 40px;
+  width: auto;
+  margin-right: 10px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.logo h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color:black;
+  font-style: italic;
+  font-family: 'Times New Roman', Times, serif;
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-right: 20px;
+  align-items: center;
+}
+
+.nav-links li {
+  margin-left: 2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem 0;
+  color:navyblue;
+  position: relative;
+}
+
+.nav-links li:first-child {
+  color: navyblue;
+}
+
+.nav-links li:hover {
+  color:black;
+}
+
+/* Add underline effect on hover for text items except login */
+.nav-links li:not(.dropdown-container):not(.login-item)::after,
+.dropdown-container > span::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #f0a500;
+  transition: width 0.3s ease;
+}
+
+.nav-links li:not(.dropdown-container):not(.login-item):hover::after,
+.dropdown-container:hover > span::after {
+  width: 100%;
+}
+
+/* Dropdown styling */
+.dropdown-container {
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.dropdown-container > span {
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.dropdown-container > span::after {
+  bottom: -5px;
+}
+
+.dropdown-container > span::before {
+  content: '▼';
+  font-size: 0.6rem;
+  margin-left: 5px;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-container:hover > span::before {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  min-width: 180px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  padding: 0.5rem 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  z-index: 101;
+  margin-top: 10px;
+}
+
+.dropdown-container:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu li {
+  display: block;
+  padding: 0.7rem 1rem;
+  margin: 0;
+  font-size: 0.85rem;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu li:hover {
+  background-color: #f9f9f9;
+  border-left: 3px solid #f0a500;
+  padding-left: 1.2rem;
+}
+
+/* Container for CEO content */
+.container {
+  max-width: 1200px;
+  margin: 100px auto 60px;
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* CEO page header */
+.container h2 {
+  font-size: 2.2rem;
+  color: #333;
+  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  margin-bottom: 30px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.container h2:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: #f0a500;
+}
+
+/* CEO content layout */
+.ceo-content {
+  display: flex;
+  flex-direction: row;
+  gap: 50px;
+  margin-top: 40px;
+  align-items: flex-start;
+}
+
+/* CEO text content */
+.ceo-text {
+  flex: 1;
+}
+
+.ceo-text h3 {
+  font-size: 1.8rem;
+  color: #4a90e2;
+  margin-bottom: 20px;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.ceo-text p {
+  font-size: 1.1rem;
+  font-family: 'Times New Roman', Times, serif;
+  line-height: 1.8;
+  color: #555;
+  margin-bottom: 20px;
+  text-align: justify;
+}
+
+/* CEO image styling */
+.ceo-image {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ceo-image img {
+  width: 100%;
+  max-width: 350px;
+  height: auto;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 8px solid #f8f8f8;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ceo-image img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.ceo-image p {
+  font-size: 1.1rem;
+  color:darkred;
+  line-height: 1.7;
+  text-align: center;
+  font-style: italic;
+  padding: 0 15px;
+}
+
+/* Achievements Section */
+.achievements-section {
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.achievements-section h3 {
+  font-size: 1.8rem;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.achievements-section h3:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background-color: #f0a500;
+}
+
+.achievement-cards {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.achievement-card {
+  flex: 1;
+  background-color: #f9f9f9;
+  padding: 30px;
+  border-radius: 8px;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.achievement-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-icon {
+  font-size: 2.5rem;
+  color: #f0a500;
+  margin-bottom: 15px;
+}
+
+.achievement-card h4 {
+  font-size: 1.5rem;
+  color: #4a90e2;
+  margin-bottom: 10px;
+}
+
+.achievement-card p {
+  font-size: 1rem;
+  color: #666;
+}
+
+/* Philosophy Section */
+.philosophy-section {
+  margin-top: 60px;
+  padding: 40px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  position: relative;
+}
+
+.philosophy-content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.philosophy-content h3 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.philosophy-content h3:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background-color: #f0a500;
+}
+
+.philosophy-content blockquote {
+  font-size: 1.3rem;
+  font-style: italic;
+  color: #555;
+  line-height: 1.8;
+  position: relative;
+  padding: 0 30px;
+  margin: 30px 0 0;
+}
+
+.philosophy-content blockquote:before,
+.philosophy-content blockquote:after {
+  content: '"';
+  font-size: 3rem;
+  color: #f0a500;
+  opacity: 0.3;
+  position: absolute;
+  line-height: 1;
+}
+
+.philosophy-content blockquote:before {
+  top: -10px;
+  left: 0;
+}
+
+.philosophy-content blockquote:after {
+  bottom: -30px;
+  right: 0;
+  transform: rotate(180deg);
+}
+
+/* Call to Action Section */
+.ceo-cta {
+  margin-top: 60px;
+  padding: 40px;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abD 100%);
+  border-radius: 8px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 10px 25px rgba(74, 144, 226, 0.2);
+}
+
+.ceo-cta h3 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+}
+
+.ceo-cta p {
+  font-size: 1.1rem;
+  margin-bottom: 25px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 12px 30px;
+  background-color: #f0a500;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 30px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+  background-color: #e09600;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Remove underlines from Link components */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .container {
+    padding: 30px;
+    margin: 80px auto 40px;
+  }
+  
+  .ceo-content {
+    flex-direction: column-reverse;
+    gap: 30px;
+  }
+  
+  .ceo-image {
+    flex: 0 0 100%;
+    margin-bottom: 20px;
+  }
+  
+  .ceo-image img {
+    max-width: 280px;
+  }
+  
+  .achievement-cards {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .philosophy-section {
+    padding: 30px;
+  }
+  
+  .philosophy-content blockquote {
+    font-size: 1.2rem;
+    padding: 0 20px;
+  }
+  
+  .ceo-cta {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-nav {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .logo img {
+    height: 30px;
+  }
+  
+  .nav-links {
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: center;
+    margin-right: 0;
+    flex-wrap: wrap;
+  }
+  
+  .nav-links li {
+    margin: 0 1rem;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  
+  .dropdown-container {
+    position: static;
+  }
+  
+  .dropdown-menu {
+    position: relative;
+    width: 100%;
+    margin-top: 0.5rem;
+    box-shadow: none;
+    border: 1px solid #eee;
+  }
+  
+  .dropdown-menu li {
+    text-align: center;
+    padding: 0.5rem;
+  }
+  
+  .dropdown-menu li:hover {
+    padding-left: 0.5rem;
+  }
+  
+  .container {
+    padding: 25px;
+    margin: 120px 15px 30px; /* Increased top margin for mobile nav */
+  }
+  
+  .container h2 {
+    font-size: 1.8rem;
+  }
+  
+  .ceo-text h3 {
+    font-size: 1.5rem;
+  }
+  
+  .ceo-text p {
+    font-size: 1rem;
+  }
+  
+  .achievements-section h3,
+  .philosophy-content h3,
+  .ceo-cta h3 {
+    font-size: 1.5rem;
+  }
+  
+  .philosophy-content blockquote {
+    font-size: 1.1rem;
+  }
+}

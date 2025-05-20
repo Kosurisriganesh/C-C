@@ -1,0 +1,397 @@
+/* Navbar styles */
+
+
+.dashboard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color:#f9f9f9; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 40px;
+  width: auto;
+  margin-right: 10px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.logo h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color:black;
+  font-style: italic;
+  font-family: 'Times New Roman', Times, serif;
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-right: 20px;
+  align-items: center;
+}
+
+.nav-links li {
+  margin-left: 2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem 0;
+  color:navyblue;
+  position: relative;
+}
+
+.nav-links li:first-child {
+  color: navyblue;
+}
+
+.nav-links li:hover {
+  color:black;
+}
+
+/* Login item and button styling */
+.login-item {
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+}
+
+.login-button {
+  background-color: transparent;
+  color: #f0a500;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 2px solid #f0a500;
+  border-radius: 4px;
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  outline: none;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Outer line effect */
+.login-button::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border: 1px solid #f0a500;
+  border-radius: 6px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #f0a500;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-button:hover::before {
+  opacity: 0.8;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+}
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+/* Add underline effect on hover for text items except login */
+.nav-links li:not(.dropdown-container):not(.login-item)::after,
+.dropdown-container > span::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #f0a500;
+  transition: width 0.3s ease;
+}
+
+.nav-links li:not(.dropdown-container):not(.login-item):hover::after,
+.dropdown-container:hover > span::after {
+  width: 100%;
+}
+
+/* Dropdown styling */
+.dropdown-container {
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.dropdown-container > span {
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.dropdown-container > span::after {
+  bottom: -5px;
+}
+
+.dropdown-container > span::before {
+  content: '▼';
+  font-size: 0.6rem;
+  margin-left: 5px;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-container:hover > span::before {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  min-width: 180px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  padding: 0.5rem 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  z-index: 101;
+  margin-top: 10px;
+}
+
+.dropdown-container:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu li {
+  display: block;
+  padding: 0.7rem 1rem;
+  margin: 0;
+  font-size: 0.85rem;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu li:hover {
+  background-color: #f9f9f9;
+  border-left: 3px solid #f0a500;
+  padding-left: 1.2rem;
+}
+
+/* Auth items styling */
+.auth-item {
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+}
+
+/* Base button styles for auth buttons */
+.login-button, .register-button {
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  outline: none;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Login button specific styles */
+.login-button {
+  background-color: transparent;
+  color: #f0a500;
+  border: 2px solid #f0a500;
+}
+
+/* Login button outer line effect */
+.login-button::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border: 1px solid #f0a500;
+  border-radius: 6px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #f0a500;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-button:hover::before {
+  opacity: 0.8;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+}
+
+/* Register button specific styles */
+.register-button {
+  background-color: #f0a500;
+  color: white;
+  border: 2px solid #f0a500;
+  margin-left: 0.5rem;
+}
+
+.register-button:hover {
+  background-color: transparent;
+  color: #f0a500;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Active state for both buttons */
+.login-button:active, .register-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-nav {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .logo img {
+    height: 30px;
+  }
+  
+  .nav-links {
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: center;
+    margin-right: 0;
+    flex-wrap: wrap;
+  }
+  
+  .nav-links li {
+    margin: 0 1rem;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  
+  .login-item {
+    margin-top: 0.8rem !important;
+  }
+  
+  .login-button {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .login-button::before {
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+  }
+  
+  .dropdown-container {
+    position: static;
+  }
+  
+  .dropdown-menu {
+    position: relative;
+    width: 100%;
+    margin-top: 0.5rem;
+    box-shadow: none;
+    border: 1px solid #eee;
+  }
+  
+  .dropdown-menu li {
+    text-align: center;
+    padding: 0.5rem;
+  }
+  
+  .dropdown-menu li:hover {
+    padding-left: 0.5rem;
+  }
+  
+  /* Adjust container padding for mobile */
+  .dashboard-container {
+    padding-top: 130px;
+  }
+}
+
+/* For larger screens, ensure proper spacing */
+@media (min-width: 1200px) {
+  .dashboard-nav {
+    padding: 1rem 4rem;
+  }
+  
+  .nav-links {
+    margin-right: 40px;
+  }
+}
+
+/* Responsive adjustments for auth buttons */
+@media (max-width: 768px) {
+  .auth-item {
+    margin-top: 0.8rem !important;
+  }
+  
+  .login-button, .register-button {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .login-button::before {
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+  }
+}
+
+/* Remove underlines from Link components inside buttons */
+button a, 
+.course-card button a,
+.about-button a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Also target Link components directly */
+a {
+  text-decoration: none;
+}

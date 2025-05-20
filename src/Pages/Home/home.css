@@ -1,0 +1,421 @@
+  body {
+    /* background-color: #f9f9f9; */
+}
+
+.dashboard-container {
+  min-height: 100vh !important; 
+  background-size: cover !important;
+  background-position: center !important;
+  padding: 37px !important;  
+  margin: 0;
+  background-image: none !important;
+}
+
+.dashboard-header {
+  background-image: url('../../Assets/stockbg.png');
+  height: 700px;
+  margin: 0;
+  background-size: cover;
+  background-position: center;
+  padding: 35px;
+  padding-top: 70px; /* To account for fixed navbar */
+}
+
+/* Hero section styles */
+.hero-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  width: 100%;
+  margin-top: 60px; /* Adjusted to position below the navbar */
+  height: calc(100% - 80px); /* Take remaining height of header */
+}
+
+.hero-content {
+  flex: 1;
+  max-width: 50%;
+  padding-right: 20px;
+}
+
+.hero-content h1 {
+  font-size: 2.5rem;
+  color: red;
+  font-family: 'Times New Roman', Times, serif;
+  margin-bottom: 15px;
+}
+
+.hero-content h1 span {
+  color: white;
+  display: block;
+}
+
+.hero-content p {
+  font-size: 1.1rem;
+  color: white; /* Changed to white for better visibility on background */
+  font-family: 'Times New Roman', Times, serif;
+  font-size: larger;
+  margin-bottom: 20px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Added shadow for better readability */
+}
+
+.hero-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.hero-button:hover {
+  background-color: #3a7bc8;
+}
+
+.hero-image {
+  max-width: 45%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Animated heading styles */
+.animated-heading-container {
+  position: absolute;
+  bottom: 50px; /* Adjusted to be visible within the header */
+  right: 30px;
+  max-width: 50%;
+  text-align: right;
+}
+
+.animated-heading {
+  animation: fadeInOut 3s infinite, blinkingLight 1.5s infinite;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes blinkingLight {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5),
+                 0 0 10px rgba(255, 255, 255, 0.5),
+                 0 0 15px rgba(255, 255, 255, 0.5),
+                 0 0 20px #4a90e2,
+                 0 0 35px #4a90e2,
+                 0 0 40px #4a90e2;
+  }
+  50% {
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.5),
+                 0 0 5px rgba(255, 255, 255, 0.5),
+                 0 0 7px rgba(255, 255, 255, 0.5),
+                 0 0 10px #4a90e2,
+                 0 0 17px #4a90e2,
+                 0 0 20px #4a90e2;
+  }
+}
+
+/* Course Section Styles */
+.Course-cover {
+  padding: 60px 20px;
+  text-align: center;
+  background-image: url('../../Assets/loginbg.png');
+}
+
+.Course-cover h3 {
+  font-size: 2.0rem;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-bottom: 15px;
+  color: brown !important;
+}
+
+.Course-cover p {
+  font-size: 1.5rem;
+  color: #666;
+  margin-bottom: 40px;
+  font-family: 'Courier New', Courier, monospace;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.course-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  justify-content: center;
+  align-items: flex-start;
+  gap: 30px;
+  margin: 40px auto;
+  max-width: 1200px;
+}
+
+.course-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  width: 350px;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.course-card img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  display: flex;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.course-card-content {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background-color: #ffffff;
+}
+
+.course-card-content h2 {
+  font-size: 1.4rem;
+  margin: 0 0 15px 0;
+  color: #333;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.course-card p {
+  color: #666;
+  font-size: 1rem;
+  font-family: 'Times New Roman', Times, serif;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+
+.course-card button {
+  padding: 12px 25px;
+  background-color: #4a90e2;
+  color: white;
+  font-size: 1.05rem;
+  align-items: center;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  align-self: flex-start;
+}
+
+.course-card button:hover {
+  background-color: #357abD;
+}
+
+/* About Section Styles */
+.About {
+    padding: 4rem 2rem;
+    background-color: #eee;
+}
+
+.About-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2rem;
+}
+
+.About-content {
+    flex: 1;
+    min-width: 300px;
+}
+
+.About-content p {
+  align-items: center;
+  text-align: center;
+  font-size: 1.5em;
+  color: rgba(85, 85, 85, 0.8);
+}
+
+.about-subtitle {
+    color: #4a90e2;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.About-content h3 {
+    font-size: 2.2rem;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color: #333;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+    text-align: center;
+}
+
+.About-content span {
+  color: red;
+  font-weight: 600;
+  position: relative;
+  display: inline-block;
+}
+
+.About-content span::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #4a90e2;
+  opacity: 0.5;
+}
+
+.About-content span:hover {
+  color: #3a7bc8;
+}
+
+.About-matter p {
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+    font-family: 'Times New Roman', Times, serif;
+    color: #555;
+    font-size: 1.1rem;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 0 auto;
+  padding: 12px 24px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
+}
+
+.button:hover {
+  background-color: #3a7bc8;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+}
+
+.button:active {
+  transform: translateY(-1px);
+}
+
+/* Remove underlines from Link components inside buttons */
+button a, 
+.course-card button a,
+.about-button a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Also target Link components directly */
+a {
+  text-decoration: none;
+}
+
+/* Specifically for course card buttons */
+.course-card button a {
+  text-decoration: none;
+  color: white;
+}
+
+/* For the about button */
+.about-button a {
+  text-decoration: none;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    flex-direction: column;
+    padding: 10px;
+    margin-top: 120px; /* Adjusted for mobile navbar height */
+  }
+  
+  .hero-content {
+    max-width: 100%;
+    padding-right: 0;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .hero-image {
+    max-width: 90%;
+  }
+  
+  .animated-heading {
+    font-size: 1.8rem;
+  }
+  
+  .animated-heading-container {
+    bottom: 20px;
+    right: 20px;
+    max-width: 70%;
+  }
+  
+  .course-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .course-card {
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .Course-cover h3 {
+    font-size: 2rem;
+  }
+  
+  .About-container {
+    flex-direction: column;
+  }
+  
+  .About-content {
+    width: 100%;
+  }
+  
+  .About-content h3 {
+    font-size: 1.8rem;
+  }
+}

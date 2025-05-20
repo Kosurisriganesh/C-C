@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-  firstName: {
+  fullName: {
     type: String,
     required: true
   },
-  lastName: {
+  phoneNumber: {
     type: String,
     required: true
   },
@@ -18,11 +18,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  googleId: {
-    type: String,
-    default: null
-  },
-  createdAt: {
+  date: {
     type: Date,
     default: Date.now
   }
