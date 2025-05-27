@@ -3,7 +3,7 @@
   background: linear-gradient(to right, #1a2a3a, #2c3e50);
   color: #fff;
   padding: 60px 0 20px;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Inter';
 }
 
 .footer-top {
@@ -90,7 +90,7 @@
 
 .footer-column span{
   color:#eee;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Inter';
   text-align: center;
   width: auto;
   height:auto;

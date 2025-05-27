@@ -2,7 +2,7 @@
   min-height : 100vh !important; 
   background-size: cover !important;
   background-position: center !important;
-  padding: 37px !important;  
+  padding: 0px !important;  
   margin: 0;
   background-image: none !important;
 }
@@ -42,7 +42,7 @@
   font-weight: 700;
   color:black;
   font-style: italic;
-  font-family: 'Times New Roman', Times, serif;
+  font-family: 'Inter', Times, serif;
   letter-spacing: 1px;
 }
 
@@ -723,4 +723,129 @@
   .footer-column {
     flex: 0 0 calc(50% - 30px);
   }
+}
+/* Enrollment button styles */
+.enrolled-courses-section {
+  margin-top: 2rem;
+  padding: 2rem;
+  align-items: center;
+  padding-left: 50px;
+  width :auto;
+  background: linear-gradient(135deg, #f9f9f9, #ffffff);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: background 0.3s ease;
+  overflow-x: auto; /* Enables horizontal scroll if items overflow */
+}
+
+.enrolled-courses-section h4 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  color:brown;
+  margin-bottom: 1.2rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.enrolled-courses-section h4::after {
+  content: '';
+  position: absolute;
+  width: 60px;
+  height: 4px;
+  background: #4f46e5;
+  bottom: 0;
+  left: 0;
+  border-radius: 2px;
+}
+
+.enrolled-courses-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: nowrap; /* Prevent wrap to new line */
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+/* Optional custom scrollbar for WebKit browsers */
+.enrolled-courses-list::-webkit-scrollbar {
+  height: 6px;
+}
+
+.enrolled-courses-list::-webkit-scrollbar-thumb {
+  background: #a1a1aa;
+  border-radius: 4px;
+}
+
+.enrolled-courses-list li {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  min-width: max-content;
+}
+
+.enrolled-courses-list li:hover {
+  background-color:#3a7bc8;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  color:#ffffff;
+}
+
+.enrolled-courses-list li span {
+  margin-right: 0.5rem;
+}
+
+.enrolled-courses-list li i {
+  font-size: 1.2rem;
+  color: #4f46e5;
+  transition: transform 0.3s ease;
+}
+
+.enrolled-courses-list li:hover i {
+  transform: translateX(4px);
+}
+.enroll-btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #4f46e5, #6366f1); /* Indigo gradients */
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 14px rgba(79, 70, 229, 0.4);
+  text-decoration: none;
+  text-align: center;
+}
+
+.enroll-btn:hover {
+  background: linear-gradient(135deg, #4338ca, #4f46e5); /* Darker hover */
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.6);
+}
+
+.enroll-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+.enroll-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
 }

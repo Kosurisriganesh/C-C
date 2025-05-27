@@ -7,11 +7,12 @@ import './register.css';
 const Registration = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullName: 'kosuri sri ganesh',
-    phoneNumber: '6301699124',
-    email: 'kosurisriganesh@gmail.com',
-    password: '123456789',
-    confirmPassword: '123456789'
+    fullName: '',
+    phoneNumber: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    isAdmin: false // Add admin flag
   });
   
   const [errors, setErrors] = useState({});
@@ -19,10 +20,10 @@ const Registration = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     });
   };
 
@@ -65,21 +66,6 @@ const Registration = () => {
     return isValid;
   };
 
-  // Function to navigate to dashboard using multiple approaches
-  const navigateToDashboard = () => {
-    // console.log("Current location:", window.location.href);
-    // console.log("Attempting to navigate to dashboard...");
-    
-    // // Try direct window.location approach first
-    // console.log("Using window.location.href with absolute URL");
-    // window.location.href = window.location.origin + '/dashboard';
-
-    console.log(this.props);
-    const {history} = this.props
-    console.log(history);
-    window.history.push('./dashboard');
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -97,7 +83,8 @@ const Registration = () => {
             fullName: formData.fullName,
             phoneNumber: formData.phoneNumber,
             email: formData.email,
-            password: formData.password
+            password: formData.password,
+            isAdmin: formData.isAdmin // Include admin flag in the request
           }),
         });
         
@@ -119,18 +106,19 @@ const Registration = () => {
           throw new Error(data.message || 'Registration failed');
         }
         
-        // Store token in localStorage
+        // Store token and user role in localStorage
         localStorage.setItem('token', data.token);
-        
-        // Store user data if available
-        if (data.user) {
-          localStorage.setItem('user', JSON.stringify(data.user));
-        }
+        localStorage.setItem('isAdmin', formData.isAdmin);
         
         setIsSubmitted(true);
-        
-        // Navigate to dashboard immediately without setTimeout
-        navigateToDashboard()
+        setTimeout(() => {
+          // Navigate to admin dashboard if admin, otherwise to regular dashboard
+          if (formData.isAdmin) {
+            navigate('/dashboardadmin');
+          } else {
+            navigate('/dashboard');
+          }
+        }, 2000);
       } catch (error) {
         console.error('Registration error:', error);
         setErrors({ submit: error.message || 'Registration failed. Please try again.' });
@@ -157,7 +145,8 @@ const Registration = () => {
           email: user.email,
           fullName: user.displayName,
           uid: user.uid,
-          emailVerified: user.emailVerified
+          emailVerified: user.emailVerified,
+          isAdmin: formData.isAdmin // Include admin flag for Google sign-in too
         }),
       });
       
@@ -174,18 +163,19 @@ const Registration = () => {
         throw new Error(data.message || 'Google sign-in failed');
       }
       
-      // Store token in localStorage
+      // Store token and user role in localStorage
       localStorage.setItem('token', data.token);
-      
-      // Store user data if available
-      if (data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-      }
+      localStorage.setItem('isAdmin', data.isAdmin); // Store admin status from response
       
       setIsSubmitted(true);
-      
-      // Navigate to dashboard immediately without setTimeout
-      navigateToDashboard();
+      setTimeout(() => {
+        // Navigate based on admin status
+        if (data.isAdmin) {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
+      }, 1500);
     } catch (error) {
       console.error('Google sign-in error:', error);
       setErrors({ submit: error.message || 'Google sign-in failed. Please try again.' });
@@ -203,7 +193,7 @@ const Registration = () => {
 
             {isSubmitted && (
               <div className="success-message">
-                Registration successful! Redirecting to dashboard...
+                Registration successful! Redirecting to {formData.isAdmin ? 'admin dashboard' : 'dashboard'}...
               </div>
             )}
 
@@ -282,6 +272,18 @@ const Registration = () => {
                   disabled={isLoading}
                 />
                 {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+              </div>
+
+              <div className="form-group checkbox-group">
+                <input
+                  type="checkbox"
+                  id="isAdmin"
+                  name="isAdmin"
+                  checked={formData.isAdmin}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                />
+                <label htmlFor="isAdmin">Register as Administrator</label>
               </div>
 
               <button

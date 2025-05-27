@@ -1,0 +1,474 @@
+/* UserManagement.css - Advanced styling for admin user management */
+
+/* Main container with glass morphism effect */
+.user-management-container {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    padding: 2rem;
+    margin: 1.5rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Header section with flex layout */
+.user-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+    position: relative;
+}
+
+.user-management-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.user-management-header h2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 70%;
+    width: 4px;
+    background: linear-gradient(to bottom, #3498db, #2980b9);
+    border-radius: 2px;
+}
+
+/* Actions container with search and refresh */
+.user-management-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Search input styling */
+.search-container {
+    position: relative;
+}
+
+.search-input {
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border-radius: 50px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 0.95rem;
+    width: 250px;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.search-input:focus {
+    width: 300px;
+    border-color: #3498db;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    outline: none;
+}
+
+.search-container::before {
+    content: '\f002';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #7f8c8d;
+    pointer-events: none;
+}
+
+/* Refresh button with animation */
+.refresh-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.refresh-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+    background: linear-gradient(135deg, #2980b9, #3498db);
+}
+
+.refresh-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.refresh-btn::before {
+    content: '\f2f1';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+}
+
+/* Loading spinner with animation */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #3498db;
+    font-size: 1.2rem;
+    position: relative;
+    padding-left: 2rem;
+}
+
+.loading-spinner::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 3px solid rgba(52, 152, 219, 0.3);
+    border-top-color: #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Table container with scrolling */
+.users-table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background: white;
+}
+
+/* Table styling */
+.users-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.95rem;
+}
+
+.users-table thead {
+    background: linear-gradient(to right, #f5f7fa, #f1f4f7);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.users-table th {
+    padding: 1.2rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #34495e;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.users-table th:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+.users-table th::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #3498db;
+    transition: width 0.3s ease;
+}
+
+.users-table th:hover::after {
+    width: 100%;
+}
+
+.users-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.users-table tbody tr:nth-child(even) {
+    background-color: rgba(245, 247, 250, 0.5);
+}
+
+.users-table tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.users-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    color: #2c3e50;
+    vertical-align: middle;
+}
+
+/* User info with avatar */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.user-info:hover .user-avatar {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background-color: rgba(46, 204, 113, 0.15);
+    color: #27ae60;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.status-badge.inactive {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* Action buttons */
+.status-toggle-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-toggle-btn.deactivate {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+}
+
+.status-toggle-btn.deactivate:hover {
+    background-color: #e74c3c;
+    color: white;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.status-toggle-btn.activate {
+    background-color: rgba(46, 204, 113, 0.15);
+    color: #27ae60;
+}
+
+.status-toggle-btn.activate:hover {
+    background-color: #27ae60;
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+/* No users message */
+.no-users-message {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* Tooltip for column headers */
+.users-table th {
+    position: relative;
+}
+
+.users-table th::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #34495e;
+    color: white;
+    padding: 0.5rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.users-table th:hover::before {
+    opacity: 1;
+    visibility: visible;
+    top: -35px;
+}
+
+/* Animation for row entry */
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+}
+
+.users-table tbody tr {
+    animation: fadeIn 0.3s ease forwards;
+    opacity: 0;
+}
+
+.users-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.users-table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+.users-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+.users-table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+.users-table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+.users-table tbody tr:nth-child(6) { animation-delay: 0.3s; }
+.users-table tbody tr:nth-child(7) { animation-delay: 0.35s; }
+.users-table tbody tr:nth-child(8) { animation-delay: 0.4s; }
+.users-table tbody tr:nth-child(9) { animation-delay: 0.45s; }
+.users-table tbody tr:nth-child(10) { animation-delay: 0.5s; }
+
+/* Custom scrollbar */
+.users-table-container::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.users-table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.users-table-container::-webkit-scrollbar-thumb {
+    background: #bdc3c7;
+    border-radius: 10px;
+}
+
+.users-table-container::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .user-management-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  
+    .user-management-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  
+    .search-input {
+      width: 200px;
+    }
+  
+    .search-input:focus {
+      width: 250px;
+    }
+}
+
+@media (max-width: 992px) {
+    .users-table th, 
+    .users-table td {
+      padding: 0.8rem 0.6rem;
+      font-size: 0.9rem;
+    }
+  
+    .user-avatar {
+      width: 35px;
+      height: 35px;
+    }
+  
+    .status-badge {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+    }
+  
+    .status-toggle-btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .user-management-container {
+      padding: 1.5rem 1rem;
+      margin: 1rem;
+    }
+  
+    .user-management-header h2 {
+      font-size: 1.5rem;
+    }
+  
+    .search-input {
+      width: 150px;
+    }
+  
+    .search-input:focus {
+      width: 200px;
+    }
+  
+    .refresh-btn {
+      padding: 0.6rem 1rem;
+    }
+  
+    .users-table th:nth-child(4),
+    .users-table td:nth-child(4) {
+      display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .user-management-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .search-container {
+      width: 100%;
+    }
+}

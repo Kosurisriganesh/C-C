@@ -18,10 +18,16 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  isAdmin: {
+    type: Boolean,
+    enum: ['user', 'admin'],   // Only allow 'user' or 'admin'
+    default: 'admin'            // Default role is 'user'
+  },
   date: {
     type: Date,
     default: Date.now
   }
 });
 
-module.exports = mongoose.model('User', UserSchema);
+// Prevent model overwrite error in development
+module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
