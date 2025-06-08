@@ -518,7 +518,7 @@ a {
     background-color: white;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
     /* Removed transition as it's no longer collapsible by arrow */
-    position: fixed; /* Keep the sidebar fixed */
+    position: sticky; /* Keep the sidebar fixed */
     top: 70px; /* Aligns sidebar right below the fixed navbar */
     left: 0;
     height: calc(100vh - 70px); /* Fills remaining vertical space */
@@ -630,9 +630,10 @@ a {
 .admin-content {
     padding: 20px;
     /* Removed transition as sidebar is no longer collapsible by arrow */
-    margin-left: 260px; /* Fixed margin-left equal to the sidebar's width */
+    /* margin-left: 260px; Fixed margin-left equal to the sidebar's width */
     flex: 1; /* Allows content to grow and fill available space */
     display: flex;
+    min-width:0;
     background-color: #f9fafb; /* Light, subtle gray-blue background */
     flex-direction: column;
     align-items: center; /* Centers content horizontally within the content area */
@@ -775,14 +776,14 @@ a {
 
 /* User Management Section */
 .user-management {
-    padding: 1.5rem;
+     width: 100%;
+    max-width: 100%;
     background: white;
     border-radius: 16px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    width: 100%; /* Ensure it takes full width of its parent */
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem;
     box-sizing: border-box;
-    width: calc(100% - 260px); /* Adjust width to account for sidebar */
-    margin-left: auto;
 }
 
 .user-management h2 {
@@ -882,6 +883,7 @@ a {
 }
 
 .users-table-container {
+    width: 100%;
     overflow-x: auto;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -891,9 +893,12 @@ a {
 
 .users-table {
     width: 100%;
+    min-width: 900px; /* ensures columns don't squish on small screens, adjust as needed */
     border-collapse: separate;
     border-spacing: 0;
     font-size: 0.95rem;
+    background: white;
+    table-layout: auto;
 }
 
 .users-table thead {
@@ -1292,4 +1297,142 @@ a {
 
 .delete-course-btn:hover {
     background-color: #b91c1c; /* hover:bg-red-700 */
+}
+
+/* Overlay for modal - covers the entire screen */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 1000;
+    background: rgba(30, 41, 59, 0.45); /* slate-800/45 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+/* Modal content box */
+.modal-content {
+    background: #fff;
+    border-radius: 1.25rem;
+    padding: 2.5rem 2rem 2rem 2rem;
+    box-shadow: 0 10px 32px rgba(0,0,0,0.13);
+    min-width: 350px;
+    max-width: 95vw;
+    width: 400px;
+    position: relative;
+    animation: modalPopIn 0.25s cubic-bezier(.45,1.53,.53,.93);
+}
+
+/* Entrance animation */
+@keyframes modalPopIn {
+    0% { transform: scale(0.85) translateY(40px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Modal title */
+.modal-content h3 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #3730a3;
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+/* Form styling */
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+}
+
+/* Form group */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Labels */
+.form-group label {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 0.1rem;
+}
+
+/* Inputs & textarea */
+.form-group input[type="text"],
+.form-group textarea {
+    padding: 0.65rem 0.9rem;
+    border: 1.5px solid #e0e7ef;
+    border-radius: 0.55rem;
+    background: #f8fafc;
+    outline: none;
+    font-size: 1.07rem;
+    transition: border 0.15s, box-shadow 0.15s;
+}
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 1.5px #6366f1;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+/* Modal actions (buttons) */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* Save button */
+.save-btn {
+    background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+    color: #fff;
+    border: none;
+    padding: 0.60rem 1.3rem;
+    border-radius: 0.5rem;
+    font-size: 1.07rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px 0 rgba(99, 102, 241, 0.08);
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+}
+.save-btn:hover, .save-btn:focus {
+    background: linear-gradient(90deg, #4338ca 0%, #6366f1 100%);
+    transform: translateY(-2px) scale(1.035);
+}
+
+/* Cancel button */
+.cancel-btn {
+    background: #e5e7eb;
+    color: #475569;
+    border: none;
+    padding: 0.60rem 1.3rem;
+    border-radius: 0.5rem;
+    font-size: 1.07rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.cancel-btn:hover, .cancel-btn:focus {
+    background: #f1f5f9;
+    color: #22223b;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .modal-content {
+        min-width: 0;
+        width: 97vw;
+        padding: 1.2rem 0.7rem 1.2rem 0.7rem;
+    }
 }

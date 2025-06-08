@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, googleProvider } from '../../Pages/Firebase/firebase';
 import './login.css';
 
@@ -55,13 +55,13 @@ const Login = () => {
     return isValid;
   };
 
-  const navigateToDashboard = (token,data) => {
-  if (token) {
-    // const user = JSON.parse(localStorage.getItem('user'));
 
-    console.log("user ", data)
-
-    if (data && data.role === 'admin') {
+  const navigateToDashboard = (token, data) => {
+  if (token && data.user) {
+    localStorage.setItem('user', JSON.stringify(data.user));
+    // Check for isAdmin on user object or at root level
+    const isAdmin = data.user.isAdmin || data.isAdmin;
+    if (isAdmin) {
       navigate('/dashboardadmin');
     } else {
       navigate('/dashboard');
@@ -78,9 +78,9 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      console.log("Attempting to sign in with:", formData.email);
-      localStorage.clear('token');
+      localStorage.removeItem('token');
 
+      // 1. Login to backend
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
@@ -92,19 +92,23 @@ const Login = () => {
         }),
       });
 
-      console.log('Response status:', response.status);
       let data;
       try {
         data = await response.json();
-        console.log('Backend response:', JSON.stringify(data, null, 2));
       } catch (jsonError) {
         const text = await response.text();
         throw new Error(text || 'Invalid server response');
       }
 
+      // --- Log response for debugging ---
+      console.log("[DEBUG] Backend login response:", data);
+
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
+
+      // 2. Login to Firebase Auth as well
+      await signInWithEmailAndPassword(auth, formData.email, formData.password);
 
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', formData.email);
@@ -113,14 +117,12 @@ const Login = () => {
       }
 
       localStorage.setItem('token', data.token);
-      if (data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-      }
 
-      navigateToDashboard(data.token,data);
+      setIsSubmitted(true);
+      navigateToDashboard(data.token, data);
     } catch (error) {
       console.error('Login error:', error);
-      if (error.message.includes('Invalid credentials')) {
+      if (error.message && error.message.includes('Invalid credentials')) {
         setErrors({ submit: 'Invalid email or password.' });
       } else {
         setErrors({ submit: error.message || 'Login failed. Please try again.' });
@@ -153,21 +155,19 @@ const Login = () => {
       try {
         data = await response.json();
       } catch (jsonError) {
-        const text = await response.text();
-        throw new Error(text || 'Invalid server response');
+        data = { message: 'Invalid server response' };
       }
+
+      // --- Log response for debugging ---
+      console.log("[DEBUG] Backend Google login response:", data);
 
       if (!response.ok) {
         throw new Error(data.message || 'Google sign-in failed');
       }
-
       localStorage.setItem('token', data.token);
-      if (data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-      }
 
       setIsSubmitted(true);
-      navigateToDashboard(data.token);
+      navigateToDashboard(data.token, data);
     } catch (error) {
       console.error('Google sign-in error:', error);
       setErrors({ submit: error.message || 'Google sign-in failed. Please try again.' });
@@ -209,7 +209,7 @@ const Login = () => {
       setResetEmailSent(true);
       setErrors({});
     } catch (error) {
-      if (error.message.includes('user-not-found')) {
+      if (error.message && error.message.includes('user-not-found')) {
         setErrors({ reset: 'No account found with this email address.' });
       } else {
         setErrors({ reset: error.message || 'Failed to send reset email. Please try again.' });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import technicalanalysis from '../../Assets/technical analysis.png';
+import technicalanalysis from '../../Assets/technical analysis.jpg';
 import fa from '../../Assets/fa.jpg';
 import ct from '../../Assets/ct.jpg';
 import Header from '../../Components/Header/header.js';

@@ -4,11 +4,20 @@ import contact from '../../Assets/contact.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faLocationDot, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+// import Header from '../../Components/Header/header';
+import Footer from '../../Components/Footer/footer';
+
+const occupationOptions = [
+  '',
+  'Student',
+  'Job'
+];
 
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    occupation: '',
     contact: '',
     message: ''
   });
@@ -38,14 +47,14 @@ const Contact = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-        credentials: 'include'  // remove if backend doesn't use cookies/auth
+        credentials: 'include'
       });
 
       const data = await res.json();
 
       if (res.ok) {
         setResponseMessage(data.message || 'Message sent successfully!');
-        setFormData({ name: '', email: '', contact: '', message: '' });
+        setFormData({ name: '', email: '', occupation: '', contact: '', message: '' });
       } else {
         setResponseMessage(data.message || 'Failed to send message.');
       }
@@ -57,7 +66,13 @@ const Contact = () => {
 
   return (
     <div className="tab-content">
-      <h2>Get a Call Back</h2>
+      {/* <nav>
+        <Header />
+      </nav> */}
+      <br/>
+      <br/>
+      <br/>
+      <h2>Get in touch with use</h2>
 
       <div className="contact-container">
         <div className="contact-form">
@@ -83,6 +98,20 @@ const Contact = () => {
                 onChange={handleChange}
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="occupation">Occupation :</label>
+              <select
+                id="occupation"
+                value={formData.occupation}
+                onChange={handleChange}
+                required
+              >
+                <option value="" disabled>Select your occupation</option>
+                <option value="Student">Student</option>
+                <option value="Job">Job/Business</option>
+              </select>
             </div>
             <div className="form-group">
               <label htmlFor="contact">Contact No :</label>
@@ -141,8 +170,7 @@ const Contact = () => {
           </div>
         </div>
       </div>
-
-      <br />
+      <Footer/>
     </div>
   );
 };

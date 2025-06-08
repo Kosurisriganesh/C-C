@@ -6,6 +6,8 @@ import {
     Paper, TextField, Button, CircularProgress
 } from '@mui/material';
 import './UserManagement.css';
+import TableSortLabel from '@mui/material/TableSortLabel';
+
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -107,14 +109,14 @@ const UserManagement = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
-                                    Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                                    Name <TableSortLabel/> {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                 </TableCell>
                                 <TableCell onClick={() => handleSort('email')} style={{ cursor: 'pointer' }}>
                                     Email {sortConfig.key === 'email' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                 </TableCell>
-                                <TableCell onClick={() => handleSort('role')} style={{ cursor: 'pointer' }}>
-                                    Role {sortConfig.key === 'role' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-                                </TableCell>
+                                    {/* <TableCell onClick={() => handleSort('role')} style={{ cursor: 'pointer' }}>
+                                        Role {sortConfig.key === 'role' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                                    </TableCell> */}
                                 <TableCell onClick={() => handleSort('registrationDate')} style={{ cursor: 'pointer' }}>
                                     Registration Date {sortConfig.key === 'registrationDate' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                 </TableCell>

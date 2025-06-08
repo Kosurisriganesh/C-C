@@ -3,7 +3,7 @@
   background: linear-gradient(to right, #1a2a3a, #2c3e50);
   color: #fff;
   padding: 60px 0 20px;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
 }
 
 .footer-top {
@@ -20,6 +20,7 @@
   min-width: 250px;
   margin-bottom: 30px;
   padding: 0 15px;
+  box-sizing: border-box;
 }
 
 .footer-logo {
@@ -90,7 +91,7 @@
 
 .footer-column span{
   color:#eee;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   text-align: center;
   width: auto;
   height:auto;
@@ -150,5 +151,76 @@
 }
 
 .contact-info li {
-  display: flex
+  display: flex;
+}
+
+/* Responsive Styles */
+@media (max-width: 900px) {
+  .footer-top {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .footer-column {
+    min-width: 220px;
+    max-width: 50%;
+    flex-basis: 45%;
+    margin-bottom: 30px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .site-footer {
+    padding: 40px 0 10px;
+  }
+  .footer-top {
+    flex-direction: column;
+    padding: 0 10px;
+  }
+  .footer-column {
+    min-width: 0;
+    max-width: 100%;
+    flex: 1 1 100%;
+    margin-bottom: 25px;
+    padding: 0 5px;
+  }
+  .footer-logo {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+  .footer-logo img {
+    height: 32px;
+    padding: 3px;
+  }
+  .footer-column h4 {
+    font-size: 1.1rem;
+    padding-bottom: 6px;
+  }
+  .footer-column h4::after {
+    width: 35px;
+    height: 2px;
+  }
+  .social-icons a {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  .footer-description {
+    font-size: 0.92rem;
+  }
+  .footer-links li, .contact-info li {
+    margin-bottom: 10px;
+  }
+  .footer-links a {
+    font-size: 1rem;
+  }
+}
+
+/* Optional: add a subtle divider for mobile */
+@media (max-width: 600px) {
+  .footer-column:not(:last-child) {
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
 }

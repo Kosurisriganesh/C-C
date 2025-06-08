@@ -34,10 +34,10 @@ const Footer = () => {
                 <div className="footer-column">
                     <h4>Our Courses</h4>
                     <ul className="footer-links">
-                        <li>Technical Analysis</li>
-                        <li>Fundamental Analysis</li>
-                        <li>Commodity Trading</li>
-                        <li>Features & Options</li>
+                        <li><Link to="/Course">Technical Analysi</Link>s</li>
+                        <li><Link to="/Course">Fundamental Analysis</Link></li>
+                        <li><Link to="/Course">Commodity Trading</Link></li>
+                        <li><Link to="/Course">Features & Options</Link></li>
                     </ul>
                 </div>
                 
@@ -66,7 +66,7 @@ const Footer = () => {
                 </div>
                 <div className="footer-bottom-links">
                     <Link to="/privacy-policy">Privacy Policy</Link>
-                    <Link to="/terms-of-service">Terms of Service</Link>
+                    <Link to="/terms-of-service">Terms & Conditions</Link>
                     <Link to="/disclaimer">Disclaimer</Link>
                 </div>
                 <h3>Developed by Ganesh</h3>

@@ -6,28 +6,31 @@ const UserSchema = new mongoose.Schema({
     required: true
   },
   phoneNumber: {
-    type: String,
-    required: true
+    type: String
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    lowercase: true
   },
   password: {
-    type: String,
-    required: true
-  },
+    type: String
+  }, // Not required for Google users
   isAdmin: {
     type: Boolean,
-    enum: ['user', 'admin'],   // Only allow 'user' or 'admin'
-    default: 'admin'            // Default role is 'user'
+    default: false
   },
-  date: {
-    type: Date,
-    default: Date.now
-  }
+  googleId: { type: String },
+  date: { 
+    type: Date, 
+    default: Date.now },
+
+  status: { 
+    type: Boolean, 
+    default: false   
+  } 
+  // false means not verified, true means verified
 });
 
-// Prevent model overwrite error in development
 module.exports = mongoose.models.User || mongoose.model('User', UserSchema);

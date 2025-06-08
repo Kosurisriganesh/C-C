@@ -1,46 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { auth } from '../../Pages/Firebase/firebase'; // Make sure this path is correct
-import { onAuthStateChanged } from 'firebase/auth'; // Import from firebase/auth
-import './dashboardadmin.css'; // Assuming this CSS file contains the styles for the dashboard and course management
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { auth } from '../../Pages/Firebase/firebase'; // Adjust path if needed
+import { onAuthStateChanged } from 'firebase/auth';
+import './dashboardadmin.css';
 import Footer from '../../Components/Footer/footer';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
+const API_BASE_URL = "http://localhost:5000"; // <-- Change this if your backend runs elsewhere
 
 const AdminDashboard = () => {
-    // State for the authenticated user information
+    const navigate = useNavigate();
     const [user, setUser] = useState({
-        name: "candlesandcapitals",
-        email: "candlesandcapitals@gmail.com",
-        role: "Admin",
+        name: "",
+        email: "",
+        role: "",
         avatar: process.env.PUBLIC_URL + '/profilepic.jpg'
     });
-    // State to control the visibility of the profile dropdown
-    const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-    // State to manage the currently active menu item in the sidebar
-    const [activeMenuItem, setActiveMenuItem] = useState('dashboard');
-    // State to control the collapsed/expanded state of the sidebar
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-    // State for users data (for user management section)
+    const id = useParams();
+    const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+    const [activeMenuItem, setActiveMenuItem] = useState('dashboard');
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [users, setUsers] = useState([]);
-    // State for courses data (for course management section)
     const [courses, setCourses] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    // State for course management modals
     const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
-    const [currentCourse, setCurrentCourse] = useState(null); // Stores course being edited or null for new course
-
-    // State for video management modals
+    const [currentCourse, setCurrentCourse] = useState(null);
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-    const [currentVideo, setCurrentVideo] = useState(null); // Stores video being edited or null for new video
-    const [parentCourseIdForVideo, setParentCourseIdForVideo] = useState(null); // Stores ID of course to which video belongs
-
-    // State for confirmation modal
+    const [currentVideo, setCurrentVideo] = useState(null);
+    const [parentCourseIdForVideo, setParentCourseIdForVideo] = useState(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-    const [confirmationAction, setConfirmationAction] = useState(null); // Function to execute on confirmation
+    const [confirmationAction, setConfirmationAction] = useState(null);
     const [confirmationMessage, setConfirmationMessage] = useState('');
+    const [roleFilter, setRoleFilter] = useState('all');
 
-    // Effect hook to handle Firebase authentication state changes
+    // ------------------ AUTH STATE LISTENER ------------------
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
             if (firebaseUser) {
@@ -62,17 +57,18 @@ const AdminDashboard = () => {
                         firebaseUser.photoURL ||
                         storedUserInfo.photoURL ||
                         process.env.PUBLIC_URL + '/profilepic.jpg',
-                    uid: firebaseUser.uid
+                    uid: firebaseUser.uid,
+                    _id: storedUserInfo._id // Store MongoDB _id for logout
                 });
                 localStorage.setItem('userInfo', JSON.stringify({
                     displayName: firebaseUser.displayName || "candlesandcapitals",
                     email: firebaseUser.email || "candlesandcapitals@gmail.com",
                     photoURL: firebaseUser.photoURL || process.env.PUBLIC_URL + '/profilepic.jpg',
                     uid: firebaseUser.uid,
-                    isGoogleUser: firebaseUser.providerData[0]?.providerId === 'google.com'
+                    isGoogleUser: firebaseUser.providerData[0]?.providerId === 'google.com',
+                    _id: storedUserInfo._id // persist Mongo _id if present
                 }));
             } else {
-                // If user logs out, show default admin (optional: or set to null)
                 setUser({
                     name: "candlesandcapitals",
                     email: "candlesandcapitals@gmail.com",
@@ -84,176 +80,253 @@ const AdminDashboard = () => {
         return () => unsubscribe();
     }, []);
 
-    // Effect hook to simulate fetching data based on the active menu item
+    // ------------------ FETCH USERS ------------------
+    const fetchUsers = useCallback(() => {
+        if (user?.role !== 'Admin') {
+            setUsers([]);
+            return;
+        }
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setUsers([]);
+            return;
+        }
+        fetch(`${API_BASE_URL}/api/admin/users`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token,
+            }
+        })
+            .then(res => {
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        throw new Error('Unauthorized');
+                    }
+                    throw new Error('Failed to fetch');
+                }
+                return res.json();
+            })
+            .then(data => setUsers(data))
+            .catch(err => {
+                setUsers([]);
+                console.error('Failed to fetch users:', err);
+            });
+    }, [user]);
+
+    // ------------------ FETCH COURSES ------------------
+    const fetchCourses = useCallback(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setCourses([]);
+            return;
+        }
+        fetch(`${API_BASE_URL}/api/admin/courses`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token,
+            }
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Failed to fetch courses');
+                }
+                return res.json();
+            })
+            .then(data => setCourses(data))
+            .catch(err => {
+                setCourses([]);
+                console.error('Failed to fetch courses:', err);
+            });
+    }, []);
+
+    // Fetch users and courses on menu change
     useEffect(() => {
         if (activeMenuItem === 'users') {
-            setUsers([
-                { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Student', status: 'Active' },
-                { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Student', status: 'Active' },
-                { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'Instructor', status: 'Inactive' },
-                { id: 4, name: 'Alice Brown', email: 'alice@example.com', role: 'Student', status: 'Active' },
-            ]);
+            fetchUsers();
         } else if (activeMenuItem === 'courses') {
-            // Simulate fetching courses data
-            setCourses([
-                {
-                    id: 'course-1',
-                    title: 'Technical Analysis Fundamentals',
-                    description: 'Learn chart patterns, indicators, and trading strategies.',
-                    videos: [
-                        { id: 'video-101', title: 'Introduction to Candlestick Patterns', url: 'https://example.com/video101' },
-                        { id: 'video-102', title: 'Understanding Support and Resistance', url: 'https://example.com/video102' },
-                        { id: 'video-103', title: 'Moving Averages and Their Applications', url: 'https://example.com/video103' },
-                    ],
-                },
-                {
-                    id: 'course-2',
-                    title: 'Introduction to Fundamental Analysis',
-                    description: 'Analyze company financials and economic data.',
-                    videos: [
-                        { id: 'video-201', title: 'Basics of Financial Statements', url: 'https://example.com/video201' },
-                        { id: 'video-202', title: 'Key Financial Ratios', url: 'https://example.com/video202' },
-                    ],
-                },
-                {
-                    id: 'course-3',
-                    title: 'Commodity Trading Strategies',
-                    description: 'Explore the world of commodity markets.',
-                    videos: [
-                        { id: 'video-301', title: 'Understanding Commodity Futures', url: 'https://example.com/video301' },
-                        { id: 'video-302', title: 'Risk Management in Commodities', url: 'https://example.com/video302' },
-                    ],
-                },
-            ]);
+            fetchCourses();
         }
-    }, [activeMenuItem]);
+    }, [activeMenuItem, fetchUsers, fetchCourses]);
 
+    // Polling: refresh users every 5 seconds if on users tab
+    useEffect(() => {
+        if (activeMenuItem === 'users') {
+            const interval = setInterval(fetchUsers, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [activeMenuItem, fetchUsers]);
 
-    
+    const handleProfileClick = () => setShowProfileDropdown(!showProfileDropdown);
 
-    // Handler for profile picture click to toggle dropdown
-    const handleProfileClick = () => {
-        setShowProfileDropdown(!showProfileDropdown);
-    };
-
-    // Handler for user logout
-    const handleLogout = () => {
+    // ------------------ LOGOUT ------------------
+    const handleLogout = async () => {
+        try {
+            const storedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            const userId = storedUserInfo._id;
+            const token = localStorage.getItem('token');
+            if (userId && token) {
+                await fetch(`${API_BASE_URL}/api/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': token
+                    },
+                    body: JSON.stringify({ userId })
+                });
+            }
+        } catch (err) {
+            console.error('Failed to update status on logout', err);
+        }
         auth.signOut().then(() => {
             localStorage.removeItem('userInfo');
+            localStorage.removeItem('token');
             setUser(null);
+            navigate('/login');
         }).catch((error) => {
             console.error('Error signing out:', error);
         });
     };
 
-    // Handler to toggle sidebar collapse state
-    const toggleSidebar = () => {
-        setSidebarCollapsed(!sidebarCollapsed);
-    };
+    const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
+    const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
-    // --- Course Management Functions ---
+    // ------------------ COURSE MANAGEMENT ------------------
+    const handleAddCourse = () => { setCurrentCourse(null); setIsCourseModalOpen(true); };
+    const handleEditCourse = (course) => { setCurrentCourse(course); setIsCourseModalOpen(true); };
 
-    // Opens the modal for adding a new course
-    const handleAddCourse = () => {
-        setCurrentCourse(null); // Clear any previous course data
-        setIsCourseModalOpen(true);
-    };
-
-    // Opens the modal for editing an existing course
-    const handleEditCourse = (course) => {
-        setCurrentCourse(course);
-        setIsCourseModalOpen(true);
-    };
-
-    const toggleDropdown = () => {
-        setDropdownOpen(!dropdownOpen);
-    };
-
-    // Handles saving a new course or updating an existing one
+    // ------------------ SAVE COURSE (ADD OR EDIT, with VIDEOS) ------------------
     const saveCourse = (courseData) => {
+        const token = localStorage.getItem('token');
+        const payload = { 
+            title: courseData.title, 
+            description: courseData.description, 
+            instructor: courseData.instructor,
+            videos: Array.isArray(courseData.videos) ? courseData.videos : []
+        };
+        console.log('currentCourse',currentCourse )
         if (currentCourse) {
-            // Update existing course
-            setCourses(prevCourses =>
-                prevCourses.map(c => (c.id === courseData.id ? { ...c, ...courseData } : c))
-            );
+            fetch(`${API_BASE_URL}/api/admin/courses/${currentCourse._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(res => {
+                    if (!res.ok) return res.json().then(err => { throw new Error(err.error || "Failed to update course"); });
+                    return res.json();
+                })
+                .then(updatedCourse => {
+                    alert("Course updated successfully!");
+                    setCourses(prevCourses =>
+                        prevCourses.map(c => (c._id === updatedCourse._id ? updatedCourse : c))
+                    );
+                    setIsCourseModalOpen(false);
+                })
+                .catch(err => {
+                    alert(`Failed to update course: ${err.message}`);
+                    console.error(err);
+                });
         } else {
-            // Add new course
-            const newCourse = {
-                id: crypto.randomUUID(), // Generate a unique ID for the new course
-                videos: [], // New courses start with no videos
-                ...courseData
-            };
-            setCourses(prevCourses => [...prevCourses, newCourse]);
+            fetch(`${API_BASE_URL}/api/admin/courses`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(res => {
+                    if (!res.ok) return res.json().then(err => { throw new Error(err.error || "Failed to add course"); });
+                    return res.json();
+                })
+                .then(newCourse => {
+                    setCourses(prevCourses => [...prevCourses, newCourse]);
+                    setIsCourseModalOpen(false);
+                })
+                .catch(err => {
+                    alert(`Failed to add course: ${err.message}`);
+                    console.error(err);
+                });
         }
-        setIsCourseModalOpen(false); // Close modal after saving
     };
 
-    // Prompts for confirmation before deleting a course
+    // ------------------ DELETE COURSE ------------------
     const handleDeleteCourse = (courseId) => {
         setConfirmationMessage(`Are you sure you want to delete this course? This action cannot be undone.`);
         setConfirmationAction(() => () => {
-            setCourses(prevCourses => prevCourses.filter(c => c.id !== courseId));
-            setShowConfirmationModal(false);
+            const token = localStorage.getItem('token');
+            fetch(`${API_BASE_URL}/api/admin/courses/${courseId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Failed to delete course");
+                    setCourses(prevCourses => prevCourses.filter(c => c._id !== courseId));
+                    setShowConfirmationModal(false);
+                })
+                .catch(err => {
+                    alert("Failed to delete course");
+                    setShowConfirmationModal(false);
+                    console.error(err);
+                });
         });
         setShowConfirmationModal(true);
     };
 
-    // --- Video Management Functions ---
-
-    // Opens the modal for adding a new video to a specific course
+    // ------------------ VIDEO MANAGEMENT (Frontend only, extend for full backend support) ------------------
     const handleAddVideo = (courseId) => {
         setParentCourseIdForVideo(courseId);
-        setCurrentVideo(null); // Clear any previous video data
+        setCurrentVideo(null);
         setIsVideoModalOpen(true);
     };
-
-    // Opens the modal for editing an existing video
     const handleEditVideo = (courseId, video) => {
         setParentCourseIdForVideo(courseId);
         setCurrentVideo(video);
         setIsVideoModalOpen(true);
     };
-
-    // Handles saving a new video or updating an existing one
     const saveVideo = (videoData) => {
+        // console.log('videoDAata',videoData);
         setCourses(prevCourses =>
             prevCourses.map(course => {
-                if (course.id === parentCourseIdForVideo) {
+                if (course._id === parentCourseIdForVideo) {
                     if (currentVideo) {
-                        // Update existing video
                         return {
                             ...course,
                             videos: course.videos.map(v => (v.id === videoData.id ? { ...v, ...videoData } : v))
                         };
                     } else {
-                        // Add new video
                         const newVideo = {
-                            id: crypto.randomUUID(), // Generate a unique ID for the new video
+                            id: crypto.randomUUID(),
                             ...videoData
                         };
                         return {
                             ...course,
-                            videos: [...course.videos, newVideo]
+                            videos: [...(course.videos || []), newVideo]
                         };
                     }
                 }
                 return course;
             })
         );
-        setIsVideoModalOpen(false); // Close modal after saving
-        setParentCourseIdForVideo(null); // Clear parent course ID
+        setIsVideoModalOpen(false);
+        setParentCourseIdForVideo(null);
     };
-
-    // Prompts for confirmation before deleting a video
     const handleDeleteVideo = (courseId, videoId) => {
         setConfirmationMessage(`Are you sure you want to delete this video?`);
         setConfirmationAction(() => () => {
             setCourses(prevCourses =>
                 prevCourses.map(course => {
-                    if (course.id === courseId) {
+                    if (course._id === courseId) {
                         return {
                             ...course,
-                            videos: course.videos.filter(v => v.id !== videoId)
+                            videos: (course.videos || []).filter(v => v.id !== videoId)
                         };
                     }
                     return course;
@@ -264,39 +337,83 @@ const AdminDashboard = () => {
         setShowConfirmationModal(true);
     };
 
-    // --- Modal Components ---
+    // ------------------ USER MANAGEMENT ------------------
+    const handleDeleteUser = async (userId) => {
+        if (!window.confirm("Are you sure you want to delete this user?")) return;
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token,
+                }
+            });
+            if (!response.ok) throw new Error("Failed to delete user");
+            setUsers(prevUsers => prevUsers.filter(u => u._id !== userId));
+        } catch (err) {
+            alert("Failed to delete user");
+            console.error(err);
+        }
+    };
 
-    // Course Modal for Add/Edit
+    // ------------------ MODALS ------------------
     const CourseModal = ({ isOpen, onClose, course, onSave }) => {
         const [title, setTitle] = useState(course ? course.title : '');
         const [description, setDescription] = useState(course ? course.description : '');
-
-        // Update local state when 'course' prop changes (for edit mode)
+        const [instructor, setInstructor] = useState(course ? course.instructor : '');
+        const [videos, setVideos] = useState(course && course.videos ? course.videos : []);
+        console.log('coursemodal',course);
         useEffect(() => {
             if (course) {
-                setTitle(course.title);
-                setDescription(course.description);
+                setTitle(course.title || '');
+                setDescription(course.description || '');
+                setInstructor(course.instructor || '');
+                setVideos(course.videos || []);
             } else {
                 setTitle('');
                 setDescription('');
+                setInstructor('');
+                setVideos([]);
             }
         }, [course]);
 
-        const handleSubmit = (e) => {
-            e.preventDefault();
-            if (!title.trim()) {
-                console.error("Course title cannot be empty.");
-                return;
-            }
-            onSave({
-                id: course ? course.id : null, // Pass existing ID for update, null for new
-                title,
-                description
-            });
+        // Add new empty video
+        const handleAddVideoField = () => {
+            setVideos([...videos, { id: crypto.randomUUID(), title: '', videoUrl: '' }]);
         };
 
-        if (!isOpen) return null;
+        // Remove video by index
+        const handleRemoveVideoField = (idx) => {
+            setVideos(videos.filter((_, i) => i !== idx));
+        };
 
+        // Update video field
+        const handleVideoChange = (idx, field, value) => {
+            setVideos(videos.map((video, i) => (
+                i === idx ? { ...video, [field]: value } : video
+            )));
+        };
+
+        const handleSubmit = (e) => {
+            e.preventDefault();
+            if (!title.trim() || !instructor.trim()) {
+                alert("Course title and instructor cannot be empty.");
+                return;
+            }
+            // Validate videos (remove empty)
+            const filteredVideos = videos
+                .filter(v => v.title.trim() && v.videoUrl.trim())
+                .map(v => ({ ...v, id: v.id || crypto.randomUUID() }));
+            onSave({
+                ...course,
+                title,
+                description,
+                instructor,
+                videos: filteredVideos
+            });
+        };
+        if (!isOpen) return null;
         return (
             <div className="modal-overlay">
                 <div className="modal-content">
@@ -313,6 +430,16 @@ const AdminDashboard = () => {
                             />
                         </div>
                         <div className="form-group">
+                            <label htmlFor="courseInstructor">Instructor:</label>
+                            <input
+                                type="text"
+                                id="courseInstructor"
+                                value={instructor}
+                                onChange={(e) => setInstructor(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
                             <label htmlFor="courseDescription">Description:</label>
                             <textarea
                                 id="courseDescription"
@@ -321,6 +448,57 @@ const AdminDashboard = () => {
                                 rows="4"
                                 required
                             ></textarea>
+                        </div>
+                        <div className="form-group">
+                            <label>Videos:</label>
+                            {videos.map((video, idx) => (
+                                <div key={video.id || idx} style={{ marginBottom: '0.8rem', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '0.75rem', background: '#f8fafc' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Video Title"
+                                        value={video.title}
+                                        onChange={e => handleVideoChange(idx, 'title', e.target.value)}
+                                        style={{ width: '49%', marginRight: '2%', marginBottom: '0.5rem' }}
+                                    />
+                                    <input
+                                        type="url"
+                                        placeholder="Video URL"
+                                        value={video.videoUrl}
+                                        onChange={e => handleVideoChange(idx, 'videoUrl', e.target.value)}
+                                        style={{ width: '49%', marginBottom: '0.5rem' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        style={{
+                                            background: '#ef4444',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            padding: '4px 10px',
+                                            marginLeft: '8px',
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={() => handleRemoveVideoField(idx)}
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={handleAddVideoField}
+                                style={{
+                                    background: '#6366f1',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    padding: '6px 14px',
+                                    marginTop: '0.5rem',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                + Add Video
+                            </button>
                         </div>
                         <div className="modal-actions">
                             <button type="submit" className="save-btn">Save</button>
@@ -332,37 +510,33 @@ const AdminDashboard = () => {
         );
     };
 
-    // Video Modal for Add/Edit
     const VideoModal = ({ isOpen, onClose, video, onSave }) => {
         const [title, setTitle] = useState(video ? video.title : '');
-        const [url, setUrl] = useState(video ? video.url : '');
+        const [videoUrl, setVideoUrl] = useState(video ? video.videoUrl : '');
 
-        // Update local state when 'video' prop changes (for edit mode)
         useEffect(() => {
             if (video) {
                 setTitle(video.title);
-                setUrl(video.url);
+                setVideoUrl(video.videoUrl);
             } else {
                 setTitle('');
-                setUrl('');
+                setVideoUrl('');
             }
         }, [video]);
 
         const handleSubmit = (e) => {
             e.preventDefault();
-            if (!title.trim() || !url.trim()) {
-                console.error("Video title and URL cannot be empty.");
+            if (!title.trim() || !videoUrl.trim()) {
+                alert("Video title and URL cannot be empty.");
                 return;
             }
             onSave({
-                id: video ? video.id : null, // Pass existing ID for update, null for new
+                id: video ? video.id : null,
                 title,
-                url
+                videoUrl
             });
         };
-
         if (!isOpen) return null;
-
         return (
             <div className="modal-overlay">
                 <div className="modal-content">
@@ -379,12 +553,12 @@ const AdminDashboard = () => {
                             />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="videoUrl">URL:</label>
+                            <label htmlFor="videoUrl">Video URL:</label>
                             <input
-                                type="url" // Use type="url" for better validation
+                                type="url"
                                 id="videoUrl"
-                                value={url}
-                                onChange={(e) => setUrl(e.target.value)}
+                                value={videoUrl}
+                                onChange={(e) => setVideoUrl(e.target.value)}
                                 required
                             />
                         </div>
@@ -397,11 +571,8 @@ const AdminDashboard = () => {
             </div>
         );
     };
-
-    // Confirmation Modal
     const ConfirmationModal = ({ isOpen, message, onConfirm, onCancel }) => {
         if (!isOpen) return null;
-
         return (
             <div className="modal-overlay">
                 <div className="modal-content confirmation-modal">
@@ -415,11 +586,12 @@ const AdminDashboard = () => {
         );
     };
 
-
-
-
-    // Function to render different content based on active menu item
+    // ------------------ MAIN CONTENT SWITCH ------------------
     const renderContent = () => {
+        const filteredUsers = roleFilter === 'all'
+            ? users
+            : users.filter(u => u.role && u.role.toLowerCase() === roleFilter);
+
         switch (activeMenuItem) {
             case 'dashboard':
                 return (
@@ -428,18 +600,21 @@ const AdminDashboard = () => {
                     </div>
                 );
             case 'users':
+                if (user?.role !== 'Admin') {
+                    return (
+                        <div className="not-authorized">
+                            <h2>Not Authorized</h2>
+                            <p>You do not have permission to view this section.</p>
+                        </div>
+                    );
+                }
                 return (
                     <div className="user-management">
                         <h2>User Management</h2>
                         <div className="user-controls">
-                            <button className="add-user-btn">Add New User</button>
-                            <input type="text" placeholder="Search users..." className="user-search" />
-                            <select className="user-filter">
-                                <option value="all">All Roles</option>
-                                <option value="student">Students</option>
-                                <option value="instructor">Instructors</option>
-                                <option value="admin">Admins</option>
-                            </select>
+                            <span style={{ marginLeft: "20px", fontWeight: "bold", color: 'red' }}>
+                                Total: {filteredUsers.length}
+                            </span>
                         </div>
                         <div className="users-table-container">
                             <table className="users-table">
@@ -448,35 +623,45 @@ const AdminDashboard = () => {
                                         <th>ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>Role</th>
+                                        <th>Phone</th>
+                                        <th>Date Joined</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {users.map(user => (
-                                        <tr key={user.id}>
-                                            <td>{user.id}</td>
-                                            <td>{user.name}</td>
-                                            <td>{user.email}</td>
-                                            <td>{user.role}</td>
+                                    {filteredUsers.length > 0 ? filteredUsers.map(u => (
+                                        <tr key={u._id}>
+                                            {console.log('u',u)}
+                                            <td>{u._id}</td>
+                                            <td>{u.fullName || u.name}</td>
+                                            <td>{u.email}</td>
+                                            <td>{u.phoneNumber || '-'}</td>
+                                            <td>{u.date ? new Date(u.date).toLocaleDateString() : '-'}</td>
                                             <td>
-                                                <span className={`status-badge ${user.status.toLowerCase()}`}>
-                                                    {user.status}
+                                                <span style={{
+                                                    color: u.status ? "green" : "red",
+                                                    fontWeight: "bold"
+                                                }}>
+                                                    {u.status ? "Inactive" : "Active"}
                                                 </span>
                                             </td>
                                             <td className="action-buttons">
                                                 <button className="edit-btn">Edit</button>
-                                                <button className="delete-btn">Delete</button>
+                                                <button className="delete-btn" onClick={() => handleDeleteUser(u._id)}>Delete</button>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )) : (
+                                        <tr>
+                                            <td colSpan="7" style={{ textAlign: "center" }}>No users found.</td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
                         <div className="pagination">
                             <button>&laquo; Previous</button>
-                            <span>Page 1 of 5</span>
+                            <span>Page 1</span>
                             <button>Next &raquo;</button>
                         </div>
                     </div>
@@ -487,23 +672,31 @@ const AdminDashboard = () => {
                         <h2>Course Management</h2>
                         <div className="course-controls">
                             <button className="add-course-btn" onClick={handleAddCourse}>Add New Course</button>
-                            <input type="text" placeholder="Search courses..." className="course-search" />
                         </div>
                         <div className="courses-list">
                             {courses.length > 0 ? (
                                 courses.map(course => (
-                                    <div key={course.id} className="course-item">
+                                    <div key={course._id} className="course-item">
                                         <h3>{course.title}</h3>
                                         <p>{course.description}</p>
+                                        <p><strong>Instructor:</strong> {course.instructor}</p>
                                         <h4>Videos:</h4>
                                         {course.videos && course.videos.length > 0 ? (
                                             <ul className="videos-list">
                                                 {course.videos.map(video => (
                                                     <li key={video.id} className="video-item">
-                                                        <span>{video.title}</span>
+                                                        <span>
+                                                            {video.title} &nbsp;
+                                                            <a href={video.videoUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                style={{ color: 'blue', textDecoration: 'underline' }}>
+                                                                View Video
+                                                            </a>
+                                                        </span>
                                                         <div className="video-actions">
-                                                            <button className="edit-video-btn" onClick={() => handleEditVideo(course.id, video)}>Edit Video</button>
-                                                            <button className="delete-video-btn" onClick={() => handleDeleteVideo(course.id, video.id)}>Delete Video</button>
+                                                            <button className="edit-video-btn" onClick={() => handleEditVideo(course._id, video)}><EditIcon/></button>
+                                                            <button className="delete-video-btn" onClick={() => handleDeleteVideo(course._id, video.id)}><DeleteIcon/></button>
                                                         </div>
                                                     </li>
                                                 ))}
@@ -512,26 +705,22 @@ const AdminDashboard = () => {
                                             <p className="no-videos-message">No videos added yet. Click "Add Video" below.</p>
                                         )}
                                         <div className="course-actions">
-                                            <button className="add-video-to-course-btn" onClick={() => handleAddVideo(course.id)}>Add Video</button> {/* New button */}
+                                            <button className="add-video-to-course-btn" onClick={() => handleAddVideo(course._id)}>Add Video</button>
                                             <button className="edit-course-btn" onClick={() => handleEditCourse(course)}>Edit Course</button>
-                                            <button className="delete-course-btn" onClick={() => handleDeleteCourse(course.id)}>Delete Course</button>
+                                            <button className="delete-course-btn" onClick={() => handleDeleteCourse(course._id)}>Delete Course</button>
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <p className="no-courses-message"></p>
+                                <p className="no-courses-message">No courses found.</p>
                             )}
                         </div>
                     </div>
                 );
-            case 'orders':
-                return <h2>Orders Content</h2>;
             case 'analytics':
                 return <h2>Analytics Content</h2>;
             case 'messages':
                 return <h2>Messages Content</h2>;
-            case 'settings':
-                return <h2>Settings Content</h2>;
             default:
                 return <h2>Dashboard Overview</h2>;
         }
@@ -539,7 +728,6 @@ const AdminDashboard = () => {
 
     return (
         <div className="admin-dashboard">
-            {/* Top Navigation Bar - Keeping this unchanged */}
             <nav className='dashboard-nav'>
                 <div className="logo">
                     <Link to="/home">
@@ -551,7 +739,6 @@ const AdminDashboard = () => {
                     <li><Link to="/home"> HOME </Link></li>
                     <li><Link to="/about"> ABOUT </Link></li>
                     <li><Link to="/Contact"> CONTACT </Link></li>
-
                     <li className="dropdown-container">
                         <span><Link to="/Course"> COURSES </Link></span>
                         <ul className="dropdown-menu">
@@ -561,7 +748,6 @@ const AdminDashboard = () => {
                             <li><Link to="/Course"> Features & Option </Link></li>
                         </ul>
                     </li>
-
                     {user ? (
                         <li className="profile-container">
                             <div className="profile-trigger" onClick={handleProfileClick}>
@@ -616,7 +802,6 @@ const AdminDashboard = () => {
                                 <span className="profile-name">{user?.name}</span>
                                 <i className="fas fa-chevron-down"></i>
                             </div>
-
                             {dropdownOpen && (
                                 <div className="user-info-card">
                                     <h2>Your Account Information</h2>
@@ -646,19 +831,14 @@ const AdminDashboard = () => {
                     )}
                 </ul>
             </nav>
-
-            {/* Main Dashboard Layout with Sidebar */}
             <div className="admin-dashboard-layout">
-                {/* Left Sidebar */}
                 <div className={`admin-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
                     <div className="sidebar-toggle" onClick={toggleSidebar}>
                         {sidebarCollapsed ? '→' : '←'}
                     </div>
-
                     <div className="sidebar-header">
                         <h3>Admin Panel</h3>
                     </div>
-
                     <div className="sidebar-menu">
                         <ul>
                             <li className={activeMenuItem === 'dashboard' ? 'active' : ''}
@@ -668,7 +848,6 @@ const AdminDashboard = () => {
                                     <span className="sidebar-text">Dashboard</span>
                                 </a>
                             </li>
-
                             <li className={activeMenuItem === 'users' ? 'active' : ''}
                                 onClick={() => setActiveMenuItem('users')}>
                                 <a href="#users">
@@ -676,7 +855,6 @@ const AdminDashboard = () => {
                                     <span className="sidebar-text">User Management</span>
                                 </a>
                             </li>
-
                             <li className={activeMenuItem === 'courses' ? 'active' : ''}
                                 onClick={() => setActiveMenuItem('courses')}>
                                 <a href="#courses">
@@ -684,17 +862,7 @@ const AdminDashboard = () => {
                                     <span className="sidebar-text">Course Management</span>
                                 </a>
                             </li>
-
-                            <li className={activeMenuItem === 'orders' ? 'active' : ''}
-                                onClick={() => setActiveMenuItem('orders')}>
-                                <a href="#orders">
-                                    <i className="sidebar-icon">🛒</i>
-                                    <span className="sidebar-text">Orders</span>
-                                </a>
-                            </li>
-
                             <li className="sidebar-divider"></li>
-
                             <li className={activeMenuItem === 'analytics' ? 'active' : ''}
                                 onClick={() => setActiveMenuItem('analytics')}>
                                 <a href="#analytics">
@@ -702,7 +870,6 @@ const AdminDashboard = () => {
                                     <span className="sidebar-text">Analytics</span>
                                 </a>
                             </li>
-
                             <li className={activeMenuItem === 'messages' ? 'active' : ''}
                                 onClick={() => setActiveMenuItem('messages')}>
                                 <a href="#messages">
@@ -710,46 +877,29 @@ const AdminDashboard = () => {
                                     <span className="sidebar-text">Messages</span>
                                 </a>
                             </li>
-
-                            <li className={activeMenuItem === 'settings' ? 'active' : ''}
-                                onClick={() => setActiveMenuItem('settings')}>
-                                <a href="#settings">
-                                    <i className="sidebar-icon">⚙️</i>
-                                    <span className="sidebar-text">Settings</span>
-                                </a>
-                            </li>
                         </ul>
                     </div>
                 </div>
-
-                {/* Main Content Area */}
                 <div className={`admin-content ${sidebarCollapsed ? 'expanded' : ''}`}>
                     <div className="admin-content-header">
                         <h1>Welcome {user?.name}</h1>
                         <p>Manage your platform, users, and courses from this central control panel.</p>
                     </div>
-
-                    {/* Dynamic content based on selected menu item */}
                     <div className="admin-content-body">
                         {renderContent()}
                     </div>
-                    {/* Course Add/Edit Modal */}
                     <CourseModal
                         isOpen={isCourseModalOpen}
                         onClose={() => setIsCourseModalOpen(false)}
                         course={currentCourse}
                         onSave={saveCourse}
                     />
-
-                    {/* Video Add/Edit Modal */}
                     <VideoModal
                         isOpen={isVideoModalOpen}
                         onClose={() => setIsVideoModalOpen(false)}
                         video={currentVideo}
                         onSave={saveVideo}
                     />
-
-                    {/* Confirmation Modal */}
                     <ConfirmationModal
                         isOpen={showConfirmationModal}
                         message={confirmationMessage}
@@ -762,39 +912,9 @@ const AdminDashboard = () => {
                     />
                 </div>
             </div>
-
-            {/* Course Add/Edit Modal */}
-            {/* <CourseModal
-                    isOpen={isCourseModalOpen}
-                    onClose={() => setIsCourseModalOpen(false)}
-                    course={currentCourse}
-                    onSave={saveCourse}
-                /> */}
-
-            {/* Video Add/Edit Modal */}
-            {/* <VideoModal
-                    isOpen={isVideoModalOpen}
-                    onClose={() => setIsVideoModalOpen(false)}
-                    video={currentVideo}
-                    onSave={saveVideo}
-                /> */}
-
-            {/* Confirmation Modal */}
-            {/* <ConfirmationModal
-                    isOpen={showConfirmationModal}
-                    message={confirmationMessage}
-                    onConfirm={() => {
-                        if (confirmationAction) {
-                            confirmationAction();
-                        }
-                    }}
-                    onCancel={() => setShowConfirmationModal(false)}
-                /> */}
             <Footer />
         </div>
-
     );
-
 };
 
 export default AdminDashboard;

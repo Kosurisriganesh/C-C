@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, googleProvider } from '../../Pages/Firebase/firebase';
 import './register.css';
 
@@ -12,9 +12,9 @@ const Registration = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    isAdmin: false // Add admin flag
+    isAdmin: false
   });
-  
+
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,17 +30,14 @@ const Registration = () => {
   const validateForm = () => {
     let tempErrors = {};
     let isValid = true;
-
     if (!formData.fullName.trim()) {
       tempErrors.fullName = "Full name is required";
       isValid = false;
     }
-
     if (!formData.phoneNumber.trim()) {
       tempErrors.phoneNumber = "Phone Number is required";
       isValid = false;
     }
-
     if (!formData.email.trim()) {
       tempErrors.email = "Email is required";
       isValid = false;
@@ -48,7 +45,6 @@ const Registration = () => {
       tempErrors.email = "Email is invalid";
       isValid = false;
     }
-
     if (!formData.password) {
       tempErrors.password = "Password is required";
       isValid = false;
@@ -56,101 +52,40 @@ const Registration = () => {
       tempErrors.password = "Password must be at least 8 characters";
       isValid = false;
     }
-
     if (formData.password !== formData.confirmPassword) {
       tempErrors.confirmPassword = "Passwords do not match";
       isValid = false;
     }
-
     setErrors(tempErrors);
     return isValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      setIsLoading(true);
-      try {
-        console.log('Sending registration request...');
-        // Register user with backend API
-        const response = await fetch('http://localhost:5000/api/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            fullName: formData.fullName,
-            phoneNumber: formData.phoneNumber,
-            email: formData.email,
-            password: formData.password,
-            isAdmin: formData.isAdmin // Include admin flag in the request
-          }),
-        });
-        
-        console.log('Response status:', response.status);
-        
-        // Handle both JSON and text responses
-        let data;
-        try {
-          data = await response.json();
-          console.log('Response data:', data);
-        } catch (jsonError) {
-          console.error('JSON parse error:', jsonError);
-          const text = await response.text();
-          console.log('Text response:', text);
-          data = { message: text || 'Unknown error' };
-        }
-        
-        if (!response.ok) {
-          throw new Error(data.message || 'Registration failed');
-        }
-        
-        // Store token and user role in localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('isAdmin', formData.isAdmin);
-        
-        setIsSubmitted(true);
-        setTimeout(() => {
-          // Navigate to admin dashboard if admin, otherwise to regular dashboard
-          if (formData.isAdmin) {
-            navigate('/dashboardadmin');
-          } else {
-            navigate('/dashboard');
-          }
-        }, 2000);
-      } catch (error) {
-        console.error('Registration error:', error);
-        setErrors({ submit: error.message || 'Registration failed. Please try again.' });
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
+    if (!validateForm()) return;
 
-  const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      // Sign in with Google using Firebase
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      
-      // Send user data to backend
-      const response = await fetch('http://localhost:5000/api/auth/google-auth', {
+      // 1. Register user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      // 2. Set displayName in Firebase Auth
+      await updateProfile(userCredential.user, {
+        displayName: formData.fullName,
+      });
+
+      // 3. Register user in your backend API
+      const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: user.email,
-          fullName: user.displayName,
-          uid: user.uid,
-          emailVerified: user.emailVerified,
-          isAdmin: formData.isAdmin // Include admin flag for Google sign-in too
+          fullName: formData.fullName,
+          phoneNumber: formData.phoneNumber,
+          email: formData.email,
+          password: formData.password,
+          isAdmin: formData.isAdmin
         }),
       });
-      
-      // Handle both JSON and text responses
+
       let data;
       try {
         data = await response.json();
@@ -158,26 +93,61 @@ const Registration = () => {
         const text = await response.text();
         data = { message: text || 'Unknown error' };
       }
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Google sign-in failed');
-      }
-      
-      // Store token and user role in localStorage
+      if (!response.ok) throw new Error(data.message || 'Registration failed');
+
       localStorage.setItem('token', data.token);
-      localStorage.setItem('isAdmin', data.isAdmin); // Store admin status from response
-      
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setIsSubmitted(true);
+
+      setTimeout(() => {
+        if (data.user.isAdmin) {
+          navigate('/dashboardadmin');
+        } else {
+          navigate('/dashboard');
+        }
+      }, 1500);
+
+    } catch (error) {
+      setErrors({ submit: error.message || 'Registration failed. Please try again.' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      // Register/verify user in backend as well
+      const response = await fetch('http://localhost:5000/api/auth/google-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: user.email,
+          fullName: user.displayName,
+          uid: user.uid,
+          isAdmin: formData.isAdmin
+        }),
+      });
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        data = { message: 'Unknown error' };
+      }
+      if (!response.ok) throw new Error(data.message || 'Google sign-in failed');
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       setIsSubmitted(true);
       setTimeout(() => {
-        // Navigate based on admin status
-        if (data.isAdmin) {
-          navigate('/admin-dashboard');
+        if (data.user.isAdmin) {
+          navigate('/dashboardadmin');
         } else {
           navigate('/dashboard');
         }
       }, 1500);
     } catch (error) {
-      console.error('Google sign-in error:', error);
       setErrors({ submit: error.message || 'Google sign-in failed. Please try again.' });
     } finally {
       setIsLoading(false);

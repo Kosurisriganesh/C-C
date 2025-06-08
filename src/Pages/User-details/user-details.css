@@ -1,156 +1,247 @@
+/* --- User Profile Page Styling --- */
+
+/* Ensure the gradient covers the entire viewport, even behind content */
+html, body {
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(120deg, #e0e7ff 0%, #f8fafc 100%);
+  background-color: #e0e7ff;
+}
+
+/* Make sure React's root element fills the height */
+#root {
+  min-height: 100vh;
+  height: 100%;
+  background: transparent;
+}
+
+/* Main container: transparent so the background shows through */
 .profile-container {
+  min-height: 100vh;
+  background: transparent;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  min-height: 80vh;
-  padding: 20px;
+  padding-top: 56px;
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  animation: fadein-bg 1.2s;
+}
+
+@keyframes fadein-bg {
+  0% { background: #fff; }
+  100% { background: transparent; }
+}
+
+.back-to-dashboard {
+  align-self: flex-start;
+  margin-left: 32px;
+  margin-bottom: 18px;
+}
+.back-link {
+  color: #4f46e5;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.back-link:hover {
+  color: #1e293b;
+  text-decoration: underline;
 }
 
 .profile-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 600px;
-  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(60, 72, 88, 0.22), 0 1.5px 4px rgba(60, 72, 88, 0.09);
+  border-radius: 20px;
+  padding: 48px 36px 40px 36px;
+  width: 370px;
+  max-width: 96vw;
+  display: flex;
+  justify-content: center;
+  transition: box-shadow 0.3s;
+  animation: pop-in 0.7s cubic-bezier(0.4, 1.6, 0.4, 1) 1;
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: translateY(60px) scale(0.93);}
+  100% { opacity: 1; transform: translateY(0) scale(1);}
 }
 
 .profile-info {
-  padding: 30px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+/* Avatar and Google badge */
 .profile-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #e0e0e0;
-}
-
-/* .profile-avatar {
   position: relative;
-  margin-bottom: 30px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-} */
-
-.profile-avatar img.round-image {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #f0f0f0;
+  width: 110px;
+  height: 110px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
+.round-image {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #4f46e5;
+  background: #f3f4f6;
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.09);
+  transition: border 0.23s;
+}
 .google-badge {
   position: absolute;
-  bottom: 5px;
-  right: 5px;
-  background: white;
+  right: -7px;
+  bottom: -7px;
+  background: #fff;
   border-radius: 50%;
+  border: 2px solid #4f46e5;
   width: 30px;
   height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1.5px 5px rgba(60,72,88,0.09);
 }
-
 .google-badge img {
-  width: 18px;
-  height: 18px;
-  border: none;
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 
 .profile-details {
   width: 100%;
-  margin-bottom: 30px;
+  margin-top: 12px;
 }
-
 .profile-field {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
-
 .profile-field label {
+  font-size: 0.98rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 2px;
   display: block;
-  font-size: 14px;
-  color: #757575;
-  margin-bottom: 5px;
+  letter-spacing: 0.015em;
+}
+.profile-field p,
+.profile-field input {
+  font-size: 1.13rem;
+  color: #111827;
   font-weight: 500;
+  margin: 0;
+}
+.profile-field input[type="text"] {
+  width: 98%;
+  padding: 8px 12px;
+  border: 1.5px solid #c7d2fe;
+  border-radius: 7px;
+  font-size: 1.08rem;
+  background: #f8fafc;
+  transition: border 0.2s;
+  margin-top: 2px;
+}
+.profile-field input[type="text"]:focus {
+  border: 1.5px solid #4f46e5;
+  outline: none;
+  background: #fff;
 }
 
-.profile-field p {
-  margin: 0;
-  font-size: 16px;
-  color: #333;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
+/* Hide unnecessary file input (no profile picture editing) */
+.profile-field input[type="file"] {
+  display: none;
 }
 
 .profile-actions {
+  margin-top: 27px;
   display: flex;
   justify-content: center;
-  width: 100%;
+  gap: 15px;
 }
-
+.edit-button,
+.save-button,
+.cancel-button,
 .sign-out-button {
-  background-color: #f44336;
-  color: white;
+  padding: 9px 22px;
+  border-radius: 7px;
   border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
+  font-size: 1.07rem;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s;
+  transition: background 0.2s, color 0.2s, box-shadow 0.16s;
+  box-shadow: 0 1.5px 7px rgba(60, 72, 88, 0.10);
 }
-
+.edit-button {
+  background: #4f46e5;
+  color: #fff;
+}
+.edit-button:hover,
+.save-button:hover {
+  background: #312e81;
+}
+.save-button {
+  background: #22c55e;
+  color: #fff;
+}
+.cancel-button {
+  background: #e0e7ff;
+  color: #1e293b;
+  border: 1px solid #c7d2fe;
+}
+.cancel-button:hover {
+  background: #c7d2fe;
+}
+.sign-out-button {
+  background: #ef4444;
+  color: #fff;
+}
 .sign-out-button:hover {
-  background-color: #d32f2f;
+  background: #991b1b;
 }
 
 .profile-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 80vh;
-  font-size: 18px;
-  color: #666;
+  margin-top: 120px;
+  font-size: 1.2rem;
+  color: #6366f1;
+  text-align: center;
+  letter-spacing: 0.03em;
+  animation: fadein 1.5s;
+}
+@keyframes fadein {
+  0% { opacity: 0;}
+  100% { opacity: 1;}
 }
 
-.back-to-dashboard {
-  align-self: flex-start;
-  margin-bottom: 20px;
-}
-
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  color: #333;
-  text-decoration: none;
-  font-size: 16px;
-  transition: color 0.3s;
-}
-
-.back-link:hover {
-  color: #f0a500;
-  text-decoration: underline;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .profile-card {
-    max-width: 100%;
+    padding: 28px 8px 28px 8px;
+    border-radius: 12px;
   }
-  
   .profile-avatar {
-    width: 120px;
-    height: 120px;
+    width: 84px;
+    height: 84px;
+  }
+  .round-image {
+    width: 84px;
+    height: 84px;
+    border-width: 3px;
+  }
+  .google-badge {
+    width: 24px;
+    height: 24px;
+  }
+  .google-badge img {
+    width: 15px;
+    height: 15px;
   }
 }

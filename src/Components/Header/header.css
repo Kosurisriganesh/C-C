@@ -1,13 +1,11 @@
-/* Navbar styles */
-
-
+/* ================== NAVBAR STYLES ================== */
 .dashboard-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color:#f9f9f9; 
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   position: fixed;
   top: 0;
   left: 0;
@@ -34,12 +32,33 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color:black;
+  color: black;
   font-style: italic;
   font-family: 'Times New Roman', Times, serif;
   letter-spacing: 1px;
 }
 
+/* Hamburger menu (hidden on desktop) */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 2rem;
+  margin-left: auto;
+  z-index: 200;
+}
+.menu-toggle span {
+  display: block;
+  width: 28px;
+  height: 3px;
+  margin: 6px 0;
+  background: #f0a500;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+/* Navigation links */
 .nav-links {
   display: flex;
   list-style: none;
@@ -47,84 +66,30 @@
   padding: 0;
   margin-right: 20px;
   align-items: center;
+  transition: max-height 0.3s ease;
+  background: none;
+  box-shadow: none;
 }
-
 .nav-links li {
   margin-left: 2rem;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: color 0.3s;
   padding: 0.5rem 0;
-  color:navyblue;
+  color: #2c3e50;
   position: relative;
 }
-
-.nav-links li:first-child {
-  color: navyblue;
+.nav-links li a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s;
 }
-
-.nav-links li:hover {
-  color:black;
-}
-
-/* Login item and button styling */
-.login-item {
-  padding: 0 !important;
-  display: flex;
-  align-items: center;
-}
-
-.login-button {
-  background-color: transparent;
+.nav-links li:hover, .nav-links li a:hover {
   color: #f0a500;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border: 2px solid #f0a500;
-  border-radius: 4px;
-  padding: 0.5rem 1.2rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  outline: none;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
 }
 
-/* Outer line effect */
-.login-button::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  right: -6px;
-  bottom: -6px;
-  border: 1px solid #f0a500;
-  border-radius: 6px;
-  opacity: 0.5;
-  transition: all 0.3s ease;
-}
-
-.login-button:hover {
-  background-color: #f0a500;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.login-button:hover::before {
-  opacity: 0.8;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-}
-
-.login-button:active {
-  transform: translateY(0);
-}
-
-/* Add underline effect on hover for text items except login */
+/* Underline effect for nav items on hover (except login/register) */
 .nav-links li:not(.dropdown-container):not(.login-item)::after,
 .dropdown-container > span::after {
   content: '';
@@ -136,40 +101,34 @@
   background-color: #f0a500;
   transition: width 0.3s ease;
 }
-
 .nav-links li:not(.dropdown-container):not(.login-item):hover::after,
-.dropdown-container:hover > span::after {
+.dropdown-container:hover > span::after,
+.dropdown-container.open > span::after {
   width: 100%;
 }
 
-/* Dropdown styling */
+/* Dropdown Menu */
 .dropdown-container {
   position: relative;
   padding: 0.5rem 0;
 }
-
 .dropdown-container > span {
   display: flex;
   align-items: center;
   position: relative;
   cursor: pointer;
+  user-select: none;
 }
-
-.dropdown-container > span::after {
-  bottom: -5px;
-}
-
 .dropdown-container > span::before {
   content: '▼';
   font-size: 0.6rem;
-  margin-left: 5px;
-  transition: transform 0.3s ease;
+  margin-left: 6px;
+  transition: transform 0.3s;
 }
-
-.dropdown-container:hover > span::before {
+.dropdown-container:hover > span::before,
+.dropdown-container.open > span::before {
   transform: rotate(180deg);
 }
-
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -182,216 +141,183 @@
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
-  transition: all 0.3s ease;
+  transition: all 0.3s;
   z-index: 101;
   margin-top: 10px;
+  display: block;
 }
-
-.dropdown-container:hover .dropdown-menu {
+.dropdown-container:hover .dropdown-menu,
+.dropdown-container.open .dropdown-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 }
-
 .dropdown-menu li {
   display: block;
   padding: 0.7rem 1rem;
   margin: 0;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   border-left: 3px solid transparent;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
-
-.dropdown-menu li:hover {
+.dropdown-menu li a {
+  color: #2c3e50;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.dropdown-menu li:hover, .dropdown-menu li a:hover {
   background-color: #f9f9f9;
   border-left: 3px solid #f0a500;
+  color: #f0a500;
   padding-left: 1.2rem;
 }
 
-/* Auth items styling */
-.auth-item {
+/* Auth/Login/Register buttons */
+.login-item {
   padding: 0 !important;
   display: flex;
   align-items: center;
 }
-
-/* Base button styles for auth buttons */
-.login-button, .register-button {
+.login-button {
+  background-color: transparent;
+  color: #f0a500;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  border: 2px solid #f0a500;
   border-radius: 4px;
   padding: 0.5rem 1.2rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
   position: relative;
   outline: none;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-
-/* Login button specific styles */
-.login-button {
-  background-color: transparent;
-  color: #f0a500;
-  border: 2px solid #f0a500;
-}
-
-/* Login button outer line effect */
 .login-button::before {
   content: '';
   position: absolute;
-  top: -6px;
-  left: -6px;
-  right: -6px;
-  bottom: -6px;
+  top: -6px; left: -6px; right: -6px; bottom: -6px;
   border: 1px solid #f0a500;
   border-radius: 6px;
   opacity: 0.5;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
 }
-
 .login-button:hover {
   background-color: #f0a500;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-
 .login-button:hover::before {
   opacity: 0.8;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
+  top: -4px; left: -4px; right: -4px; bottom: -4px;
 }
-
-/* Register button specific styles */
-.register-button {
-  background-color: #f0a500;
-  color: white;
-  border: 2px solid #f0a500;
-  margin-left: 0.5rem;
-}
-
-.register-button:hover {
-  background-color: transparent;
-  color: #f0a500;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Active state for both buttons */
-.login-button:active, .register-button:active {
+.login-button:active {
   transform: translateY(0);
 }
 
-/* Responsive adjustments */
+/* ================== RESPONSIVE STYLES ================== */
+@media (max-width: 1100px) {
+  .dashboard-nav { padding: 0.8rem 1rem; }
+  .logo img { height: 32px; }
+  .nav-links li { font-size: 0.96rem; }
+}
+@media (max-width: 900px) {
+  .dashboard-nav { padding: 0.8rem 0.5rem; }
+  .logo h2 { font-size: 1.1rem; }
+}
 @media (max-width: 768px) {
   .dashboard-nav {
+    flex-direction: row;
+    padding: 0.8rem 1rem;
+  }
+  .logo h2 { font-size: 1rem; }
+  .menu-toggle { display: block; }
+  .nav-links {
     flex-direction: column;
-    padding: 1rem;
-  }
-  
-  .logo img {
-    height: 30px;
-  }
-  
-  .nav-links {
-    margin-top: 1rem;
+    align-items: flex-start;
+    background: #f9f9f9;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
     width: 100%;
-    justify-content: center;
-    margin-right: 0;
-    flex-wrap: wrap;
+    max-height: 0;
+    overflow: hidden;
+    margin: 0;
+    padding: 0 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-top: 1px solid #eee;
+    transition: max-height 0.3s;
+    z-index: 120;
   }
-  
+  .nav-links.open {
+    max-height: 700px; /* Increased for large menus */
+    padding-bottom: 1rem;
+    overflow-y: auto;
+  }
   .nav-links li {
-    margin: 0 1rem;
-    font-size: 0.8rem;
-    text-align: center;
-  }
-  
-  .login-item {
-    margin-top: 0.8rem !important;
-  }
-  
-  .login-button {
-    padding: 0.4rem 1rem;
-    font-size: 0.8rem;
-  }
-  
-  .login-button::before {
-    top: -4px;
-    left: -4px;
-    right: -4px;
-    bottom: -4px;
-  }
-  
-  .dropdown-container {
-    position: static;
-  }
-  
-  .dropdown-menu {
-    position: relative;
+    margin: 1rem 0 0.4rem 0;
+    font-size: 1.07rem;
     width: 100%;
-    margin-top: 0.5rem;
+    text-align: left;
+  }
+  .dropdown-container { width: 100%; }
+  .dropdown-menu {
+    position: static;
+    margin-top: 0;
     box-shadow: none;
+    border-radius: 0;
     border: 1px solid #eee;
+    width: 100%;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    display: none;
+    background: #fff;
+    padding-left: 0;
   }
-  
+  .dropdown-container.open .dropdown-menu { display: block; }
   .dropdown-menu li {
-    text-align: center;
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 1.01rem;
+    border-left: none;
+    text-align: left;
   }
-  
-  .dropdown-menu li:hover {
-    padding-left: 0.5rem;
+  .login-item {
+    margin: 1rem 0 0 0 !important;
+    width: 100%;
+    justify-content: flex-start;
   }
-  
-  /* Adjust container padding for mobile */
-  .dashboard-container {
-    padding-top: 130px;
-  }
-}
-
-/* For larger screens, ensure proper spacing */
-@media (min-width: 1200px) {
-  .dashboard-nav {
-    padding: 1rem 4rem;
-  }
-  
-  .nav-links {
-    margin-right: 40px;
+  .login-button {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 1.04rem;
   }
 }
 
-/* Responsive adjustments for auth buttons */
+/* Accessibility: focus style for keyboard navigation */
+.nav-links li:focus-within, .dropdown-container:focus-within {
+  outline: 2px solid #f0a500;
+  outline-offset: 2px;
+}
+
+/* Remove underline from all nav and dropdown links */
+.nav-links a, .dropdown-menu a {
+  text-decoration: none;
+}
+
+/* Hide scrollbar for nav-links in mobile */
 @media (max-width: 768px) {
-  .auth-item {
-    margin-top: 0.8rem !important;
+  .nav-links {
+    scrollbar-width: none; /* Firefox */
   }
-  
-  .login-button, .register-button {
-    padding: 0.4rem 1rem;
-    font-size: 0.8rem;
-  }
-  
-  .login-button::before {
-    top: -4px;
-    left: -4px;
-    right: -4px;
-    bottom: -4px;
+  .nav-links::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
   }
 }
 
-/* Remove underlines from Link components inside buttons */
-button a, 
-.course-card button a,
-.about-button a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Also target Link components directly */
-a {
-  text-decoration: none;
+/* Optional: Prevent body scroll when menu is open on mobile */
+body.menu-open {
+  overflow: hidden;
 }

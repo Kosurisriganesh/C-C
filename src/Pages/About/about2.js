@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ceo from '../../Assets/ceo.jpg';
+import Footer from '../../Components/Footer/footer';
 import './about2.css';
 
 const About2 = () => (
@@ -98,79 +99,10 @@ const About2 = () => (
                 <Link to="/login" className="cta-button">Explore Our Courses</Link>
             </div>
         </div>
-        {/* Advanced Footer */}
-        <footer className="site-footer">
-            <div className="footer-top">
-                <div className="footer-column">
-                    <div className="footer-logo">
-                        <img src={process.env.PUBLIC_URL + '/c&c2 (2).jpg'} alt="Candles & Capitals" />
-                        <h3>CANDLES & CAPITALS</h3>
-                    </div>
-                    <p className="footer-description">
-                        Empowering traders and investors with knowledge and strategies to navigate the financial markets with confidence.
-                    </p>
-                    <div className="social-icons">
 
-                        <a href="https://www.instagram.com/karthik_traderr?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer"><i className="fab fa-instagram"></i></a>
-                        <a href="" target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-whatsapp"></i></a>
-                        <a href="https://www.youtube.com/@candlesandcapital" target="_blank" rel="noopener noreferrer"><i className="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-
-                <div className="footer-column">
-                    <h4>Quick Links</h4>
-                    <ul className="footer-links">
-                        <li><Link to="/Home">Home</Link></li>
-                        <li><Link to="/About">About Us</Link></li>
-                        <li><Link to="/Courses">Courses</Link></li>
-                        <li><Link to="/Contact">Contact</Link></li>
-                    </ul>
-                </div>
-
-                <div className="footer-column">
-                    <h4>Our Courses</h4>
-                    <ul className="footer-links">
-                        <li><Link to="/courses/beginner">Technical Analysis</Link></li>
-                        <li><Link to="/courses/intermediate">Fundamental Analysis</Link></li>
-                        <li><Link to="/courses/advanced">Commodity Trading</Link></li>
-                        <li><Link to="/courses/premium">Features & Options</Link></li>
-
-                    </ul>
-                </div>
-
-                <div className="footer-column">
-                    <h4>Contact Us</h4>
-                    <ul className="contact-info">
-                        <li>
-                            <i className="fas fa-map-marker-alt contact-icon"></i>
-                            <span>Opp.Apollo Pharmacy,Kanithi Road, Gajuwaka,Visakhapatnam.</span>
-                        </li>
-                        <li>
-                            <i className="fas fa-phone contact-icon"></i>
-                            <span>+91 8978131328</span>
-                        </li>
-                        <li>
-                            <i className="fas fa-envelope contact-icon"></i>
-                            <span>candlesandcapital@gmail.com</span>
-                        </li>
-                    </ul>
-
-                </div>
-            </div>
-
-            <div className="footer-bottom">
-                <div className="copyright">
-                    <p>&copy; {new Date().getFullYear()} Candles & Capitals. All rights reserved.</p>
-                </div>
-                <div className="footer-bottom-links">
-                    <Link to="/privacy-policy">Privacy Policy</Link>
-                    <Link to="/terms-of-service">Terms of Service</Link>
-                    <Link to="/disclaimer">Disclaimer</Link>
-                </div>
-                <h3>Developed by Ganesh</h3>
-            </div>
-
-        </footer>
+        
+        <Footer/>
+        
     </div>
 );
 
