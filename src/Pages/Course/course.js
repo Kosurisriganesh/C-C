@@ -22,6 +22,12 @@ function toYouTubeEmbed(url) {
   return url;
 }
 
+// Utility to check for non-embeddable links (Google Meet, Zoom, Teams, etc)
+function isLiveMeetingLink(url) {
+  if (!url) return false;
+  return /meet\.google\.com|zoom\.us|teams\.microsoft\.com/i.test(url);
+}
+
 const Course = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -306,25 +312,41 @@ const Course = () => {
               <div className="video-player-container">
                 <h2 className="video-title">{selectedVideo.title}</h2>
                 <div className="video-player">
-                  {!iframeError ? (
-                    <iframe
-                      src={`${toYouTubeEmbed(selectedVideo.videoUrl)}${isPlaying ? '?autoplay=1' : ''}`}
-                      title={selectedVideo.title}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      onError={() => setIframeError(true)}
-                    ></iframe>
+                  {isLiveMeetingLink(selectedVideo.videoUrl) ? (
+                    <div className="live-meet-wrapper">
+                      <a
+                        href={selectedVideo.videoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="join-meet-btn"
+                      >
+                        Join Live Class
+                      </a>
+                      <p style={{marginTop: "10px"}}>Click the button above to join the live session in a new tab.</p>
+                    </div>
                   ) : (
-                    <div className="video-error">
-                      <p>Sorry, this video cannot be played (embedding may be disabled).</p>
+                    !iframeError ? (
+                      <iframe
+                        src={`${toYouTubeEmbed(selectedVideo.videoUrl)}${isPlaying ? '?autoplay=1' : ''}`}
+                        title={selectedVideo.title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        onError={() => setIframeError(true)}
+                      ></iframe>
+                    ) : (
+                      <div className="video-error">
+                        <p>Sorry, this video cannot be played (embedding may be disabled).</p>
+                      </div>
+                    )
+                  )}
+                  {!isLiveMeetingLink(selectedVideo.videoUrl) && (
+                    <div className="video-controls">
+                      <button className="control-button" onClick={togglePlayPause}>
+                        {isPlaying ? 'Pause' : 'Play'}
+                      </button>
                     </div>
                   )}
-                  <div className="video-controls">
-                    <button className="control-button" onClick={togglePlayPause}>
-                      {isPlaying ? 'Pause' : 'Play'}
-                    </button>
-                  </div>
                 </div>
                 <div className="video-info">
                   {currentCourse && (

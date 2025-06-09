@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { auth } from '../../Pages/Firebase/firebase'; // Adjust path if needed
+import { auth } from '../../Pages/Firebase/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import './dashboardadmin.css';
 import Footer from '../../Components/Footer/footer';
+import {Table,TableHead,TableRow,TableCell,TableBody,Button} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const API_BASE_URL = "http://localhost:5000"; // <-- Change this if your backend runs elsewhere
+const API_BASE_URL = "http://localhost:5000";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -17,13 +18,13 @@ const AdminDashboard = () => {
         role: "",
         avatar: process.env.PUBLIC_URL + '/profilepic.jpg'
     });
-
     const id = useParams();
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
     const [activeMenuItem, setActiveMenuItem] = useState('dashboard');
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [users, setUsers] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [messages, setMessages] = useState([]); // New state for contact submissions
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
     const [currentCourse, setCurrentCourse] = useState(null);
@@ -41,24 +42,12 @@ const AdminDashboard = () => {
             if (firebaseUser) {
                 const storedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
                 setUser({
-                    name:
-                        firebaseUser.displayName ||
-                        storedUserInfo.displayName ||
-                        "candlesandcapitals",
-                    email:
-                        firebaseUser.email ||
-                        storedUserInfo.email ||
-                        "candlesandcapitals@gmail.com",
-                    role:
-                        storedUserInfo.isGoogleUser
-                            ? "Google User"
-                            : "Admin",
-                    avatar:
-                        firebaseUser.photoURL ||
-                        storedUserInfo.photoURL ||
-                        process.env.PUBLIC_URL + '/profilepic.jpg',
+                    name: firebaseUser.displayName || storedUserInfo.displayName || "candlesandcapitals",
+                    email: firebaseUser.email || storedUserInfo.email || "candlesandcapitals@gmail.com",
+                    role: storedUserInfo.isGoogleUser ? "Google User" : "Admin",
+                    avatar: firebaseUser.photoURL || storedUserInfo.photoURL || process.env.PUBLIC_URL + '/profilepic.jpg',
                     uid: firebaseUser.uid,
-                    _id: storedUserInfo._id // Store MongoDB _id for logout
+                    _id: storedUserInfo._id
                 });
                 localStorage.setItem('userInfo', JSON.stringify({
                     displayName: firebaseUser.displayName || "candlesandcapitals",
@@ -66,7 +55,7 @@ const AdminDashboard = () => {
                     photoURL: firebaseUser.photoURL || process.env.PUBLIC_URL + '/profilepic.jpg',
                     uid: firebaseUser.uid,
                     isGoogleUser: firebaseUser.providerData[0]?.providerId === 'google.com',
-                    _id: storedUserInfo._id // persist Mongo _id if present
+                    _id: storedUserInfo._id
                 }));
             } else {
                 setUser({
@@ -99,11 +88,8 @@ const AdminDashboard = () => {
             }
         })
             .then(res => {
-                if (!res.ok) {
-                    if (res.status === 401 || res.status === 403) {
-                        throw new Error('Unauthorized');
-                    }
-                    throw new Error('Failed to fetch');
+                if (!res.status === 401 || res.status === 403) {
+                    throw new Error('Unauthorized');
                 }
                 return res.json();
             })
@@ -141,26 +127,65 @@ const AdminDashboard = () => {
             });
     }, []);
 
-    // Fetch users and courses on menu change
+    // ------------------ FETCH MESSAGES ------------------
+    const fetchMessages = useCallback(() => {
+        
+        if (user?.role !== 'Admin') {
+            setMessages([]);
+            return;
+        }
+        const token = localStorage.getItem('token');
+       
+        if (!token) {
+            setMessages([]);
+            return;
+        }
+        fetch(`${API_BASE_URL}/api/contact/submissions`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token,
+            }
+        })
+            .then(res => {
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        throw new Error('Unauthorized');
+                    }
+                    throw new Error('Failed to fetch messages');
+                }
+                return res.json();
+            })
+            .then(data => setMessages(data))
+            .catch(err => {
+                setMessages([]);
+                console.error('Failed to fetch messages:', err);
+            });
+    }, [user]);
+
+    // ------------------ FETCH DATA ON MENU CHANGE ------------------
     useEffect(() => {
         if (activeMenuItem === 'users') {
             fetchUsers();
         } else if (activeMenuItem === 'courses') {
             fetchCourses();
+        } else if (activeMenuItem === 'messages') {
+            fetchMessages();
         }
-    }, [activeMenuItem, fetchUsers, fetchCourses]);
+    }, [activeMenuItem, fetchUsers, fetchCourses, fetchMessages]);
 
-    // Polling: refresh users every 5 seconds if on users tab
+    // Polling: refresh users and messages every 5 seconds
     useEffect(() => {
         if (activeMenuItem === 'users') {
             const interval = setInterval(fetchUsers, 5000);
             return () => clearInterval(interval);
+        } else if (activeMenuItem === 'messages') {
+            const interval = setInterval(fetchMessages, 5000);
+            return () => clearInterval(interval);
         }
-    }, [activeMenuItem, fetchUsers]);
+    }, [activeMenuItem, fetchUsers, fetchMessages]);
 
     const handleProfileClick = () => setShowProfileDropdown(!showProfileDropdown);
-
-    // ------------------ LOGOUT ------------------
     const handleLogout = async () => {
         try {
             const storedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -196,7 +221,6 @@ const AdminDashboard = () => {
     const handleAddCourse = () => { setCurrentCourse(null); setIsCourseModalOpen(true); };
     const handleEditCourse = (course) => { setCurrentCourse(course); setIsCourseModalOpen(true); };
 
-    // ------------------ SAVE COURSE (ADD OR EDIT, with VIDEOS) ------------------
     const saveCourse = (courseData) => {
         const token = localStorage.getItem('token');
         const payload = { 
@@ -205,7 +229,6 @@ const AdminDashboard = () => {
             instructor: courseData.instructor,
             videos: Array.isArray(courseData.videos) ? courseData.videos : []
         };
-        console.log('currentCourse',currentCourse )
         if (currentCourse) {
             fetch(`${API_BASE_URL}/api/admin/courses/${currentCourse._id}`, {
                 method: 'PUT',
@@ -254,7 +277,6 @@ const AdminDashboard = () => {
         }
     };
 
-    // ------------------ DELETE COURSE ------------------
     const handleDeleteCourse = (courseId) => {
         setConfirmationMessage(`Are you sure you want to delete this course? This action cannot be undone.`);
         setConfirmationAction(() => () => {
@@ -269,6 +291,7 @@ const AdminDashboard = () => {
                 .then(res => {
                     if (!res.ok) throw new Error("Failed to delete course");
                     setCourses(prevCourses => prevCourses.filter(c => c._id !== courseId));
+                    alert("Course deleted successfully!");
                     setShowConfirmationModal(false);
                 })
                 .catch(err => {
@@ -280,7 +303,6 @@ const AdminDashboard = () => {
         setShowConfirmationModal(true);
     };
 
-    // ------------------ VIDEO MANAGEMENT (Frontend only, extend for full backend support) ------------------
     const handleAddVideo = (courseId) => {
         setParentCourseIdForVideo(courseId);
         setCurrentVideo(null);
@@ -292,7 +314,6 @@ const AdminDashboard = () => {
         setIsVideoModalOpen(true);
     };
     const saveVideo = (videoData) => {
-        // console.log('videoDAata',videoData);
         setCourses(prevCourses =>
             prevCourses.map(course => {
                 if (course._id === parentCourseIdForVideo) {
@@ -357,13 +378,34 @@ const AdminDashboard = () => {
         }
     };
 
+    // ------------------ MESSAGE MANAGEMENT ------------------
+    const handleDeleteMessage = async (messageId) => {
+        if (!window.confirm("Are you sure you want to delete this message?")) return;
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/api/contact/submissions/${messageId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token,
+                }
+            });
+            if (!response.ok) throw new Error("Failed to delete message");
+            setMessages(prevMessages => prevMessages.filter(m => m._id !== messageId));
+            alert("Message deleted successfully!");
+        } catch (err) {
+            alert("Failed to delete message");
+            console.error(err);
+        }
+    };
+
     // ------------------ MODALS ------------------
     const CourseModal = ({ isOpen, onClose, course, onSave }) => {
         const [title, setTitle] = useState(course ? course.title : '');
         const [description, setDescription] = useState(course ? course.description : '');
         const [instructor, setInstructor] = useState(course ? course.instructor : '');
         const [videos, setVideos] = useState(course && course.videos ? course.videos : []);
-        console.log('coursemodal',course);
+
         useEffect(() => {
             if (course) {
                 setTitle(course.title || '');
@@ -378,17 +420,14 @@ const AdminDashboard = () => {
             }
         }, [course]);
 
-        // Add new empty video
         const handleAddVideoField = () => {
             setVideos([...videos, { id: crypto.randomUUID(), title: '', videoUrl: '' }]);
         };
 
-        // Remove video by index
         const handleRemoveVideoField = (idx) => {
             setVideos(videos.filter((_, i) => i !== idx));
         };
 
-        // Update video field
         const handleVideoChange = (idx, field, value) => {
             setVideos(videos.map((video, i) => (
                 i === idx ? { ...video, [field]: value } : video
@@ -401,7 +440,6 @@ const AdminDashboard = () => {
                 alert("Course title and instructor cannot be empty.");
                 return;
             }
-            // Validate videos (remove empty)
             const filteredVideos = videos
                 .filter(v => v.title.trim() && v.videoUrl.trim())
                 .map(v => ({ ...v, id: v.id || crypto.randomUUID() }));
@@ -491,7 +529,7 @@ const AdminDashboard = () => {
                                     background: '#6366f1',
                                     color: '#fff',
                                     border: 'none',
-                                    borderRadius: '4px',
+                                    borderRadius: '10px',
                                     padding: '6px 14px',
                                     marginTop: '0.5rem',
                                     cursor: 'pointer'
@@ -571,6 +609,7 @@ const AdminDashboard = () => {
             </div>
         );
     };
+
     const ConfirmationModal = ({ isOpen, message, onConfirm, onCancel }) => {
         if (!isOpen) return null;
         return (
@@ -586,7 +625,6 @@ const AdminDashboard = () => {
         );
     };
 
-    // ------------------ MAIN CONTENT SWITCH ------------------
     const renderContent = () => {
         const filteredUsers = roleFilter === 'all'
             ? users
@@ -632,7 +670,6 @@ const AdminDashboard = () => {
                                 <tbody>
                                     {filteredUsers.length > 0 ? filteredUsers.map(u => (
                                         <tr key={u._id}>
-                                            {console.log('u',u)}
                                             <td>{u._id}</td>
                                             <td>{u.fullName || u.name}</td>
                                             <td>{u.email}</td>
@@ -640,14 +677,13 @@ const AdminDashboard = () => {
                                             <td>{u.date ? new Date(u.date).toLocaleDateString() : '-'}</td>
                                             <td>
                                                 <span style={{
-                                                    color: u.status ? "green" : "red",
+                                                    color: u.status ? "red" : "green",
                                                     fontWeight: "bold"
                                                 }}>
                                                     {u.status ? "Inactive" : "Active"}
                                                 </span>
                                             </td>
                                             <td className="action-buttons">
-                                                <button className="edit-btn">Edit</button>
                                                 <button className="delete-btn" onClick={() => handleDeleteUser(u._id)}>Delete</button>
                                             </td>
                                         </tr>
@@ -660,9 +696,9 @@ const AdminDashboard = () => {
                             </table>
                         </div>
                         <div className="pagination">
-                            <button>&laquo; Previous</button>
+                            <button>« Previous</button>
                             <span>Page 1</span>
-                            <button>Next &raquo;</button>
+                            <button>Next »</button>
                         </div>
                     </div>
                 );
@@ -686,7 +722,7 @@ const AdminDashboard = () => {
                                                 {course.videos.map(video => (
                                                     <li key={video.id} className="video-item">
                                                         <span>
-                                                            {video.title} &nbsp;
+                                                            {video.title}  
                                                             <a href={video.videoUrl}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
@@ -706,8 +742,8 @@ const AdminDashboard = () => {
                                         )}
                                         <div className="course-actions">
                                             <button className="add-video-to-course-btn" onClick={() => handleAddVideo(course._id)}>Add Video</button>
-                                            <button className="edit-course-btn" onClick={() => handleEditCourse(course)}>Edit Course</button>
-                                            <button className="delete-course-btn" onClick={() => handleDeleteCourse(course._id)}>Delete Course</button>
+                                            <button className="edit-course-btn" onClick={() => handleEditCourse(course)}><EditIcon/>Course</button>
+                                            <button className="delete-course-btn" onClick={() => handleDeleteCourse(course._id)}><DeleteIcon/>Course</button>
                                         </div>
                                     </div>
                                 ))
@@ -717,10 +753,71 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 );
-            case 'analytics':
-                return <h2>Analytics Content</h2>;
             case 'messages':
-                return <h2>Messages Content</h2>;
+                if (user?.role !== 'Admin') {
+                    return (
+                        <div className="not-authorized">
+                            <h2>Not Authorized</h2>
+                            <p>You do not have permission to view this section.</p>
+                        </div>
+                    );
+                }
+                return (
+                    <div className="message-management">
+                        <h2>Contact Form Submissions</h2>
+
+                        <div className="message-controls" style={{ marginBottom: "10px" }}>
+                            <span style={{ marginLeft: "20px", fontWeight: "bold", color: 'red' }}>
+                                Total: {messages.length}
+                            </span>
+                        </div>
+
+                        <div className="messages-table-container">
+                            <Table sx={{ minWidth: 650 }} aria-label="messages table">
+                                <TableHead sx={{ backgroundColor: '#1976d2' }}>
+                                    <TableRow>
+                                        <TableCell sx={{ color: 'white' }}>Name</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>Email</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>Occupation</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>Contact</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>Message</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>Submitted At</TableCell>
+                                        <TableCell sx={{ color: 'white' }}>Actions</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {messages.length > 0 ? (
+                                        messages.map(m => (
+                                            <TableRow key={m._id}>
+                                                <TableCell>{m.name}</TableCell>
+                                                <TableCell>{m.email}</TableCell>
+                                                <TableCell>{m.occupation}</TableCell>
+                                                <TableCell>{m.contact}</TableCell>
+                                                <TableCell>{m.message}</TableCell>
+                                                <TableCell>{new Date(m.submittedAt).toLocaleString()}</TableCell>
+                                                <TableCell>
+                                                    <Button onClick={() => handleDeleteMessage(m._id)}>Delete</Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={7} align="center">No messages found.</TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+
+                            </Table>
+                        </div>
+
+                        <div className="pagination" style={{ marginTop: "20px", textAlign: "center" }}>
+                            <Button variant="outlined" disabled>« Previous</Button>
+                            <span style={{ margin: "0 10px" }}>Page 1</span>
+                            <Button variant="outlined" disabled>Next »</Button>
+                        </div>
+                    </div>
+                );
+
             default:
                 return <h2>Dashboard Overview</h2>;
         }
@@ -781,7 +878,6 @@ const AdminDashboard = () => {
                                         <span className="profile-role">{user.role}</span>
                                     </li>
                                     <li><Link to="/Profile" onClick={() => setShowProfileDropdown(false)}>My Profile</Link></li>
-                                    <li><Link to="/settings" onClick={() => setShowProfileDropdown(false)}>Account Settings</Link></li>
                                     <li><Link to="/Course" onClick={() => setShowProfileDropdown(false)}>My Courses</Link></li>
                                     <li className="logout-option" onClick={handleLogout}>Logout</li>
                                 </ul>
@@ -822,9 +918,9 @@ const AdminDashboard = () => {
                                             <p><strong>Account Type:</strong> {user?.role} </p>
                                         </div>
                                     </div>
-                                    <Link to="/Profile" className="view-profile-button">
+                                    <li><Link to="/Profile" className="view-profile-button">
                                         View Full Profile
-                                    </Link>
+                                    </Link></li>
                                 </div>
                             )}
                         </li>
@@ -860,14 +956,6 @@ const AdminDashboard = () => {
                                 <a href="#courses">
                                     <i className="sidebar-icon">📚</i>
                                     <span className="sidebar-text">Course Management</span>
-                                </a>
-                            </li>
-                            <li className="sidebar-divider"></li>
-                            <li className={activeMenuItem === 'analytics' ? 'active' : ''}
-                                onClick={() => setActiveMenuItem('analytics')}>
-                                <a href="#analytics">
-                                    <i className="sidebar-icon">📈</i>
-                                    <span className="sidebar-text">Analytics</span>
                                 </a>
                             </li>
                             <li className={activeMenuItem === 'messages' ? 'active' : ''}

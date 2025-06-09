@@ -64,12 +64,12 @@ const Footer = () => {
                 <div className="copyright">
                     <p>&copy; {new Date().getFullYear()} Candles & Capitals. All rights reserved.</p>
                 </div>
-                <div className="footer-bottom-links">
+                {/* <div className="footer-bottom-links">
                     <Link to="/privacy-policy">Privacy Policy</Link>
                     <Link to="/terms-of-service">Terms & Conditions</Link>
                     <Link to="/disclaimer">Disclaimer</Link>
-                </div>
-                <h3>Developed by Ganesh</h3>
+                </div> */}
+                <h3>Developed & Maintains by  <span><a href = "https://www.linkedin.com/in/kosuri-sri-ganesh"> Kosuri Sri Ganesh </a></span></h3>
             </div>
         </footer>
     );

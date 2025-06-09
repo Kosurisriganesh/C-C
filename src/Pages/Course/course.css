@@ -753,6 +753,29 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
 }
 
+/*live classes section*/
+
+.join-meet-btn {
+  background: linear-gradient(90deg,#2dd4bf 0%,#6366f1 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7em 1.6em;
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 3px 12px -6px #6366f155;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.13s;
+  text-decoration: none;
+  display: inline-block;
+}
+.join-meet-btn:hover,
+.join-meet-btn:focus {
+  background: linear-gradient(90deg,#6366f1 0%,#2dd4bf 100%);
+  box-shadow: 0 8px 24px -10px #6366f1aa;
+  transform: translateY(-2px) scale(1.04);
+}
 /* ====== FOOTER (unchanged) ====== */
 .site-footer {
   background-color: #2c3e50;

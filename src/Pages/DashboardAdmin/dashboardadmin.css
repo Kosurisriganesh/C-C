@@ -406,103 +406,121 @@ a {
 }
 
 
-/* Profile container styling in top nav */
 .profile-container {
-    position: relative;
+  position: relative;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .profile-trigger {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 30px;
-    background-color: rgba(240, 165, 0, 0.1);
-    transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 30px;
+  transition: background 0.3s ease;
 }
 
 .profile-trigger:hover {
-    background-color: rgba(240, 165, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .profile-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    margin-right: 8px;
-    object-fit: cover;
-    border: 2px solid #f0a500;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+  transition: border-color 0.3s ease, transform 0.3s ease;
 }
 
-.profile-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #333;
+.profile-trigger:hover .profile-avatar {
+  border-color: #1976d2;
+  transform: scale(1.05);
 }
 
-/* Profile dropdown styling */
+.profile-trigger span {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Dropdown Styles */
 .profile-dropdown {
-    right: 0 !important;
-    left: auto !important;
-    width: 280px !important;
-    padding: 0 !important;
-    border-radius: 8px !important;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15) !important;
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 250px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  z-index: 1001;
 }
 
+.profile-container:hover .profile-dropdown,
+.profile-container .profile-dropdown:focus-within {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Header */
 .profile-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    flex-direction: column;
-    background-color: #f9f9f9;
-    border-radius: 8px 8px 0 0;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .profile-header strong {
-    font-size: 16px;
-    margin-bottom: 5px;
-    color: #333;
+  display: block;
+  font-size: 16px;
+  margin-bottom: 4px;
+  color: #222;
 }
 
-.profile-email, .profile-role {
-    font-size: 13px;
-    color: #666;
-    margin-bottom: 3px;
+.profile-email,
+.profile-role {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 2px;
 }
 
-.profile-dropdown li:not(.profile-header) {
-    margin: 0 !important;
-    padding: 0 !important;
+/* Dropdown Links */
+.profile-dropdown li {
+  padding: 12px 16px;
+  transition: background 0.2s ease;
 }
 
-.profile-dropdown li:not(.profile-header) a {
-    padding: 12px 20px !important;
-    display: block;
-    color: #333 !important;
-    transition: all 0.2s ease;
-    border-left: 3px solid transparent;
+.profile-dropdown li a {
+  text-decoration: none;
+  color: #333;
+  display: block;
+  width: 100%;
 }
 
-.profile-dropdown li:not(.profile-header) a:hover {
-    background-color: #f5f5f5;
-    border-left: 3px solid #f0a500;
+.profile-dropdown li:hover {
+  background-color: #f0f0f0;
 }
 
 .logout-option {
-    padding: 12px 20px !important;
-    display: block;
-    color: #e74c3c !important;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-left: 3px solid transparent;
+  color: #d32f2f;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .logout-option:hover {
-    background-color: #fee;
-    border-left: 3px solid #e74c3c;
+  background-color: red;
 }
+
 
 /* Admin Dashboard Layout */
 .admin-dashboard-layout {
@@ -608,31 +626,31 @@ a {
     text-align: center;
     margin-bottom: 30px;
     background-color: cornflowerblue;
-    width: 100%; /* Ensure it spans the full width of its container */
+    width: 100%;
     padding: 20px;
-    color: #ffffff; /* Text color for the header */
+    color: #ffffff;
 }
 
 .admin-content-header h1 {
     font-size: 28px;
-    color: inherit; /* Inherit color from parent (.admin-content-header) */
+    color: inherit; 
     margin-bottom: 10px;
 }
 
 .admin-content-header p {
     font-size: 16px;
-    color: inherit; /* Inherit color from parent (.admin-content-header) */
-    max-width: 800px;
     margin: 0 auto;
+    max-width: 800px;
+    line-height: 1.6;
 }
 
 /* Main Content Area */
 .admin-content {
-    padding: 20px;
+    padding: 0px;
     /* Removed transition as sidebar is no longer collapsible by arrow */
     /* margin-left: 260px; Fixed margin-left equal to the sidebar's width */
     flex: 1; /* Allows content to grow and fill available space */
-    display: flex;
+    /* display: flex; */
     min-width:0;
     background-color: #f9fafb; /* Light, subtle gray-blue background */
     flex-direction: column;
@@ -680,6 +698,7 @@ a {
     transition: all 0.3s ease;
     width: 100%; /* Ensure it takes full width of its parent */
     box-sizing: border-box;
+    text-align: center;
 }
 
 .dashboard-overview h2 {
@@ -788,9 +807,8 @@ a {
 
 .user-management h2 {
     font-size: 1.8rem;
-    font-weight: 600;
+    color: #b71c1c;
     margin-bottom: 1.5rem;
-    color: #2c3e50;
     position: relative;
     padding-left: 1rem;
 }
@@ -1082,11 +1100,17 @@ a {
 .course-management {
     padding: 1.5rem; /* p-6 */
     background-color: #f9fafb; /* bg-gray-50 */
+    font-size: 1.5rem;
     min-height: 100vh;
     border-radius: 0.5rem; /* rounded-lg */
     box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); /* shadow-inner equivalent */
     width: 100%; /* Ensure it takes full width of its parent */
     box-sizing: border-box;
+}
+
+.course-management h2{
+    color:red;
+    font-size: 1.8rem;
 }
 
 /* Controls section (add course, search) */
@@ -1385,13 +1409,70 @@ a {
     font-family: inherit;
 }
 
-/* Modal actions (buttons) */
 .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
 }
+
+.confirm-btn, .cancel-btn {
+  padding: 0.65em 2.2em;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  transition: 
+    background 0.18s cubic-bezier(.4,0,.2,1),
+    color 0.18s cubic-bezier(.4,0,.2,1),
+    box-shadow 0.18s cubic-bezier(.4,0,.2,1),
+    transform 0.13s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 1.5px 8px -3px rgba(0,0,0,0.10);
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.confirm-btn {
+  background: linear-gradient(90deg, #6366f1 0%, #22d3ee 100%);
+  color: #fff;
+  letter-spacing: 0.03em;
+  box-shadow: 0 3px 12px -4px #6366f155;
+  border-bottom: 3px solid #3730a3;
+}
+
+.confirm-btn:hover,
+.confirm-btn:focus {
+  background: linear-gradient(90deg, #3730a3 0%, #0891b2 100%);
+  color: #fff;
+  transform: translateY(-2px) scale(1.025);
+  box-shadow: 0 8px 24px -7px #6366f188;
+}
+
+.cancel-btn {
+  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 100%);
+  color: #a1a1aa;
+  border-bottom: 3px solid #e11d48;
+  font-weight: 500;
+}
+
+.cancel-btn:hover,
+.cancel-btn:focus {
+  background: linear-gradient(90deg, #f87171 0%, #f43f5e 100%);
+  color: #fff;
+  transform: translateY(-2px) scale(1.025);
+  box-shadow: 0 8px 24px -7px #e11d4888;
+}
+
+.confirm-btn:active, .cancel-btn:active {
+  transform: scale(0.97);
+}
+
+.confirm-btn:focus-visible, .cancel-btn:focus-visible {
+  outline: 3px solid #2226e3;
+  outline-offset: 2px;
+}
+
 
 /* Save button */
 .save-btn {
@@ -1435,4 +1516,132 @@ a {
         width: 97vw;
         padding: 1.2rem 0.7rem 1.2rem 0.7rem;
     }
+}
+
+/*add video button*/
+
+.add-video-to-course-btn {
+  position: relative;
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.add-video-to-course-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: skewX(-25deg);
+  transition: 0.5s;
+}
+
+.add-video-to-course-btn:hover::before {
+  left: 125%;
+}
+
+.add-video-to-course-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.5);
+}
+
+.add-video-to-course-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.add-video-to-course-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.4);
+}
+
+/*Message content*/
+
+.message-management {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.message-management h2 {
+    font-size: 1.8rem;
+    margin-bottom: 16px;
+    color: #1976d2;
+}
+
+.message-controls {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 16px;
+}
+
+.messages-table-container {
+    overflow-x: auto;
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.MuiTable-root {
+    border-collapse: separate !important;
+    border-spacing: 0 8px !important;
+}
+
+.MuiTableHead-root {
+    background-color: #1976d2;
+}
+
+.MuiTableCell-head {
+    font-weight: bold !important;
+    color: white !important;
+    border-bottom: none !important;
+}
+
+.MuiTableRow-root {
+    /* Hover style removed */
+}
+
+.MuiTableCell-body {
+    font-size: 14px;
+    color: #333;
+    background-color: #fafafa;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px;
+}
+
+.MuiTableCell-body button {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.MuiTableCell-body button:hover {
+    background-color: #b71c1c;
+}
+
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination button {
+    font-weight: bold;
+    padding: 6px 16px;
 }

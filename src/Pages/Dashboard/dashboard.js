@@ -217,7 +217,7 @@ useEffect(() => {
                     <span className="profile-role">{user.role}</span>
                   </li>
                   <li><Link to="/Profile" onClick={() => setShowProfileDropdown(false)}>My Profile</Link></li>
-                  <li><Link to="/settings" onClick={() => setShowProfileDropdown(false)}>Account Settings</Link></li>
+                  {/* <li><Link to="/settings" onClick={() => setShowProfileDropdown(false)}>Account Settings</Link></li> */}
                   <li><Link to="/Course" onClick={() => setShowProfileDropdown(false)}>My Courses</Link></li>
                   <li className="logout-option" onClick={handleLogout}>Logout</li>
                 </ul>

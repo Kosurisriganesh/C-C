@@ -39,7 +39,6 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setResponseMessage(''); // Clear previous messages
 
     try {
@@ -66,11 +65,7 @@ const Contact = () => {
 
   return (
     <div className="tab-content">
-      {/* <nav>
-        <Header />
-      </nav> */}
-      <br/>
-      <br/>
+      
       <br/>
       <h2>Get in touch with use</h2>
 

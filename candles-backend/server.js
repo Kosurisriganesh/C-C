@@ -11,6 +11,7 @@ const courseRoutes = require('./routes/course');
 const adminRoutes = require('./routes/admin');
 const adminCoursesRoutes = require('./routes/adminCourses');
 const authRoutes = require('./routes/auth');
+const contactRoutes = require('./routes/contact');
 
 const app = express();
 
@@ -35,7 +36,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Candles',
 
 // Models
 const User = require('./models/User');
-const Contact = require('./models/Contact');
+const Contact = require('./models/contact');
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -43,42 +44,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/course', courseRoutes);
 app.use('/api/admin/courses', adminCoursesRoutes);
+app.use('/api/contact', require('./routes/contact'));
 
-// Contact POST route
-app.post('/api/contact', async (req, res) => {
-    const { name, email, contact, message } = req.body;
-    if (!name || !email || !contact || !message) {
-        return res.status(400).json({ message: 'All fields are required' });
-    }
 
-    try {
-        const newContact = new Contact({ name, email, contact, message });
-        await newContact.save();
-
-        // Send email notification
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
-
-        const mailOptions = {
-            from: email,
-            to: process.env.EMAIL_USER,
-            subject: `New Contact Submission from ${name}`,
-            text: `Name: ${name}\nEmail: ${email}\nContact: ${contact}\n\nMessage:\n${message}`
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        res.status(200).json({ message: 'Message sent and saved successfully.' });
-    } catch (err) {
-        console.error('❌ Contact form error:', err);
-        res.status(500).json({ message: 'Failed to send message: ' + err.message });
-    }
-});
 
 // Test endpoint
 app.get('/api/test', (req, res) => {
