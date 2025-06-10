@@ -61,6 +61,7 @@ const Contact = () => {
       console.error('Error sending contact form:', err);
       setResponseMessage('Server error. Please try again later.');
     }
+    alert('Message sent successfully!');
   };
 
   return (
@@ -132,9 +133,11 @@ const Contact = () => {
               />
             </div>
             <button type="submit" className="submit-btn">Send Message</button>
+            
           </form>
 
-          {responseMessage && <p className="response-message">{responseMessage}</p>}
+          {responseMessage && <p className="response-message">{
+        }</p>}
         </div>
 
         <div className="contact-right-section">
