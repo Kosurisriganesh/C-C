@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/C-C/static/css/main.1e44ac6f.css",
-    "main.js": "/C-C/static/js/main.9e802b53.js",
+    "main.js": "/C-C/static/js/main.6a9229fa.js",
     "static/media/technical analysis.jpg": "/C-C/static/media/technical analysis.6ba2388118fb9f3b8276.jpg",
     "static/media/stockbg.png": "/C-C/static/media/stockbg.a11eb1380a37752b1cd0.png",
     "static/media/loginbg.png": "/C-C/static/media/loginbg.c801b09b068fa745a27a.png",
@@ -24,10 +24,10 @@
     "static/media/fa-v4compatibility.woff2": "/C-C/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
     "index.html": "/C-C/index.html",
     "main.1e44ac6f.css.map": "/C-C/static/css/main.1e44ac6f.css.map",
-    "main.9e802b53.js.map": "/C-C/static/js/main.9e802b53.js.map"
+    "main.6a9229fa.js.map": "/C-C/static/js/main.6a9229fa.js.map"
   },
   "entrypoints": [
     "static/css/main.1e44ac6f.css",
-    "static/js/main.9e802b53.js"
+    "static/js/main.6a9229fa.js"
   ]
 }
