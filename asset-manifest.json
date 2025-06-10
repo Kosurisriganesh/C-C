@@ -1,0 +1,33 @@
+{
+  "files": {
+    "main.css": "/C-C/static/css/main.1e44ac6f.css",
+    "main.js": "/C-C/static/js/main.9e802b53.js",
+    "static/media/technical analysis.jpg": "/C-C/static/media/technical analysis.6ba2388118fb9f3b8276.jpg",
+    "static/media/stockbg.png": "/C-C/static/media/stockbg.a11eb1380a37752b1cd0.png",
+    "static/media/loginbg.png": "/C-C/static/media/loginbg.c801b09b068fa745a27a.png",
+    "static/media/fa-solid-900.ttf": "/C-C/static/media/fa-solid-900.2582b0e4bcf85eceead0.ttf",
+    "static/media/fa-brands-400.ttf": "/C-C/static/media/fa-brands-400.1815e00441357e01619e.ttf",
+    "static/media/fa-solid-900.woff2": "/C-C/static/media/fa-solid-900.2463b90d9a316e4e5294.woff2",
+    "static/media/fa-brands-400.woff2": "/C-C/static/media/fa-brands-400.c210719e60948b211a12.woff2",
+    "static/media/about1.jpg": "/C-C/static/media/about1.1317b50f444e1c5fa231.jpg",
+    "static/media/ceo.jpg": "/C-C/static/media/ceo.28471d0bfa86364d67b2.jpg",
+    "static/media/fa-regular-400.ttf": "/C-C/static/media/fa-regular-400.914997e1bdfc990d0897.ttf",
+    "static/media/fa.jpg": "/C-C/static/media/fa.2725a8245e914c750361.jpg",
+    "static/media/ct.jpg": "/C-C/static/media/ct.471cf6e7fe4be4f6a494.jpg",
+    "static/media/contact.jpg": "/C-C/static/media/contact.04e60179ecd38817f16a.jpg",
+    "static/media/fa-regular-400.woff2": "/C-C/static/media/fa-regular-400.89999bdf5d835c012025.woff2",
+    "static/media/stock-market 2 .jpg": "/C-C/static/media/stock-market 2 .ea1e5267dbcc9b75bd4b.jpg",
+    "static/media/c&c bg.jpg": "/C-C/static/media/c&c bg.f1d3aa8371cd88f3210a.jpg",
+    "static/media/profilepic.jpg": "/C-C/static/media/profilepic.362d9914fd7ed56ba462.jpg",
+    "static/media/registerbg.jpg": "/C-C/static/media/registerbg.aa89d5b2eea255fd52a9.jpg",
+    "static/media/fa-v4compatibility.ttf": "/C-C/static/media/fa-v4compatibility.da94ef451f4969af06e6.ttf",
+    "static/media/fa-v4compatibility.woff2": "/C-C/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
+    "index.html": "/C-C/index.html",
+    "main.1e44ac6f.css.map": "/C-C/static/css/main.1e44ac6f.css.map",
+    "main.9e802b53.js.map": "/C-C/static/js/main.9e802b53.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1e44ac6f.css",
+    "static/js/main.9e802b53.js"
+  ]
+}
