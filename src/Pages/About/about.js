@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import about from '../../Assets/about1.jpg';
 import Header from '../../Components/Header/header';
 import Footer from '../../Components/Footer/footer';
@@ -7,42 +6,9 @@ import './about.css';
 
 const About = () => (
     <div className="about-content">
-        {/* <nav className='dashboard-nav'>
-            <div className="logo">
-                <img src={process.env.PUBLIC_URL + '/c&c2 (2).jpg'} alt="Candles" className="logo-image" />
-                <h2>CANDLES & CAPITALS</h2>
-            </div>
-
-            <ul className="nav-links">
-                <li><Link to='./home' > HOME </Link></li>
-
-                <li className="dropdown-container">
-                    <span><Link to="/about">ABOUT</Link></span>
-                    <ul className="dropdown-menu">
-                        <li><Link to="/about">Our Story</Link></li>
-                        <li><Link to="/about2">About Karthik sir</Link></li>
-                    </ul>
-                </li>
-
-                <li className="dropdown-container">
-                    <span><Link to="/course">COURSES</Link></span>
-                    <ul className="dropdown-menu">
-                        <li>Technical Analysis</li>
-                        <li>Fundamental Analysis</li>
-                        <li>Commodity Trading</li>
-                        <li>Features & Option</li>
-                    </ul>
-                </li>
-
-                <li><Link to='./contact' > CONTACT</Link></li>
-
-                <li><Link to='/login'> LOGIN </Link></li>
-            </ul>
-        </nav> */}
+        
         <Header />
-        <br/>
-        <br/>
-        <br/>
+    
         <div className='container'>
             <div className='about-container'>
                 <h2>About Us</h2>

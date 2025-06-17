@@ -12,7 +12,7 @@ const Header = () => {
                 </div>
 
                 <ul className="nav-links">
-                    <li>HOME</li>
+                    <li><Link to='./home' > HOME </Link></li>
                     <li className="dropdown-container">
                         <span><Link to='./about' > ABOUT </Link></span>
                         <ul className="dropdown-menu">

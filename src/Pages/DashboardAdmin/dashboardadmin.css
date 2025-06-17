@@ -1322,91 +1322,116 @@ a {
 .delete-course-btn:hover {
     background-color: #b91c1c; /* hover:bg-red-700 */
 }
-
-/* Overlay for modal - covers the entire screen */
 .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 1000;
-    background: rgba(30, 41, 59, 0.45); /* slate-800/45 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1000;
+  background: rgba(30, 41, 59, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Modal content box */
 .modal-content {
-    background: #fff;
-    border-radius: 1.25rem;
-    padding: 2.5rem 2rem 2rem 2rem;
-    box-shadow: 0 10px 32px rgba(0,0,0,0.13);
-    min-width: 350px;
-    max-width: 95vw;
-    width: 400px;
-    position: relative;
-    animation: modalPopIn 0.25s cubic-bezier(.45,1.53,.53,.93);
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.13);
+  max-width: 900px;
+  animation: modalPopIn 0.25s ease-in-out;
 }
 
-/* Entrance animation */
 @keyframes modalPopIn {
-    0% { transform: scale(0.85) translateY(40px); opacity: 0; }
-    100% { transform: scale(1) translateY(0); opacity: 1; }
+  0% { transform: scale(0.9) translateY(40px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
 }
 
-/* Modal title */
 .modal-content h3 {
-    margin-bottom: 1.5rem;
-    text-align: center;
-    color: #3730a3;
-    font-size: 1.45rem;
-    font-weight: 700;
-    letter-spacing: 0.01em;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #3730a3;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
-/* Form styling */
-.modal-content form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.15rem;
+.modal-body {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
-/* Form group */
+.modal-left,
+.modal-right {
+  flex: 1;
+  min-width: 300px;
+}
+
 .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.2rem;
 }
 
-/* Labels */
 .form-group label {
-    font-size: 1.05rem;
-    font-weight: 500;
-    color: #334155;
-    margin-bottom: 0.1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.4rem;
 }
 
-/* Inputs & textarea */
 .form-group input[type="text"],
+.form-group input[type="url"],
 .form-group textarea {
-    padding: 0.65rem 0.9rem;
-    border: 1.5px solid #e0e7ef;
-    border-radius: 0.55rem;
-    background: #f8fafc;
-    outline: none;
-    font-size: 1.07rem;
-    transition: border 0.15s, box-shadow 0.15s;
-}
-.form-group input[type="text"]:focus,
-.form-group textarea:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 1.5px #6366f1;
+  padding: 0.65rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 0.55rem;
+  background: #f8fafc;
+  font-size: 1rem;
+  transition: 0.2s ease;
 }
 
 .form-group textarea {
-    resize: vertical;
-    min-height: 80px;
-    font-family: inherit;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #6366f1;
+  outline: none;
+  box-shadow: 0 0 0 2px #6366f133;
+}
+
+.video-box {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.video-box input {
+  width: 48%;
+  margin-bottom: 0.5rem;
+  margin-right: 2%;
+}
+
+.video-box button {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.add-video-to-course-btn {
+  background:darkgreen;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .modal-actions {
@@ -1416,155 +1441,42 @@ a {
   margin-top: 2rem;
 }
 
-.confirm-btn, .cancel-btn {
-  padding: 0.65em 2.2em;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  transition: 
-    background 0.18s cubic-bezier(.4,0,.2,1),
-    color 0.18s cubic-bezier(.4,0,.2,1),
-    box-shadow 0.18s cubic-bezier(.4,0,.2,1),
-    transform 0.13s cubic-bezier(.4,0,.2,1);
-  box-shadow: 0 1.5px 8px -3px rgba(0,0,0,0.10);
-  cursor: pointer;
-  min-width: 120px;
-}
-
-.confirm-btn {
-  background: linear-gradient(90deg, #6366f1 0%, #22d3ee 100%);
-  color: #fff;
-  letter-spacing: 0.03em;
-  box-shadow: 0 3px 12px -4px #6366f155;
-  border-bottom: 3px solid #3730a3;
-}
-
-.confirm-btn:hover,
-.confirm-btn:focus {
-  background: linear-gradient(90deg, #3730a3 0%, #0891b2 100%);
-  color: #fff;
-  transform: translateY(-2px) scale(1.025);
-  box-shadow: 0 8px 24px -7px #6366f188;
-}
-
-.cancel-btn {
-  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 100%);
-  color: #a1a1aa;
-  border-bottom: 3px solid #e11d48;
-  font-weight: 500;
-}
-
-.cancel-btn:hover,
-.cancel-btn:focus {
-  background: linear-gradient(90deg, #f87171 0%, #f43f5e 100%);
-  color: #fff;
-  transform: translateY(-2px) scale(1.025);
-  box-shadow: 0 8px 24px -7px #e11d4888;
-}
-
-.confirm-btn:active, .cancel-btn:active {
-  transform: scale(0.97);
-}
-
-.confirm-btn:focus-visible, .cancel-btn:focus-visible {
-  outline: 3px solid #2226e3;
-  outline-offset: 2px;
-}
-
-
-/* Save button */
 .save-btn {
-    background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-    color: #fff;
-    border: none;
-    padding: 0.60rem 1.3rem;
-    border-radius: 0.5rem;
-    font-size: 1.07rem;
-    font-weight: 600;
-    box-shadow: 0 2px 8px 0 rgba(99, 102, 241, 0.08);
-    cursor: pointer;
-    transition: background 0.18s, transform 0.15s;
-}
-.save-btn:hover, .save-btn:focus {
-    background: linear-gradient(90deg, #4338ca 0%, #6366f1 100%);
-    transform: translateY(-2px) scale(1.035);
-}
-
-/* Cancel button */
-.cancel-btn {
-    background: #e5e7eb;
-    color: #475569;
-    border: none;
-    padding: 0.60rem 1.3rem;
-    border-radius: 0.5rem;
-    font-size: 1.07rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-}
-.cancel-btn:hover, .cancel-btn:focus {
-    background: #f1f5f9;
-    color: #22223b;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-    .modal-content {
-        min-width: 0;
-        width: 97vw;
-        padding: 1.2rem 0.7rem 1.2rem 0.7rem;
-    }
-}
-
-/*add video button*/
-
-.add-video-to-course-btn {
-  position: relative;
-  display: inline-block;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #4CAF50, #2E7D32);
-  color: white;
+  background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+  color: #fff;
+  padding: 0.6rem 1.3rem;
+  border: none;
+  border-radius: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  overflow: hidden;
-  transition: all 0.3s ease;
 }
 
-.add-video-to-course-btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: skewX(-25deg);
-  transition: 0.5s;
+.save-btn:hover {
+  background: linear-gradient(90deg, #4338ca 0%, #6366f1 100%);
+  transform: scale(1.03);
 }
 
-.add-video-to-course-btn:hover::before {
-  left: 125%;
+.cancel-btn {
+  background: #e5e7eb;
+  color: #475569;
+  padding: 0.6rem 1.3rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
 }
 
-.add-video-to-course-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.5);
+.cancel-btn:hover {
+  background: #f1f5f9;
+  color: #22223b;
 }
 
-.add-video-to-course-btn:active {
-  transform: scale(0.97);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.add-video-to-course-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.4);
+@media (max-width: 768px) {
+  .modal-body {
+    flex-direction: column;
+  }
 }
 
 /*Message content*/
@@ -1644,4 +1556,102 @@ a {
 .pagination button {
     font-weight: bold;
     padding: 6px 16px;
+}
+
+
+/* Modal Box */
+.modal-content.confirmation-modal {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 30px 40px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    color: #fff;
+    text-align: center;
+    animation: scaleIn 0.35s ease;
+}
+
+/* Modal Message */
+.modal-content.confirmation-modal p {
+    font-size: 20px;
+    margin-bottom: 25px;
+    line-height: 1.6;
+    color: #f1f1f1;
+}
+
+/* Button Container */
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Buttons */
+.confirm-btn,
+.cancel-btn {
+    padding: 12px 28px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.confirm-btn {
+    background: linear-gradient(135deg, #00c853, #64dd17);
+    color: white;
+    box-shadow: 0 4px 14px rgba(0, 200, 83, 0.4);
+}
+
+.confirm-btn:hover {
+    background: linear-gradient(135deg, #00b342, #56c311);
+    transform: translateY(-2px);
+}
+
+.cancel-btn {
+    background: linear-gradient(135deg, #d50000, #ff1744);
+    color: white;
+    box-shadow: 0 4px 14px rgba(229, 57, 53, 0.4);
+}
+
+.cancel-btn:hover {
+    background: linear-gradient(135deg, #b71c1c, #e53935);
+    transform: translateY(-2px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .modal-content.confirmation-modal {
+        padding: 20px;
+    }
+
+    .confirm-btn,
+    .cancel-btn {
+        padding: 10px 20px;
+        font-size: 15px;
+        min-width: 100px;
+    }
 }

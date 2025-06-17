@@ -1,4 +1,5 @@
-import { HashRouter, Routes, Route } from 'react-router-dom';
+// App.js
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Pages/Login/login';
 import Register from './Pages/Register/register';
 import Home from './Pages/Home/home';
@@ -14,7 +15,7 @@ import './App.css';
 
 const App = () => {
   return (
-    <HashRouter>
+    <BrowserRouter basename="/C-C"> {/* 👈 Important for GitHub Pages */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
@@ -23,14 +24,19 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/course" element={<Course />} />
+        <Route path="/course/contact" element={<Contact />} />
+        <Route path="/course/home" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/about2" element={<About2 />} />
+        <Route path="/about/about2" element={<About2 />} />
+        <Route path="/about/home" element={<Home />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/dashboardadmin" element={<AdminDashboard />} />
+
         <Route path="*" element={<h1>404 - Page Not Found</h1>} />
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 };
 

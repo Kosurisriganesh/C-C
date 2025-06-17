@@ -2,48 +2,45 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../../Pages/Firebase/firebase';
 import { signOut } from 'firebase/auth';
-import ct from '../../Assets/ct.jpg';
-import fa from '../../Assets/fa.jpg';
 import './dashboard.css';
 import profilepic from '../../Assets/profilepic.jpg';
-import technicalanalysis from '../../Assets/technical analysis.jpg';
 import Footer from '../../Components/Footer/footer';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-// Static course definitions for recommendations/fallbacks
+// Static course definitions for recommendations/fallbacks - ALL START FROM 0
 const courseMap = {
   'technical': {
     id: 'technical',
     title: 'Technical Analysis',
-    instructor: 'John Smith',
-    thumbnail: technicalanalysis,
+    instructor: 'SVS Karthik',
+    thumbnail: './Assets/technical analysis.jpg',
     totalModules: 10,
-    completedModules: 4,
+    completedModules: 0,
   },
   'fundamental': {
     id: 'fundamental',
     title: 'Fundamental Analysis',
-    instructor: 'Sarah Johnson',
-    thumbnail: fa,
+    instructor: 'SVS Karthik',
+    thumbnail: './Assets/fa.jpg',
     totalModules: 8,
-    completedModules: 2,
+    completedModules: 0,
   },
   'commodity': {
     id: 'commodity',
     title: 'Commodity Trading',
-    instructor: 'Michael Chen',
-    thumbnail: ct,
+    instructor: 'SVS Karthik',
+    thumbnail: './Assets/ct.jpg',
     totalModules: 12,
-    completedModules: 9,
+    completedModules: 0,
   },
   'forex': {
     id: 'forex',
     title: 'Features & Options',
-    instructor: 'Alex Wong',
-    thumbnail: process.env.PUBLIC_URL + '/c&c2 (2).jpg',
+    instructor: 'SVS Karthik',
+    thumbnail:  './Assets/forex.jpg',
     totalModules: 10,
-    completedModules: 3,
+    completedModules: 0,
   },
 };
 
@@ -77,29 +74,36 @@ const Dashboard = () => {
     return () => unsubscribe();
   }, []);
 
-  // Fetch enrolled courses from backend after login or user update
-  // (Inside useEffect which fetches enrolled courses)
-useEffect(() => {
-  if (!user?.uid) {
-    setEnrolledCourses([]);
-    return;
-  }
-  setLoading(true);
-  fetch(`${API_BASE}/api/enrollments/users/${user.uid}/enrolled-courses`, {
-    credentials: 'include',
-  })
-    .then(res => res.json())
-    .then(data => {
-      // Ensure each course has an 'id' property
-      const courses = (data.courses || []).map(course => ({
-        ...course,
-        id: course.id || course._id, // add id if missing
-      }));
-      setEnrolledCourses(courses);
-      setLoading(false);
+  // Fetch enrolled courses from backend - ENSURE 0 MODULES FOR NEW USERS
+  useEffect(() => {
+    if (!user?.uid) {
+      setEnrolledCourses([]);
+      return;
+    }
+    setLoading(true);
+    fetch(`${API_BASE}/api/enrollments/users/${user.uid}/enrolled-courses`, {
+      credentials: 'include',
     })
-    .catch(() => setLoading(false));
-}, [user]);
+      .then(res => res.json())
+      .then(data => {
+        // CRITICAL: Ensure each course starts with 0 completed modules for new users
+        const courses = (data.courses || []).map(course => ({
+          ...course,
+          id: course.id || course._id,
+          // Force completedModules to be 0 if it's undefined, null, or not a number
+          completedModules: (typeof course.completedModules === 'number' && course.completedModules >= 0) 
+            ? course.completedModules 
+            : 0,
+          totalModules: course.totalModules || courseMap[course.id]?.totalModules || 1,
+        }));
+        setEnrolledCourses(courses);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching enrolled courses:', error);
+        setLoading(false);
+      });
+  }, [user]);
 
   // List recommended courses: those not enrolled
   useEffect(() => {
@@ -109,12 +113,14 @@ useEffect(() => {
     );
   }, [enrolledCourses]);
 
-  // Backend course enrollment
+  // Backend course enrollment - EXPLICITLY SET TO 0
   const enrollInCourse = async (courseId, courseName) => {
     console.log(`Enrolling in course: ${courseId}`);
     console.log(`Course Name: ${courseName}`);
     if (!user) return;
+    
     try {
+      const courseDetails = courseMap[courseId];
       const res = await fetch(`${API_BASE}/api/enrollments/enroll`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -122,23 +128,45 @@ useEffect(() => {
         body: JSON.stringify({
           userId: user.uid,
           courseId,
-          courseName
+          courseName,
+          completedModules: 0, // EXPLICITLY SET TO 0 FOR NEW ENROLLMENTS
+          totalModules: courseDetails?.totalModules || 1,
+          enrolledAt: new Date().toISOString(),
+          instructor: courseDetails?.instructor || 'Instructor',
+          thumbnail: courseDetails?.thumbnail || '',
+          progress: 0 // Also set progress to 0%
         })
       });
+      
       const data = await res.json();
       console.log('Enrollment response:', data);
+      
       if (data.success) {
         alert(`Successfully enrolled in ${courseName}!`);
-        // Refresh enrolled courses
+        
+        // Refresh enrolled courses with proper initialization
         const enrolledRes = await fetch(`${API_BASE}/api/enrollments/users/${user.uid}/enrolled-courses`, {
           credentials: 'include',
         });
         const enrolledData = await enrolledRes.json();
-        setEnrolledCourses(enrolledData.courses || []);
+        
+        // ENSURE proper initialization of all course progress
+        const updatedCourses = (enrolledData.courses || []).map(course => ({
+          ...course,
+          id: course.id || course._id,
+          // Double-check: Force 0 for new enrollments
+          completedModules: (typeof course.completedModules === 'number' && course.completedModules >= 0) 
+            ? course.completedModules 
+            : 0,
+          totalModules: course.totalModules || courseMap[course.id]?.totalModules || 1,
+        }));
+        
+        setEnrolledCourses(updatedCourses);
       } else {
         alert(data.message || "Enrollment failed");
       }
     } catch (e) {
+      console.error('Enrollment error:', e);
       alert("Enrollment failed: " + e.message);
     }
   };
@@ -151,7 +179,9 @@ useEffect(() => {
       setUser(null);
       setEnrolledCourses([]);
       navigate('/login');
-    } catch (error) {}
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
@@ -168,10 +198,13 @@ useEffect(() => {
 
   if (loading) return <div className="loading-container">Loading...</div>;
 
-  // Calculate statistics/progress
+  // Calculate progress - ENSURE 0% for new enrollments
   const courseProgress = {};
   enrolledCourses.forEach(course => {
-    courseProgress[course.id] = Math.round((course.completedModules / course.totalModules) * 100);
+    const completed = course.completedModules || 0;
+    const total = course.totalModules || 1;
+    // Ensure progress is never negative and always starts from 0
+    courseProgress[course.id] = completed >= 0 ? Math.round((completed / total) * 100) : 0;
   });
 
   return (
@@ -217,7 +250,6 @@ useEffect(() => {
                     <span className="profile-role">{user.role}</span>
                   </li>
                   <li><Link to="/Profile" onClick={() => setShowProfileDropdown(false)}>My Profile</Link></li>
-                  {/* <li><Link to="/settings" onClick={() => setShowProfileDropdown(false)}>Account Settings</Link></li> */}
                   <li><Link to="/Course" onClick={() => setShowProfileDropdown(false)}>My Courses</Link></li>
                   <li className="logout-option" onClick={handleLogout}>Logout</li>
                 </ul>
@@ -282,10 +314,9 @@ useEffect(() => {
             <div className="enrolled-courses-grid">
               {enrolledCourses.map(course => (
                 <div key={course.id} className="course-card">
-                  {console.log(course)}
                   <div className="course-thumbnail">
                     <img
-                      src={course.thumbnail }
+                      src={course.thumbnail}
                       alt={course.title}
                       onError={(e) => {
                         e.target.onerror = null;
@@ -296,12 +327,12 @@ useEffect(() => {
                   <div className="course-details">
                     <h3>{course.title}</h3>
                     <p className="instructor">Instructor: {course.instructor}</p>
-                          {course.enrolledAt && (
-                              <p className="enrolled-date">
-                                  Enrolled on: {new Date(course.enrolledAt).toLocaleDateString()}
-                              </p>
-                          )}
-                          
+                    {course.enrolledAt && (
+                      <p className="enrolled-date">
+                        Enrolled on: {new Date(course.enrolledAt).toLocaleDateString()}
+                      </p>
+                    )}
+                    
                     <div className="progress-container">
                       <div className="progress-bar">
                         <div
@@ -314,13 +345,15 @@ useEffect(() => {
                       </span>
                     </div>
                     <div className="course-modules-info">
-                      <span>{course.completedModules}/{course.totalModules} modules completed</span>
+                      <span>
+                        {course.completedModules || 0}/{course.totalModules || 1} modules completed
+                      </span>
                     </div>
                     <Link
                       to={`/Course?video=${getCourseFirstVideo(course.id)}`}
                       className="continue-course-button"
                     >
-                      Continue Learning
+                      {(course.completedModules || 0) === 0 ? 'Start Course' : 'Continue Learning'}
                     </Link>
                   </div>
                 </div>

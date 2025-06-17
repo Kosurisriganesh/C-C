@@ -34,7 +34,7 @@ const Footer = () => {
                 <div className="footer-column">
                     <h4>Our Courses</h4>
                     <ul className="footer-links">
-                        <li><Link to="/Course">Technical Analysi</Link>s</li>
+                        <li><Link to="/Course">Technical Analysis</Link></li>
                         <li><Link to="/Course">Fundamental Analysis</Link></li>
                         <li><Link to="/Course">Commodity Trading</Link></li>
                         <li><Link to="/Course">Features & Options</Link></li>

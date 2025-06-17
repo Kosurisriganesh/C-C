@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { signInWithPopup, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, googleProvider } from '../../Pages/Firebase/firebase';
 import './register.css';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -244,17 +247,20 @@ const Registration = () => {
                 {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
               </div>
 
-              <div className="form-group checkbox-group">
-                <input
-                  type="checkbox"
-                  id="isAdmin"
-                  name="isAdmin"
-                  checked={formData.isAdmin}
-                  onChange={handleChange}
-                  disabled={isLoading}
+              <FormGroup className="form-group checkbox-group"> {/* Keeping your existing class for styling if needed */}
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={formData.isAdmin}
+                      onChange={handleChange}
+                      name="isAdmin"
+                      id="isAdmin"
+                      disabled={isLoading}
+                    />
+                  }
+                  label="Register as Administrator"
                 />
-                <label htmlFor="isAdmin">Register as Administrator</label>
-              </div>
+              </FormGroup>
 
               <button
                 type="submit"

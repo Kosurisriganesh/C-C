@@ -409,7 +409,8 @@ h1, h2, h3 {
     margin-right: auto;
 }
 .dashboard-content h1 {
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
+    padding: 25px;
     color: var(--text-dark);
     text-align: center;
     font-family: 'Poppins', sans-serif;

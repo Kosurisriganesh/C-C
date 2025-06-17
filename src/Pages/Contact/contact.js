@@ -155,7 +155,7 @@ const Contact = () => {
             <p><strong><FontAwesomeIcon icon={faLocationDot} /> </strong> {contactInfo.address}</p>
 
             <div className="social-links">
-              <a href="#" className="social-icon"><FontAwesomeIcon icon={faWhatsapp} /></a>
+              <a href="https://wa.me/+918019261006?text=Hi%20there!%20I%20saw%20your%20website." className="social-icon" target="_blank" rel="noopener noreferrer"><FontAwesomeIcon icon={faWhatsapp} /></a>
               <a
                 href="https://www.instagram.com/karthik_traderr?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                 className="social-icon"

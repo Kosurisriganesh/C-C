@@ -11,7 +11,8 @@ function userResponse(user) {
     email: user.email,
     fullName: user.fullName,
     phoneNumber: user.phoneNumber,
-    isAdmin: user.isAdmin
+    isAdmin: user.isAdmin,
+    status: user.status
   };
 }
 
@@ -22,7 +23,7 @@ router.post('/register', async (req, res) => {
   try {
     const { fullName, phoneNumber, email, password, isAdmin } = req.body;
     const emailLower = email.toLowerCase();
-
+    
     // Check if user already exists
     let user = await User.findOne({ email: emailLower });
     if (user) {
@@ -38,13 +39,14 @@ router.post('/register', async (req, res) => {
       phoneNumber,
       email: emailLower,
       password,
-      isAdmin: adminFlag
+      isAdmin: adminFlag,
+      status: false, // false = active (online)
+      lastActivity: new Date()
     });
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
-
     await user.save();
 
     const payload = {
@@ -98,8 +100,12 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Set status to active
-    await User.findByIdAndUpdate(user._id, { status: true });
+    // Set status to active (false = active/online)
+    await User.findByIdAndUpdate(user._id, { 
+      status: false, // false = active/online
+      lastActivity: new Date(),
+      lastLoginAt: new Date()
+    });
 
     const payload = {
       user: {
@@ -131,19 +137,94 @@ router.post('/login', async (req, res) => {
 
 // @route   POST api/auth/logout
 // @desc    Logout user and set status to inactive
-
+// @access  Private
 router.post('/logout', async (req, res) => {
-    const { userId } = req.body;
-    console.log('Logout for userId:', userId);
-    try {
-        const updatedUser = await User.findByIdAndUpdate(userId, { status: false }, { new: true });
-        console.log('Updated User:', updatedUser);
-        res.json({ message: 'User status updated to inactive.' });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: 'Server error.' });
+  try {
+    const { userId, email } = req.body;
+    console.log('=== LOGOUT ATTEMPT ===');
+    console.log('Received userId:', userId);
+    console.log('Received email:', email);
+    
+    let user = null;
+    
+    // Try to find by userId first
+    if (userId) {
+      try {
+        user = await User.findById(userId);
+        console.log('Found by ID:', user ? user.email : 'not found');
+      } catch (err) {
+        console.log('Invalid userId format:', err.message);
+      }
     }
-});;
+    
+    // If not found by ID, try by email
+    if (!user && email) {
+      user = await User.findOne({ email: email.toLowerCase() });
+      console.log('Found by email:', user ? user.email : 'not found');
+    }
+    
+    if (!user) {
+      console.log('❌ User not found');
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update status
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        status: true, // true = inactive/offline
+        lastActivity: new Date(),
+        lastLogoutAt: new Date()
+      },
+      { new: true }
+    );
+
+    console.log('✅ User logged out:', updatedUser.email, 'Status:', updatedUser.status);
+    res.json({ 
+      message: 'User logged out successfully',
+      email: updatedUser.email,
+      status: updatedUser.status
+    });
+  } catch (err) {
+    console.error('Logout error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+// @route   POST api/auth/update-status
+// @desc    Update user online/offline status
+// @access  Private
+router.post('/update-status', async (req, res) => {
+  try {
+    const { userId, status } = req.body;
+    
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      userId, 
+      { 
+        status: status, // false = active/online, true = inactive/offline
+        lastActivity: new Date()
+      },
+      { new: true }
+    );
+    
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json({ 
+      message: 'User status updated successfully',
+      user: userResponse(updatedUser)
+    });
+  } catch (error) {
+    console.error('Update status error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // @route   POST api/auth/google-auth
 // @desc    Handle Google authentication
@@ -154,7 +235,7 @@ router.post('/google-auth', async (req, res) => {
     const emailLower = email.toLowerCase();
 
     let user = await User.findOne({ email: emailLower });
-
+    
     if (!user) {
       user = new User({
         fullName,
@@ -162,9 +243,18 @@ router.post('/google-auth', async (req, res) => {
         phoneNumber: '',
         password: '',
         isAdmin: !!isAdmin,
-        googleId: uid
+        googleId: uid,
+        status: false, // false = active/online
+        lastActivity: new Date()
       });
       await user.save();
+    } else {
+      // Update existing user status to online
+      await User.findByIdAndUpdate(user._id, { 
+        status: false, // false = active/online
+        lastActivity: new Date(),
+        lastLoginAt: new Date()
+      });
     }
 
     const payload = {
@@ -194,7 +284,5 @@ router.post('/google-auth', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
-
-
 
 module.exports = router;

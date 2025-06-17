@@ -482,6 +482,7 @@
   flex: 1;
   padding: 20px 30px;
   min-width: 0;
+  
 }
 .Course-cover h3 {
   font-size: 1.6rem;
@@ -895,4 +896,147 @@
   .footer-logo img { height: 28px; }
   .container, .Course-cover { padding: 4px; }
   .course-sidebar { padding: 10px 2px; }
+}
+
+/* course overview container */
+
+.course-overview-container {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.course-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.course-overview-thumbnail {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.course-overview-title {
+  font-size: 2rem;
+  color: #333;
+  margin: 0;
+}
+
+.course-overview-details {
+  margin-bottom: 20px;
+}
+
+.course-overview-description,
+.course-overview-instructor,
+.course-overview-video-count {
+  font-size: 1.1rem;
+  margin: 10px 0;
+  color: #555;
+}
+
+.course-enrollment-status {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.enroll-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.enroll-btn:hover {
+  background-color: #0056b3;
+}
+
+.course-topics {
+  margin-top: 20px;
+}
+
+.course-topics h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.course-topics-list {
+  list-style: none;
+  padding: 0;
+}
+
+.course-topic-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.course-topic-item:hover {
+  background-color: #e9ecef;
+}
+
+.topic-number {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.topic-title {
+  font-size: 1rem;
+  color: #333;
+}
+
+.topic-duration {
+  font-size: 0.9rem;
+  color: #777;
+  margin-left: 10px;
+}
+
+.topic-description {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 5px 0 0 20px;
+}
+
+.start-course-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin-top: 20px;
+  transition: background-color 0.3s;
+}
+
+.start-course-btn:hover {
+  background-color: #218838;
+}
+
+.default-course-view {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height:700px;
+}
+
+.default-course-view h3 {
+  font-size: 2rem;
+  color: #333;
+}
+
+.default-course-view p {
+  font-size: 1.2rem;
+  color: #555;
 }

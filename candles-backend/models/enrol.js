@@ -14,6 +14,30 @@ const enrollmentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  completedModules: {
+    type: Number,
+    default: 0, // CRITICAL: Always start from 0
+    min: 0 
+  },
+  totalModules: {
+    type: Number,
+    default: 1,
+    min: 1
+  },
+  instructor: {
+    type: String,
+    default: 'Instructor'
+  },
+  thumbnail: {
+    type: String,
+    default: ''
+  },
+  progress: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
   enrollmentDate: {
     type: Date,
     default: Date.now

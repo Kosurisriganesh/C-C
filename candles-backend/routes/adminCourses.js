@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Course = require('../models/course');
+const mongoose = require('mongoose');
 
 // Middleware to check admin
 const requireAdmin = (req, res, next) => {
@@ -44,6 +45,11 @@ router.post('/', requireAdmin, async (req, res) => {
 // UPDATE a course
 router.put('/:id', requireAdmin, async (req, res) => {
   try {
+    const courseId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ error: "Invalid or missing Course ID" });
+    }
+
     const { title, description, videos } = req.body;
     const updateObj = {};
     if (title !== undefined) updateObj.title = title;
@@ -51,16 +57,18 @@ router.put('/:id', requireAdmin, async (req, res) => {
     if (videos !== undefined) updateObj.videos = videos;
 
     const updated = await Course.findByIdAndUpdate(
-      req.params.id,
+      courseId,
       updateObj,
       { new: true, runValidators: true }
     );
+
     if (!updated) return res.status(404).json({ error: 'Course not found' });
     res.json(updated);
   } catch (err) {
     res.status(400).json({ error: err.message || 'Failed to update course' });
   }
 });
+
 
 // DELETE a course
 router.delete('/:id', requireAdmin, async (req, res) => {

@@ -41,9 +41,10 @@ const Course = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [enrolledCourses, setEnrolledCourses] = useState([]); // This state is still here but not used for rendering course details
   const [courses, setCourses] = useState([]);
   const [iframeError, setIframeError] = useState(false);
+  // const [selectedCourseDetails, setSelectedCourseDetails] = useState(null); // Removed
 
   // Fetch courses from backend
   useEffect(() => {
@@ -62,14 +63,15 @@ const Course = () => {
       return;
     }
     try {
-      // You may need to implement this endpoint or adjust as per your backend
       const res = await axios.get(`${API_BASE_URL}/api/users/${currentUser.uid}/enrolled-courses`);
       setEnrolledCourses(res.data.courses.map(c => c.id || c.courseId));
     } catch (e) {
       setEnrolledCourses([]);
+      console.error("Failed to fetch enrolled courses:", e);
     }
   };
 
+  // Auth state listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -88,27 +90,21 @@ const Course = () => {
       setLoading(false);
     });
     return () => unsubscribe();
-    // eslint-disable-next-line
   }, [navigate]);
 
-  // Set default to first course with videos after loading courses
+  // Set default to first course details after loading courses if no video specified
   useEffect(() => {
-    if (courses.length > 0 && (activeCategory === null || !courses.find(c => c._id === activeCategory))) {
-      const firstCourseWithVideos = courses.find(cat => cat.videos && cat.videos.length > 0);
-      if (firstCourseWithVideos) {
-        setActiveCategory(firstCourseWithVideos._id);
-        setExpandedCategory(firstCourseWithVideos._id);
-        setSelectedVideo(firstCourseWithVideos.videos[0]);
-        setIsPlaying(false);
-      } else if (courses.length > 0) {
-        setActiveCategory(courses[0]._id);
-        setExpandedCategory(courses[0]._id);
+    if (courses.length > 0 && activeCategory === null && !videoToPlay) {
+      const firstCourse = courses[0];
+      if (firstCourse) {
+        setActiveCategory(firstCourse._id);
+        setExpandedCategory(firstCourse._id);
+        // setSelectedCourseDetails(firstCourse); // Removed
         setSelectedVideo(null);
         setIsPlaying(false);
       }
     }
-    // eslint-disable-next-line
-  }, [courses]);
+  }, [courses, videoToPlay]);
 
   // Video auto-play based on query parameter
   useEffect(() => {
@@ -129,10 +125,10 @@ const Course = () => {
         setActiveCategory(foundCategory._id);
         setExpandedCategory(foundCategory._id);
         setSelectedVideo(foundVideo);
+        // setSelectedCourseDetails(null); // Removed
         setIsPlaying(true);
       }
     }
-    // eslint-disable-next-line
   }, [videoToPlay, courses]);
 
   // Reset iframe error when selected video changes
@@ -154,6 +150,7 @@ const Course = () => {
       const video = category.videos.find(vid => vid.id === videoId);
       if (video) {
         setSelectedVideo(video);
+        
         setIsPlaying(true);
       }
     }
@@ -162,11 +159,14 @@ const Course = () => {
   const handleCategoryChange = (categoryId) => {
     setActiveCategory(categoryId);
     setExpandedCategory(categoryId);
+
     const category = courses.find(cat => cat._id === categoryId);
-    if (category && category.videos && category.videos.length > 0) {
-      setSelectedVideo(category.videos[0]);
-      setIsPlaying(true);
+    if (category) {
+      // setSelectedCourseDetails(category); // Removed
+      setSelectedVideo(null);
+      setIsPlaying(false);
     } else {
+      // setSelectedCourseDetails(null); // Removed
       setSelectedVideo(null);
       setIsPlaying(false);
     }
@@ -202,7 +202,7 @@ const Course = () => {
             <span><Link to="/course">COURSES</Link></span>
             <ul className="dropdown-menu">
               {courses.map(course => (
-                <li key={course._id}>{course.title}</li>
+                <li key={course._id} onClick={() => handleCategoryChange(course._id)}>{course.title}</li>
               ))}
             </ul>
           </li>
@@ -242,9 +242,9 @@ const Course = () => {
                     />
                   </div>
                   <div className="user-info-text">
-                    <p><strong>Name:</strong> {user?.name} </p>
-                    <p><strong>Email:</strong> {user?.email} </p>
-                    <p><strong>Account Type:</strong> {user?.role} </p>
+                    <p><strong>Name:</strong> {user?.name}</p>
+                    <p><strong>Email:</strong> {user?.email}</p>
+                    <p><strong>Account Type:</strong> {user?.role}</p>
                   </div>
                 </div>
                 <Link to="/Profile" className="view-profile-button">
@@ -322,7 +322,7 @@ const Course = () => {
                       >
                         Join Live Class
                       </a>
-                      <p style={{marginTop: "10px"}}>Click the button above to join the live session in a new tab.</p>
+                      <p style={{ marginTop: "10px" }}>Click the button above to join the live session in a new tab.</p>
                     </div>
                   ) : (
                     !iframeError ? (
@@ -356,7 +356,12 @@ const Course = () => {
                   )}
                   {currentCourse && (
                     <p className="video-total">
-                      <strong>Total Videos:</strong> {currentCourse.videos?.length || 0}
+                      <strong>Total Videos in this Course:</strong> {currentCourse.videos?.length || 0}
+                    </p>
+                  )}
+                  {selectedVideo.description && (
+                    <p className="video-description">
+                      <strong>Description:</strong> {selectedVideo.description}
                     </p>
                   )}
                 </div>
@@ -368,31 +373,11 @@ const Course = () => {
               </div>
             )
           ) : (
-            <>
-              <br />
-              <br />
-              <h3>OUR COURSES</h3>
-              <p>We Offer Following Stock Trading Courses</p>
-              <div className="course-instructions">
-                <p>Select a course category from the left sidebar and choose a video to start learning.</p>
-              </div>
-              {enrolledCourses.length > 0 && (
-                <div className="enrolled-courses-section">
-                  <h4>Your Enrolled Courses</h4>
-                  <ul className="enrolled-courses-list">
-                    {enrolledCourses.map(courseId => {
-                      const course = courses.find(cat => cat._id === courseId);
-                      return course ? (
-                        <li key={courseId} onClick={() => handleCategoryChange(courseId)}>
-                          <span>{course.title}</span>
-                          <i className="fas fa-arrow-right"></i>
-                        </li>
-                      ) : null;
-                    })}
-                  </ul>
-                </div>
-              )}
-            </>
+            <div className="default-course-view">
+              <h3>Explore Our Courses</h3>
+              <p>Choose a course from the sidebar to view in Right side</p>
+              
+            </div>
           )}
         </div>
       </div>

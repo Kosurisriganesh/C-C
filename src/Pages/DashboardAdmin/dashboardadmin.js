@@ -4,7 +4,7 @@ import { auth } from '../../Pages/Firebase/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import './dashboardadmin.css';
 import Footer from '../../Components/Footer/footer';
-import {Table,TableHead,TableRow,TableCell,TableBody,Button} from '@mui/material';
+import { Table, TableHead, TableRow, TableCell, TableBody, Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -129,13 +129,13 @@ const AdminDashboard = () => {
 
     // ------------------ FETCH MESSAGES ------------------
     const fetchMessages = useCallback(() => {
-        
+
         if (user?.role !== 'Admin') {
             setMessages([]);
             return;
         }
         const token = localStorage.getItem('token');
-       
+
         if (!token) {
             setMessages([]);
             return;
@@ -179,11 +179,8 @@ const AdminDashboard = () => {
         if (activeMenuItem === 'users') {
             const interval = setInterval(fetchUsers, 5000);
             return () => clearInterval(interval);
-        } else if (activeMenuItem === 'messages') {
-            const interval = setInterval(fetchMessages, 5000);
-            return () => clearInterval(interval);
         }
-    }, [activeMenuItem, fetchUsers, fetchMessages]);
+    }, [activeMenuItem, fetchUsers]);
 
     const handleProfileClick = () => setShowProfileDropdown(!showProfileDropdown);
     const handleLogout = async () => {
@@ -191,19 +188,54 @@ const AdminDashboard = () => {
             const storedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
             const userId = storedUserInfo._id;
             const token = localStorage.getItem('token');
-            if (userId && token) {
-                await fetch(`${API_BASE_URL}/api/auth/logout`, {
+            
+            console.log('=== FRONTEND LOGOUT ===');
+            console.log('StoredUserInfo:', storedUserInfo);
+            console.log('Extracted userId:', userId);
+            console.log('Token exists:', !!token);
+            
+            // Also try to get userId from JWT token as backup
+            let tokenUserId = null;
+            if (token) {
+                try {
+                    const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+                    tokenUserId = tokenPayload.user.id;
+                    console.log('UserId from token:', tokenUserId);
+                } catch (e) {
+                    console.log('Could not extract userId from token');
+                }
+            }
+            
+            const finalUserId = userId || tokenUserId;
+            console.log('Final userId to send:', finalUserId);
+            
+            if (finalUserId && token) {
+                console.log('Sending logout request...');
+                const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'x-auth-token': token
                     },
-                    body: JSON.stringify({ userId })
+                    body: JSON.stringify({ userId: finalUserId })
                 });
+                
+                const result = await response.json();
+                console.log('Logout response:', response.status, result);
+                
+                if (response.ok) {
+                    console.log('✅ Logout successful!');
+                } else {
+                    console.error('❌ Logout failed:', result);
+                }
+            } else {
+                console.log('❌ Missing userId or token');
             }
         } catch (err) {
-            console.error('Failed to update status on logout', err);
+            console.error('Logout error:', err);
         }
+        
+        // Continue with Firebase signout
         auth.signOut().then(() => {
             localStorage.removeItem('userInfo');
             localStorage.removeItem('token');
@@ -214,21 +246,53 @@ const AdminDashboard = () => {
         });
     };
 
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            const storedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            const userId = storedUserInfo._id;
+            const token = localStorage.getItem('token');
+            
+            if (userId && token) {
+                // Use sendBeacon for reliable logout on page unload
+                const blob = new Blob([JSON.stringify({ userId })], { type: 'application/json' });
+                navigator.sendBeacon(`${API_BASE_URL}/api/auth/logout`, blob);
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, []);
+
     const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
+
+
     // ------------------ COURSE MANAGEMENT ------------------
-    const handleAddCourse = () => { setCurrentCourse(null); setIsCourseModalOpen(true); };
-    const handleEditCourse = (course) => { setCurrentCourse(course); setIsCourseModalOpen(true); };
+    const handleAddCourse = () => {
+        setCurrentCourse(null);
+        setIsCourseModalOpen(true);
+    };
+
+    const handleEditCourse = (course) => {
+        console.log("Editing course:");
+        setCurrentCourse(course);
+        setIsCourseModalOpen(true);
+    };
 
     const saveCourse = (courseData) => {
         const token = localStorage.getItem('token');
-        const payload = { 
-            title: courseData.title, 
-            description: courseData.description, 
+        const payload = {
+            title: courseData.title,
+            description: courseData.description,
             instructor: courseData.instructor,
             videos: Array.isArray(courseData.videos) ? courseData.videos : []
         };
+        console.log("Saving course with payload:", payload);
+
         if (currentCourse) {
             fetch(`${API_BASE_URL}/api/admin/courses/${currentCourse._id}`, {
                 method: 'PUT',
@@ -246,6 +310,7 @@ const AdminDashboard = () => {
                     alert("Course updated successfully!");
                     setCourses(prevCourses =>
                         prevCourses.map(c => (c._id === updatedCourse._id ? updatedCourse : c))
+
                     );
                     setIsCourseModalOpen(false);
                 })
@@ -407,6 +472,7 @@ const AdminDashboard = () => {
         const [videos, setVideos] = useState(course && course.videos ? course.videos : []);
 
         useEffect(() => {
+            console.log("CourseModal received course:", course);
             if (course) {
                 setTitle(course.title || '');
                 setDescription(course.description || '');
@@ -457,87 +523,70 @@ const AdminDashboard = () => {
                 <div className="modal-content">
                     <h3>{course ? 'Edit Course' : 'Add New Course'}</h3>
                     <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="courseTitle">Title:</label>
-                            <input
-                                type="text"
-                                id="courseTitle"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="courseInstructor">Instructor:</label>
-                            <input
-                                type="text"
-                                id="courseInstructor"
-                                value={instructor}
-                                onChange={(e) => setInstructor(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="courseDescription">Description:</label>
-                            <textarea
-                                id="courseDescription"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                rows="4"
-                                required
-                            ></textarea>
-                        </div>
-                        <div className="form-group">
-                            <label>Videos:</label>
-                            {videos.map((video, idx) => (
-                                <div key={video.id || idx} style={{ marginBottom: '0.8rem', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '0.75rem', background: '#f8fafc' }}>
+                        <div className="modal-body">
+                            <div className="modal-left">
+                                <div className="form-group">
+                                    <label htmlFor="courseTitle">Title:</label>
                                     <input
                                         type="text"
-                                        placeholder="Video Title"
-                                        value={video.title}
-                                        onChange={e => handleVideoChange(idx, 'title', e.target.value)}
-                                        style={{ width: '49%', marginRight: '2%', marginBottom: '0.5rem' }}
+                                        id="courseTitle"
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
+                                        required
                                     />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="courseInstructor">Instructor:</label>
                                     <input
-                                        type="url"
-                                        placeholder="Video URL"
-                                        value={video.videoUrl}
-                                        onChange={e => handleVideoChange(idx, 'videoUrl', e.target.value)}
-                                        style={{ width: '49%', marginBottom: '0.5rem' }}
+                                        type="text"
+                                        id="courseInstructor"
+                                        value={instructor}
+                                        onChange={(e) => setInstructor(e.target.value)}
+                                        required
                                     />
-                                    <button
-                                        type="button"
-                                        style={{
-                                            background: '#ef4444',
-                                            color: '#fff',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            padding: '4px 10px',
-                                            marginLeft: '8px',
-                                            cursor: 'pointer'
-                                        }}
-                                        onClick={() => handleRemoveVideoField(idx)}
-                                    >
-                                        Remove
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="courseDescription">Description:</label>
+                                    <textarea
+                                        id="courseDescription"
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        rows="4"
+                                        required
+                                    ></textarea>
+                                </div>
+                                
+                            </div>
+
+                            <div className="modal-right">
+                                <div className="form-group">
+                                    <label>Videos:</label>
+                                    {videos.map((video, idx) => (
+                                        <div key={video.id || idx} className="video-box">
+                                            <input
+                                                type="text"
+                                                placeholder="Video Title"
+                                                value={video.title}
+                                                onChange={e => handleVideoChange(idx, 'title', e.target.value)}
+                                            />
+                                            <input
+                                                type="url"
+                                                placeholder="Video URL"
+                                                value={video.videoUrl}
+                                                onChange={e => handleVideoChange(idx, 'videoUrl', e.target.value)}
+                                            />
+                                            <button type="button" onClick={() => handleRemoveVideoField(idx)}>
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button type="button" onClick={handleAddVideoField} className="add-video-to-course-btn">
+                                        + Add Video
                                     </button>
                                 </div>
-                            ))}
-                            <button
-                                type="button"
-                                onClick={handleAddVideoField}
-                                style={{
-                                    background: '#6366f1',
-                                    color: '#fff',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    padding: '6px 14px',
-                                    marginTop: '0.5rem',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                + Add Video
-                            </button>
+                            </div>
                         </div>
+
                         <div className="modal-actions">
                             <button type="submit" className="save-btn">Save</button>
                             <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
@@ -545,6 +594,7 @@ const AdminDashboard = () => {
                     </form>
                 </div>
             </div>
+
         );
     };
 
@@ -722,7 +772,7 @@ const AdminDashboard = () => {
                                                 {course.videos.map(video => (
                                                     <li key={video.id} className="video-item">
                                                         <span>
-                                                            {video.title}  
+                                                            {video.title}
                                                             <a href={video.videoUrl}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
@@ -731,8 +781,8 @@ const AdminDashboard = () => {
                                                             </a>
                                                         </span>
                                                         <div className="video-actions">
-                                                            <button className="edit-video-btn" onClick={() => handleEditVideo(course._id, video)}><EditIcon/></button>
-                                                            <button className="delete-video-btn" onClick={() => handleDeleteVideo(course._id, video.id)}><DeleteIcon/></button>
+                                                            <button className="edit-video-btn" onClick={() => handleEditVideo(course._id, video)}><EditIcon /></button>
+                                                            <button className="delete-video-btn" onClick={() => handleDeleteVideo(course._id, video.id)}><DeleteIcon /></button>
                                                         </div>
                                                     </li>
                                                 ))}
@@ -742,8 +792,8 @@ const AdminDashboard = () => {
                                         )}
                                         <div className="course-actions">
                                             <button className="add-video-to-course-btn" onClick={() => handleAddVideo(course._id)}>Add Video</button>
-                                            <button className="edit-course-btn" onClick={() => handleEditCourse(course)}><EditIcon/>Course</button>
-                                            <button className="delete-course-btn" onClick={() => handleDeleteCourse(course._id)}><DeleteIcon/>Course</button>
+                                            <button className="edit-course-btn" onClick={() => handleEditCourse(course)}><EditIcon />Course</button>
+                                            <button className="delete-course-btn" onClick={() => handleDeleteCourse(course._id)}><DeleteIcon />Course</button>
                                         </div>
                                     </div>
                                 ))

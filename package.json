@@ -2,7 +2,7 @@
   "name": "candles",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://kosurisriganesh.github.io/C-C",
+  "homepage": "https://kosurisriganesh.github.io/C-C/",
 
   "dependencies": {
     "@emotion/react": "^11.14.0",

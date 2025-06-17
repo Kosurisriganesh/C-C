@@ -5,32 +5,42 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  phoneNumber: {
-    type: String
-  },
   email: {
     type: String,
     required: true,
-    unique: true,
-    lowercase: true
+    unique: true
+  },
+  phoneNumber: {
+    type: String
   },
   password: {
     type: String
-  }, // Not required for Google users
+  },
   isAdmin: {
     type: Boolean,
     default: false
   },
-  googleId: { type: String },
-  date: { 
-    type: Date, 
-    default: Date.now },
-
-  status: { 
-    type: Boolean, 
-    default: false   
-  } 
-  // false means not verified, true means verified
+  googleId: {
+    type: String
+  },
+  status: {
+    type: Boolean,
+    default: true // true = inactive/offline, false = active/online
+  },
+  lastActivity: {
+    type: Date,
+    default: Date.now
+  },
+  lastLoginAt: {
+    type: Date
+  },
+  lastLogoutAt: {
+    type: Date
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', UserSchema);
