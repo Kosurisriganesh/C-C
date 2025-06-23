@@ -8,6 +8,8 @@ import { Table, TableHead, TableRow, TableCell, TableBody, Button } from '@mui/m
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+import Logo from '../../Assets/Logo2.png';
+
 const API_BASE_URL = "http://localhost:5000";
 
 const AdminDashboard = () => {
@@ -878,14 +880,13 @@ const AdminDashboard = () => {
             <nav className='dashboard-nav'>
                 <div className="logo">
                     <Link to="/home">
-                        <img src={process.env.PUBLIC_URL + '/c&c2 (2).jpg'} alt="Candles" className="logo-image" />
+                        <img src={Logo} alt="Candles" className="logo-image" />
                     </Link>
                     <h2> CANDLES & CAPITALS </h2>
                 </div>
                 <ul className="nav-links">
                     <li><Link to="/home"> HOME </Link></li>
                     <li><Link to="/about"> ABOUT </Link></li>
-                    <li><Link to="/Contact"> CONTACT </Link></li>
                     <li className="dropdown-container">
                         <span><Link to="/Course"> COURSES </Link></span>
                         <ul className="dropdown-menu">
@@ -895,6 +896,7 @@ const AdminDashboard = () => {
                             <li><Link to="/Course"> Features & Option </Link></li>
                         </ul>
                     </li>
+                    <li><Link to="/Contact"> CONTACT </Link></li>
                     {user ? (
                         <li className="profile-container">
                             <div className="profile-trigger" onClick={handleProfileClick}>

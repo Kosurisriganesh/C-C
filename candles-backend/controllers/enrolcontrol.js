@@ -32,7 +32,7 @@ const staticCourses = {
   },
   'forex': {
     id: 'forex',
-    title: 'Features & Options',
+    title: 'Futures & Options',
     instructor: 'SVS Karthik',
     totalModules: 10,
     completedModules: 0,

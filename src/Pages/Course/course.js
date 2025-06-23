@@ -6,6 +6,7 @@ import axios from 'axios';
 import './course.css';
 import profilepic from '../../Assets/profilepic.jpg';
 import Footer from '../../Components/Footer/footer';
+import Logo from '../../Assets/Logo2.png';
 
 const API_BASE_URL = "http://localhost:5000";
 
@@ -186,8 +187,8 @@ const Course = () => {
     <div className='course-container'>
       <nav className="dashboard-nav">
         <div className="logo">
-          <img src={process.env.PUBLIC_URL + '/c&c2 (2).jpg'} alt="Candles" className="logo-image" />
-          <h2>CANDLES & CAPITALS</h2>
+          <img src={Logo} alt="Candles" className="logo-image" />
+          <h2>CANDLES & CAPITAL</h2>
         </div>
         <ul className="nav-links">
           <li><Link to='./home'> HOME </Link></li>

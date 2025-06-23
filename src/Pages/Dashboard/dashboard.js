@@ -5,6 +5,7 @@ import { signOut } from 'firebase/auth';
 import './dashboard.css';
 import profilepic from '../../Assets/profilepic.jpg';
 import Footer from '../../Components/Footer/footer';
+import Logo from '../../Assets/Logo2.png'
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -36,7 +37,7 @@ const courseMap = {
   },
   'forex': {
     id: 'forex',
-    title: 'Features & Options',
+    title: 'Futures & Options',
     instructor: 'SVS Karthik',
     thumbnail:  './Assets/forex.jpg',
     totalModules: 10,
@@ -212,9 +213,9 @@ const Dashboard = () => {
       <nav className='dashboard-nav'>
         <div className="logo">
           <Link to="/home">
-            <img src={process.env.PUBLIC_URL + '/c&c2 (2).jpg'} alt="Candles" className="logo-image" />
+            <img src={Logo} alt="Candles" className="logo-image" />
           </Link>
-          <h2> CANDLES & CAPITALS </h2>
+          <h2> CANDLES & CAPITAL </h2>
         </div>
         <ul className="nav-links">
           <li><Link to="/home"> HOME </Link></li>
@@ -442,8 +443,9 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        <Footer />
+      
       </div>
+      <Footer />
     </div>
   );
 };

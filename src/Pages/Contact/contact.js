@@ -4,7 +4,6 @@ import contact from '../../Assets/contact.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faLocationDot, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { faInstagram, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
-// import Header from '../../Components/Header/header';
 import Footer from '../../Components/Footer/footer';
 
 const occupationOptions = [
@@ -27,7 +26,7 @@ const Contact = () => {
   const contactInfo = {
     phone: '+91 8978131328',
     email: 'candlesandcapital@gmail.com',
-    address: 'Opp. Apollo Pharmacy Kanithi Road, Gajuwaka, Visakhapatnam - 530026'
+    address: 'Opp. Apollo Pharmacy Kanithi Road, Gajuwaka, Visakhapatnam, Andhra Pradesh - 530026'
   };
 
   const handleChange = (e) => {
@@ -66,8 +65,6 @@ const Contact = () => {
 
   return (
     <div className="tab-content">
-      
-      <br/>
       <h2>Get in touch with use</h2>
 
       <div className="contact-container">

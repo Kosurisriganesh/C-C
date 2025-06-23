@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './header.css';
+import Logo2 from '../../Assets/Logo2.png';
 
 const Header = () => {
     return (
         <div className="dashboard">
             <nav className="dashboard-nav">
                 <div className="logo">
-                    <img src={process.env.PUBLIC_URL + '/c&c2 (2).jpg'} alt="Candles" className="logo-image" />
-                    <h2>CANDLES & CAPITALS</h2>
+                    <img src={Logo2} alt="Candles" className="logo-image" />
+                     <h2>CANDLES & CAPITAL</h2>
                 </div>
 
                 <ul className="nav-links">

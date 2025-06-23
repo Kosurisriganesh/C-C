@@ -5,7 +5,7 @@ const courses = [
   {
     _id: "technical",
     title: "Technical Analysis",
-    instructor: "John Smith",
+    instructor: "SVS Karthik",
     totalModules: 10,
     completedModules: 0,
     description: "Learn technical analysis.",
@@ -30,7 +30,7 @@ const courses = [
   {
     _id: "fundamental",
     title: "Fundamental Analysis",
-    instructor: "Sarah Johnson",
+    instructor: "SVS Karthik",
     totalModules: 8,
     completedModules: 0,
     description: "Learn fundamental analysis.",
@@ -55,7 +55,7 @@ const courses = [
   {
     _id: "commodity",
     title: "Commodity Trading",
-    instructor: "Michael Chen",
+    instructor: "SVS Karthik",
     totalModules: 12,
     completedModules: 0,
     description: "Learn commodity trading.",
@@ -79,8 +79,8 @@ const courses = [
   },
   {
     _id: "forex",
-    title: "Features & Options",
-    instructor: "Alex Wong",
+    title: "Futures & Options",
+    instructor: "SVS Karthik",
     totalModules: 10,
     completedModules: 0,
     description: "Learn features and options.",

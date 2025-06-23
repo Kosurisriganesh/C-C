@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './footer.css';
+import Logo from '../../Assets/Logo2.png';
 
 const Footer = () => {
     return (
@@ -8,7 +9,7 @@ const Footer = () => {
             <div className="footer-top">
                 <div className="footer-column">
                     <div className="footer-logo">
-                        <img src={process.env.PUBLIC_URL + '/c&c2 (2).jpg'} alt="Candles & Capitals" />
+                        <img src={Logo} alt="Candles & Capitals" />
                         <h3>CANDLES & CAPITALS</h3>
                     </div>
                     <p className="footer-description">
@@ -46,7 +47,7 @@ const Footer = () => {
                     <ul className="contact-info">
                         <li>
                             <i className="fas fa-map-marker-alt contact-icon"></i>
-                            <span>Opp.Apollo Pharmacy,Kanithi Road, Gajuwaka,Visakhapatnam.</span>
+                            <span>Opp.Apollo Pharmacy,Kanithi Road, Gajuwaka,Visakhapatnam, Andhra Pradesh.</span>
                         </li>
                         <li>
                             <i className="fas fa-phone contact-icon"></i>
