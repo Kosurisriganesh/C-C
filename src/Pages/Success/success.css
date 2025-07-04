@@ -1,0 +1,106 @@
+.success-main {
+  background-color: #f8f9fa;
+  padding: 60px 20px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.success-wrapper {
+  max-width: 1100px;
+  margin: auto;
+  text-align: center;
+}
+
+.success-heading {
+  font-size: 32px;
+  margin-bottom: 40px;
+  color: #222;
+}
+
+.testimonial-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 40px;
+  align-items: center;
+  flex-wrap: wrap;
+  background: #fff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.testimonial-text {
+  flex: 1;
+  text-align: left;
+  min-width: 300px;
+}
+
+.testimonial-text h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #111;
+}
+
+.testimonial-text .course {
+  font-size: 16px;
+  color: #6a11cb;
+  margin-bottom: 15px;
+}
+
+.testimonial-text .review {
+  font-size: 18px;
+  color: #444;
+  line-height: 1.6;
+}
+
+.testimonial-video-wrapper {
+  flex: 1;
+  min-width: 300px;
+  max-width: 480px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.testimonial-video {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+/* Dots */
+.success-dots {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.success-dot {
+  width: 14px;
+  height: 14px;
+  background-color: #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.success-dot.active {
+  background-color: #6a11cb;
+  box-shadow: 0 0 8px #6a11cb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .testimonial-row {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .testimonial-text {
+    text-align: center;
+  }
+
+  .success-heading {
+    font-size: 26px;
+  }
+}

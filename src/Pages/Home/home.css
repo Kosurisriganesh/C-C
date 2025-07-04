@@ -185,10 +185,14 @@ body {
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
-.course-card img {
+.course-card-img {
   width: 100%;
+  min-height: 250px;
   height: 250px;
-  object-fit: cover;
+  object-fit:fill;
+  background-color: #eee; 
+  display: block;
+  border-bottom: 1px solid #f3f3f3;
 }
 
 .course-card-content {
@@ -226,7 +230,6 @@ body {
 .course-card button:hover {
   background-color: #357abD;
 }
-
 /* About Section */
 
 .About {
@@ -296,9 +299,10 @@ body {
 }
 
 .About-content span {
-  color: #2563eb;
+  color:#357abD;
   font-weight: 600;
   position: relative;
+  font-family :Georgia, 'Times New Roman', Times, serif;
 }
 
 .About-content span::after {

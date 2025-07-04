@@ -88,15 +88,17 @@ const Dashboard = () => {
       .then(res => res.json())
       .then(data => {
         // CRITICAL: Ensure each course starts with 0 completed modules for new users
+        console.log('data.courses',data.courses)
         const courses = (data.courses || []).map(course => ({
           ...course,
-          id: course.id || course._id,
+          id: course._id,
           // Force completedModules to be 0 if it's undefined, null, or not a number
           completedModules: (typeof course.completedModules === 'number' && course.completedModules >= 0) 
             ? course.completedModules 
             : 0,
           totalModules: course.totalModules || courseMap[course.id]?.totalModules || 1,
         }));
+        setRecommendedCourses(courses);
         setEnrolledCourses(courses);
         setLoading(false);
       })
@@ -108,10 +110,11 @@ const Dashboard = () => {
 
   // List recommended courses: those not enrolled
   useEffect(() => {
-    const enrolledIds = enrolledCourses.map(c => c.id);
-    setRecommendedCourses(
-      Object.values(courseMap).filter(c => !enrolledIds.includes(c.id))
-    );
+    const enrolledIds = enrolledCourses.map(c => c._id);
+     setRecommendedCourses(
+       Object.values(courseMap).filter(c => !enrolledIds.includes(c._id))
+     );
+    // setRecommendedCourses(enrolledCourses.filter(c=>!enrolledIds.includes(c._id)));
   }, [enrolledCourses]);
 
   // Backend course enrollment - EXPLICITLY SET TO 0
@@ -375,6 +378,7 @@ const Dashboard = () => {
             {recommendedCourses.length > 0 ? (
               recommendedCourses.map(course => (
                 <div key={course.id} className="course-card">
+                {console.log('378',course)}
                   <div className="course-thumbnail">
                     <img
                       src={course.thumbnail || process.env.PUBLIC_URL + '/c&c2 (2).jpg'}
@@ -389,7 +393,7 @@ const Dashboard = () => {
                     <h3>{course.title}</h3>
                     
                     <button
-                      onClick={() => enrollInCourse(course.id, course.title)}
+                      onClick={() => enrollInCourse(course._id, course.title)}
                       className="enroll-button"
                       disabled={enrolledCourses.some(enrolled => enrolled.id === course.id)}
                     >

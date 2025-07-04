@@ -37,6 +37,10 @@ const AdminDashboard = () => {
     const [confirmationAction, setConfirmationAction] = useState(null);
     const [confirmationMessage, setConfirmationMessage] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
+    const [enrollments, setEnrollments] = useState([]);
+    const [enrollmentsLoading, setEnrollmentsLoading] = useState(false);
+
+
 
     // ------------------ AUTH STATE LISTENER ------------------
     useEffect(() => {
@@ -190,12 +194,12 @@ const AdminDashboard = () => {
             const storedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
             const userId = storedUserInfo._id;
             const token = localStorage.getItem('token');
-            
+
             console.log('=== FRONTEND LOGOUT ===');
             console.log('StoredUserInfo:', storedUserInfo);
             console.log('Extracted userId:', userId);
             console.log('Token exists:', !!token);
-            
+
             // Also try to get userId from JWT token as backup
             let tokenUserId = null;
             if (token) {
@@ -207,10 +211,10 @@ const AdminDashboard = () => {
                     console.log('Could not extract userId from token');
                 }
             }
-            
+
             const finalUserId = userId || tokenUserId;
             console.log('Final userId to send:', finalUserId);
-            
+
             if (finalUserId && token) {
                 console.log('Sending logout request...');
                 const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
@@ -221,10 +225,10 @@ const AdminDashboard = () => {
                     },
                     body: JSON.stringify({ userId: finalUserId })
                 });
-                
+
                 const result = await response.json();
                 console.log('Logout response:', response.status, result);
-                
+
                 if (response.ok) {
                     console.log('✅ Logout successful!');
                 } else {
@@ -236,7 +240,7 @@ const AdminDashboard = () => {
         } catch (err) {
             console.error('Logout error:', err);
         }
-        
+
         // Continue with Firebase signout
         auth.signOut().then(() => {
             localStorage.removeItem('userInfo');
@@ -253,7 +257,7 @@ const AdminDashboard = () => {
             const storedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
             const userId = storedUserInfo._id;
             const token = localStorage.getItem('token');
-            
+
             if (userId && token) {
                 // Use sendBeacon for reliable logout on page unload
                 const blob = new Blob([JSON.stringify({ userId })], { type: 'application/json' });
@@ -262,7 +266,7 @@ const AdminDashboard = () => {
         };
 
         window.addEventListener('beforeunload', handleBeforeUnload);
-        
+
         return () => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
         };
@@ -271,7 +275,41 @@ const AdminDashboard = () => {
     const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
+    //--------------------ENROLLED COURSES ACCESS------------
+    const fetchEnrollments = useCallback(() => {
+        setEnrollmentsLoading(true);
+        fetch(`${API_BASE_URL}/api/enrollments/all`)
+            .then(res => res.json())
+            .then(data => {
+                setEnrollments(data.enrollments || []);
+                setEnrollmentsLoading(false);
+            })
+            .catch(() => {
+                setEnrollments([]);
+                setEnrollmentsLoading(false);
+            });
+    }, []);
 
+    useEffect(() => {
+        if (activeMenuItem === 'enrollments') {
+            fetchEnrollments();
+        }
+    }, [activeMenuItem, fetchEnrollments]);
+
+    const handleVideoAccess = async (enrollmentId, currentAccess) => {
+        await fetch(`${API_BASE_URL}/api/enrollments/${enrollmentId}/video-access`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ hasVideoAccess: !currentAccess })
+        });
+        setEnrollments(prev =>
+            prev.map(en =>
+                en.id === enrollmentId
+                    ? { ...en, hasVideoAccess: !currentAccess }
+                    : en
+            )
+        );
+    };
 
     // ------------------ COURSE MANAGEMENT ------------------
     const handleAddCourse = () => {
@@ -474,7 +512,7 @@ const AdminDashboard = () => {
         const [videos, setVideos] = useState(course && course.videos ? course.videos : []);
 
         useEffect(() => {
-            console.log("CourseModal received course:", course);
+            // console.log("CourseModal received course:", course);
             if (course) {
                 setTitle(course.title || '');
                 setDescription(course.description || '');
@@ -557,7 +595,7 @@ const AdminDashboard = () => {
                                         required
                                     ></textarea>
                                 </div>
-                                
+
                             </div>
 
                             <div className="modal-right">
@@ -752,6 +790,60 @@ const AdminDashboard = () => {
                             <span>Page 1</span>
                             <button>Next »</button>
                         </div>
+                    </div>
+                );
+            case 'enrollments':
+                return (
+                    <div className="enrollments-management">
+                        <h2>User Course Enrollments</h2>
+                        {enrollmentsLoading ? (
+                            <div>Loading enrollments...</div>
+                        ) : (
+                            <table className="enrollments-table">
+                                <thead>
+                                    <tr>
+                                        <th>User ID</th>
+                                        <th>User Name</th>
+                                        {/* <th>User Email</th> */}
+                                        <th>Course Name</th>
+                                        <th>Access</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {enrollments.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="4" style={{ textAlign: "center" }}>No enrollments found.</td>
+                                        </tr>
+                                    ) : (
+                                        enrollments.map(en => (
+                                            <tr key={en.id}>
+                                                <td>{en.userId?._id || en.userId || "N/A"}</td>
+                                                <td>{en.fullName}</td>
+                                                {/* <td>{en.userEmail ? en.userEmail : 'N/A'}</td> */}
+                                                <td>{en.courseName}</td>
+                                                <td>{en.hasVideoAccess ? "Granted" : "Pending"}</td>
+                                                <td>
+                                                    <button
+                                                        onClick={() => handleVideoAccess(en.id, en.hasVideoAccess)}
+                                                        style={{
+                                                            background: en.hasVideoAccess ? "#f44336" : "#4CAF50",
+                                                            color: "white",
+                                                            border: "none",
+                                                            padding: "5px 10px",
+                                                            borderRadius: "4px"
+                                                        }}
+                                                    >
+                                                        {en.hasVideoAccess ? "Revoke Access" : "Grant Access"}
+                                                    </button>
+                                                    
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        )}
                     </div>
                 );
             case 'courses':
@@ -1001,6 +1093,13 @@ const AdminDashboard = () => {
                                 <a href="#users">
                                     <i className="sidebar-icon">👥</i>
                                     <span className="sidebar-text">User Management</span>
+                                </a>
+                            </li>
+                            <li className={activeMenuItem === 'enrollments' ? 'active' : ''}
+                                onClick={() => setActiveMenuItem('enrollments')}>
+                                <a href="#enrollments">
+                                    <i className="sidebar-icon">🎬</i>
+                                    <span className="sidebar-text">Enrollments (Access)</span>
                                 </a>
                             </li>
                             <li className={activeMenuItem === 'courses' ? 'active' : ''}

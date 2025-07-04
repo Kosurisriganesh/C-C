@@ -16,7 +16,7 @@ const enrollmentSchema = new mongoose.Schema({
   },
   completedModules: {
     type: Number,
-    default: 0, // CRITICAL: Always start from 0
+    default: 0,
     min: 0 
   },
   totalModules: {
@@ -46,10 +46,13 @@ const enrollmentSchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'completed', 'cancelled'],
     default: 'active'
+  },
+  hasVideoAccess: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 
-// Compound index to ensure a user can only enroll once in a course
 enrollmentSchema.index({ userId: 1, courseId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Enrollment', enrollmentSchema);

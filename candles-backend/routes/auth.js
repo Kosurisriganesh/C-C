@@ -12,7 +12,9 @@ function userResponse(user) {
     fullName: user.fullName,
     phoneNumber: user.phoneNumber,
     isAdmin: user.isAdmin,
-    status: user.status
+    status: user.status, // true = offline, false = online
+    lastLoginAt: user.lastLoginAt,
+    lastLogoutAt: user.lastLogoutAt
   };
 }
 
@@ -23,7 +25,7 @@ router.post('/register', async (req, res) => {
   try {
     const { fullName, phoneNumber, email, password, isAdmin } = req.body;
     const emailLower = email.toLowerCase();
-    
+
     // Check if user already exists
     let user = await User.findOne({ email: emailLower });
     if (user) {
@@ -41,7 +43,8 @@ router.post('/register', async (req, res) => {
       password,
       isAdmin: adminFlag,
       status: false, // false = active (online)
-      lastActivity: new Date()
+      lastActivity: new Date(),
+      lastLoginAt: new Date()
     });
 
     // Hash password
@@ -102,7 +105,7 @@ router.post('/login', async (req, res) => {
 
     // Set status to active (false = active/online)
     await User.findByIdAndUpdate(user._id, { 
-      status: false, // false = active/online
+      status: false, // online
       lastActivity: new Date(),
       lastLoginAt: new Date()
     });
@@ -144,9 +147,9 @@ router.post('/logout', async (req, res) => {
     console.log('=== LOGOUT ATTEMPT ===');
     console.log('Received userId:', userId);
     console.log('Received email:', email);
-    
+
     let user = null;
-    
+
     // Try to find by userId first
     if (userId) {
       try {
@@ -156,13 +159,13 @@ router.post('/logout', async (req, res) => {
         console.log('Invalid userId format:', err.message);
       }
     }
-    
+
     // If not found by ID, try by email
     if (!user && email) {
       user = await User.findOne({ email: email.toLowerCase() });
       console.log('Found by email:', user ? user.email : 'not found');
     }
-    
+
     if (!user) {
       console.log('❌ User not found');
       return res.status(404).json({ message: 'User not found' });
@@ -172,7 +175,7 @@ router.post('/logout', async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       user._id,
       {
-        status: true, // true = inactive/offline
+        status: true, // offline
         lastActivity: new Date(),
         lastLogoutAt: new Date()
       },
@@ -191,31 +194,30 @@ router.post('/logout', async (req, res) => {
   }
 });
 
-
 // @route   POST api/auth/update-status
 // @desc    Update user online/offline status
 // @access  Private
 router.post('/update-status', async (req, res) => {
   try {
     const { userId, status } = req.body;
-    
+
     if (!userId) {
       return res.status(400).json({ error: 'User ID is required' });
     }
-    
+
     const updatedUser = await User.findByIdAndUpdate(
       userId, 
       { 
-        status: status, // false = active/online, true = inactive/offline
+        status: status,    // false = active/online, true = inactive/offline
         lastActivity: new Date()
       },
       { new: true }
     );
-    
+
     if (!updatedUser) {
       return res.status(404).json({ error: 'User not found' });
     }
-    
+
     res.json({ 
       message: 'User status updated successfully',
       user: userResponse(updatedUser)
@@ -235,7 +237,7 @@ router.post('/google-auth', async (req, res) => {
     const emailLower = email.toLowerCase();
 
     let user = await User.findOne({ email: emailLower });
-    
+
     if (!user) {
       user = new User({
         fullName,
@@ -244,14 +246,15 @@ router.post('/google-auth', async (req, res) => {
         password: '',
         isAdmin: !!isAdmin,
         googleId: uid,
-        status: false, // false = active/online
-        lastActivity: new Date()
+        status: false, // online
+        lastActivity: new Date(),
+        lastLoginAt: new Date()
       });
       await user.save();
     } else {
       // Update existing user status to online
       await User.findByIdAndUpdate(user._id, { 
-        status: false, // false = active/online
+        status: false, // online
         lastActivity: new Date(),
         lastLoginAt: new Date()
       });

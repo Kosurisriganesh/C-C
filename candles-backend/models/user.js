@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+var Schema =   mongoose.Schema;
 
 const UserSchema = new mongoose.Schema({
   fullName: {
@@ -13,6 +14,10 @@ const UserSchema = new mongoose.Schema({
   phoneNumber: {
     type: String
   },
+  courseId: [{ 
+    type: Schema.Types.ObjectId, 
+    ref: 'courses'
+  }],
   password: {
     type: String
   },

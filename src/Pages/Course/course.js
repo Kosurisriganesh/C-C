@@ -23,7 +23,6 @@ function toYouTubeEmbed(url) {
   return url;
 }
 
-// Utility to check for non-embeddable links (Google Meet, Zoom, Teams, etc)
 function isLiveMeetingLink(url) {
   if (!url) return false;
   return /meet\.google\.com|zoom\.us|teams\.microsoft\.com/i.test(url);
@@ -42,10 +41,10 @@ const Course = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [enrolledCourses, setEnrolledCourses] = useState([]); // This state is still here but not used for rendering course details
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [courses, setCourses] = useState([]);
   const [iframeError, setIframeError] = useState(false);
-  // const [selectedCourseDetails, setSelectedCourseDetails] = useState(null); // Removed
+  const [canWatch, setCanWatch] = useState(false); // NEW: flag for admin video access
 
   // Fetch courses from backend
   useEffect(() => {
@@ -57,15 +56,18 @@ const Course = () => {
       });
   }, []);
 
-  // Fetch enrolled courses for the user
+  // Fetch enrolled courses for the user (array of IDs)
   const fetchEnrolledCourses = async (currentUser) => {
     if (!currentUser || !currentUser.uid) {
       setEnrolledCourses([]);
       return;
     }
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/users/${currentUser.uid}/enrolled-courses`);
-      setEnrolledCourses(res.data.courses.map(c => c.id || c.courseId));
+      const res = await axios.get(`${API_BASE_URL}/api/enrollments/users/${currentUser.uid}/enrolled-courses`);
+      setEnrolledCourses(res.data.courses.map(c => ({
+        id: c.id || c.courseId,
+        hasVideoAccess: c.hasVideoAccess // Save access status for each course
+      })));
     } catch (e) {
       setEnrolledCourses([]);
       console.error("Failed to fetch enrolled courses:", e);
@@ -100,7 +102,6 @@ const Course = () => {
       if (firstCourse) {
         setActiveCategory(firstCourse._id);
         setExpandedCategory(firstCourse._id);
-        // setSelectedCourseDetails(firstCourse); // Removed
         setSelectedVideo(null);
         setIsPlaying(false);
       }
@@ -126,7 +127,6 @@ const Course = () => {
         setActiveCategory(foundCategory._id);
         setExpandedCategory(foundCategory._id);
         setSelectedVideo(foundVideo);
-        // setSelectedCourseDetails(null); // Removed
         setIsPlaying(true);
       }
     }
@@ -136,6 +136,35 @@ const Course = () => {
   useEffect(() => {
     setIframeError(false);
   }, [selectedVideo]);
+
+  // Check if user can watch videos (admin granted access)
+ 
+useEffect(() => {
+  let interval = null;
+
+  async function checkAccess() {
+    if (!user || !activeCategory) {
+      setCanWatch(false);
+      return;
+    }
+    try {
+      const courseId = activeCategory;
+      const res = await axios.get(`${API_BASE_URL}/api/enrollments/user/${user.uid}/course/${courseId}`);
+      setCanWatch(res.data.enrollment?.hasVideoAccess === true);
+    } catch {
+      setCanWatch(false);
+    }
+  }
+
+  if (user && activeCategory) {
+    checkAccess(); 
+    interval = setInterval(checkAccess, 2000); // <-- Change interval here
+  }
+
+  return () => {
+    if (interval) clearInterval(interval);
+  };
+}, [user, activeCategory]);
 
   const handleVideoSelect = (categoryId, videoId) => {
     if (!user) {
@@ -151,7 +180,6 @@ const Course = () => {
       const video = category.videos.find(vid => vid.id === videoId);
       if (video) {
         setSelectedVideo(video);
-        
         setIsPlaying(true);
       }
     }
@@ -163,11 +191,9 @@ const Course = () => {
 
     const category = courses.find(cat => cat._id === categoryId);
     if (category) {
-      // setSelectedCourseDetails(category); // Removed
       setSelectedVideo(null);
       setIsPlaying(false);
     } else {
-      // setSelectedCourseDetails(null); // Removed
       setSelectedVideo(null);
       setIsPlaying(false);
     }
@@ -182,6 +208,9 @@ const Course = () => {
   const togglePlayPause = () => setIsPlaying(!isPlaying);
 
   const currentCourse = courses.find(c => c._id === activeCategory);
+
+  // Check if user is enrolled and has access for the selected course
+  const userEnrollment = enrolledCourses.find(ec => ec.id === activeCategory);
 
   return (
     <div className='course-container'>
@@ -304,69 +333,76 @@ const Course = () => {
           <div className="sidebar-info-box">
             <h4>Need Help Choosing?</h4>
             <p>Not sure which course is right for you? Schedule a free consultation with our experts.</p>
-            <button className="consultation-btn" onClick={() => navigate('/contact')}>Book Consultation</button>
+            <button className="consultation-btn" onClick={() => navigate('/contact')}>Book Demo</button>
           </div>
         </div>
         <div className='Course-cover'>
           {selectedVideo ? (
             user ? (
-              <div className="video-player-container">
-                <h2 className="video-title">{selectedVideo.title}</h2>
-                <div className="video-player">
-                  {isLiveMeetingLink(selectedVideo.videoUrl) ? (
-                    <div className="live-meet-wrapper">
-                      <a
-                        href={selectedVideo.videoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="join-meet-btn"
-                      >
-                        Join Live Class
-                      </a>
-                      <p style={{ marginTop: "10px" }}>Click the button above to join the live session in a new tab.</p>
-                    </div>
-                  ) : (
-                    !iframeError ? (
-                      <iframe
-                        src={`${toYouTubeEmbed(selectedVideo.videoUrl)}${isPlaying ? '?autoplay=1' : ''}`}
-                        title={selectedVideo.title}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        onError={() => setIframeError(true)}
-                      ></iframe>
-                    ) : (
-                      <div className="video-error">
-                        <p>Sorry, this video cannot be played (embedding may be disabled).</p>
+              canWatch ? (
+                <div className="video-player-container">
+                  <h2 className="video-title">{selectedVideo.title}</h2>
+                  <div className="video-player">
+                    {isLiveMeetingLink(selectedVideo.videoUrl) ? (
+                      <div className="live-meet-wrapper">
+                        <a
+                          href={selectedVideo.videoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="join-meet-btn"
+                        >
+                          Join Live Class
+                        </a>
+                        <p style={{ marginTop: "10px" }}>Click the button above to join the live session in a new tab.</p>
                       </div>
-                    )
-                  )}
-                  {!isLiveMeetingLink(selectedVideo.videoUrl) && (
-                    <div className="video-controls">
-                      <button className="control-button" onClick={togglePlayPause}>
-                        {isPlaying ? 'Pause' : 'Play'}
-                      </button>
-                    </div>
-                  )}
+                    ) : (
+                      !iframeError ? (
+                        <iframe
+                          src={`${toYouTubeEmbed(selectedVideo.videoUrl)}${isPlaying ? '?autoplay=1' : ''}`}
+                          title={selectedVideo.title}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          onError={() => setIframeError(true)}
+                        ></iframe>
+                      ) : (
+                        <div className="video-error">
+                          <p>Sorry, this video cannot be played (embedding may be disabled).</p>
+                        </div>
+                      )
+                    )}
+                    {!isLiveMeetingLink(selectedVideo.videoUrl) && (
+                      <div className="video-controls">
+                        <button className="control-button" onClick={togglePlayPause}>
+                          {isPlaying ? 'Pause' : 'Play'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="video-info">
+                    {currentCourse && (
+                      <p className="video-instructor">
+                        <strong>Instructor:</strong> {currentCourse.instructor}
+                      </p>
+                    )}
+                    {currentCourse && (
+                      <p className="video-total">
+                        <strong>Total Videos in this Course:</strong> {currentCourse.videos?.length || 0}
+                      </p>
+                    )}
+                    {selectedVideo.description && (
+                      <p className="video-description">
+                        <strong>Description:</strong> {selectedVideo.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="video-info">
-                  {currentCourse && (
-                    <p className="video-instructor">
-                      <strong>Instructor:</strong> {currentCourse.instructor}
-                    </p>
-                  )}
-                  {currentCourse && (
-                    <p className="video-total">
-                      <strong>Total Videos in this Course:</strong> {currentCourse.videos?.length || 0}
-                    </p>
-                  )}
-                  {selectedVideo.description && (
-                    <p className="video-description">
-                      <strong>Description:</strong> {selectedVideo.description}
-                    </p>
-                  )}
+              ) : (
+                <div className="video-access-block">
+                  <h2>Access Pending</h2>
+                  <p>Your access to this course's videos is pending admin approval.</p>
                 </div>
-              </div>
+              )
             ) : (
               <div className="video-login-block">
                 <h2>Please log in to watch this video</h2>
@@ -377,7 +413,6 @@ const Course = () => {
             <div className="default-course-view">
               <h3>Explore Our Courses</h3>
               <p>Choose a course from the sidebar to view in Right side</p>
-              
             </div>
           )}
         </div>

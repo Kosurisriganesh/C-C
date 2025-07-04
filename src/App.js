@@ -15,7 +15,7 @@ import './App.css';
 
 const App = () => {
   return (
-    <BrowserRouter basename="/C-C"> {/* 👈 Important for GitHub Pages */}
+    <BrowserRouter basename="/C-C"> 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
@@ -25,6 +25,7 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/course" element={<Course />} />
         <Route path="/course/contact" element={<Contact />} />
+        <Route path="/about/contact" element={<Contact />} />
         <Route path="/course/home" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/about2" element={<About2 />} />
