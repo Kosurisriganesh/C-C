@@ -14,7 +14,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    background-color:#f9f9f9;
+    background-color:white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: fixed; /* Keeps the navbar fixed at the top */
     top: 0;
@@ -41,11 +41,11 @@
 
 .logo h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 2.2rem;
   font-weight: 700;
-  color:red;
-  font-style:italic; 
-  font-family:Georgia, 'Times New Roman', Times, serif;
+  color:black;
+  /* font-style:italic;  */
+  font-family:poppins;
   letter-spacing: 1px;
   
 }
@@ -54,6 +54,7 @@
 .nav-links {
     display: flex;
     list-style: none;
+    font-family:'Times New Roman', Times, serif;
     margin: 0;
     padding: 0;
     margin-right: 20px;
@@ -62,7 +63,9 @@
 
 .nav-links li {
     margin-left: 2rem;
-    font-size: 0.9rem;
+    font-size: 1.0rem;
+    /* font-family: 'Inter', sans-serif !important; */
+    font-family: 'Times New Roman', Times, serif;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -406,6 +409,7 @@ button a,
 /* Also target Link components directly */
 a {
     text-decoration: none;
+   font-family: 'Times New Roman', Times, serif;
 }
 
 
@@ -1373,7 +1377,7 @@ a {
 .course-actions {
     display: flex;
     justify-content: flex-end; /* justify-end */
-    gap: 0.75rem; /* space-x-3 */
+    /* gap: 0.75rem; space-x-3 */
     margin-top: 1.5rem; /* mt-6 */
     padding-top: 1rem; /* pt-4 */
     border-top: 1px solid #e5e7eb; /* border-t border-gray-200 */

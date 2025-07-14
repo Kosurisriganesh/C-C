@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const Course = require('../models/course'); // Import the Course model
 
+const { getRecommendedCourses } = require('../controllers/courseControl');
+
 /**
  * @route   POST /api/courses
  * @desc    Add a new course
@@ -63,7 +65,9 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Recommended courses endpoint (now /api/courses/recommended)
 
+router.get('/recommended-courses', getRecommendedCourses);
 
 
 module.exports = router;

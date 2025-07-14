@@ -281,7 +281,7 @@ const AdminDashboard = () => {
         fetch(`${API_BASE_URL}/api/enrollments/all`)
             .then(res => res.json())
             .then(data => {
-                setEnrollments(data.enrollments || []);
+                setEnrollments(data.data || []);
                 setEnrollmentsLoading(false);
             })
             .catch(() => {
@@ -296,16 +296,24 @@ const AdminDashboard = () => {
         }
     }, [activeMenuItem, fetchEnrollments]);
 
-    const handleVideoAccess = async (enrollmentId, currentAccess) => {
-        await fetch(`${API_BASE_URL}/api/enrollments/${enrollmentId}/video-access`, {
+    const handleBulkVideoAccess = async (userId, grantAccess) => {
+        await fetch(`${API_BASE_URL}/api/enrollments/user/${userId}/video-access`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ hasVideoAccess: !currentAccess })
+            body: JSON.stringify({ grantAccess })
         });
+
+        // Update UI state
         setEnrollments(prev =>
             prev.map(en =>
-                en.id === enrollmentId
-                    ? { ...en, hasVideoAccess: !currentAccess }
+                en.id === userId
+                    ? {
+                        ...en,
+                        courses: en.courses.map(course => ({
+                            ...course,
+                            hasVideoAccess: grantAccess
+                        }))
+                    }
                     : en
             )
         );
@@ -329,6 +337,8 @@ const AdminDashboard = () => {
             title: courseData.title,
             description: courseData.description,
             instructor: courseData.instructor,
+            thumbnail : courseData.thumbnail,
+
             videos: Array.isArray(courseData.videos) ? courseData.videos : []
         };
         console.log("Saving course with payload:", payload);
@@ -510,6 +520,8 @@ const AdminDashboard = () => {
         const [description, setDescription] = useState(course ? course.description : '');
         const [instructor, setInstructor] = useState(course ? course.instructor : '');
         const [videos, setVideos] = useState(course && course.videos ? course.videos : []);
+        const [thumbnail, setThumbnail] = useState(course?.thumbnail || '');
+
 
         useEffect(() => {
             // console.log("CourseModal received course:", course);
@@ -518,11 +530,13 @@ const AdminDashboard = () => {
                 setDescription(course.description || '');
                 setInstructor(course.instructor || '');
                 setVideos(course.videos || []);
+                setThumbnail(course.thumbnail || '');
             } else {
                 setTitle('');
                 setDescription('');
                 setInstructor('');
                 setVideos([]);
+                setThumbnail('');
             }
         }, [course]);
 
@@ -542,8 +556,8 @@ const AdminDashboard = () => {
 
         const handleSubmit = (e) => {
             e.preventDefault();
-            if (!title.trim() || !instructor.trim()) {
-                alert("Course title and instructor cannot be empty.");
+            if (!title.trim() || !instructor.trim() || !thumbnail.trim()) {
+                alert("Course title and instructor and thumbnail cannot be empty.");
                 return;
             }
             const filteredVideos = videos
@@ -554,7 +568,8 @@ const AdminDashboard = () => {
                 title,
                 description,
                 instructor,
-                videos: filteredVideos
+                videos: filteredVideos,
+                thumbnail
             });
         };
         if (!isOpen) return null;
@@ -596,6 +611,29 @@ const AdminDashboard = () => {
                                     ></textarea>
                                 </div>
 
+                                {/* Thumbnail URL field */}
+                                <div className="form-group">
+                                    <label htmlFor="thumbnailUrl">Course Thumbnail URL:</label>
+                                    <input
+                                        type="url"
+                                        id="thumbnailUrl"
+                                        placeholder="https://yourdomain.com/images/technical.jpg"
+                                        value={thumbnail}
+                                        onChange={(e) => setThumbnail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                {/* Thumbnail preview */}
+                                {thumbnail && (
+                                    <div className="image-preview">
+                                        <img
+                                            src={thumbnail}
+                                            alt="Thumbnail Preview"
+                                            style={{ width: "150px", borderRadius: "6px", marginTop: "8px" }}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             <div className="modal-right">
@@ -634,6 +672,7 @@ const AdminDashboard = () => {
                     </form>
                 </div>
             </div>
+
 
         );
     };
@@ -799,52 +838,59 @@ const AdminDashboard = () => {
                         {enrollmentsLoading ? (
                             <div>Loading enrollments...</div>
                         ) : (
-                            <table className="enrollments-table">
+                            <table style={{ width: "100%", borderCollapse: "collapse" }}>
                                 <thead>
-                                    <tr>
-                                        <th>User ID</th>
-                                        <th>User Name</th>
-                                        {/* <th>User Email</th> */}
-                                        <th>Course Name</th>
-                                        <th>Access</th>
-                                        <th>Action</th>
+                                    <tr style={{ backgroundColor: "#f2f2f2" }}>
+                                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Full Name</th>
+                                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Courses</th>
+                                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Access</th>
+                                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {enrollments.length === 0 ? (
                                         <tr>
-                                            <td colSpan="4" style={{ textAlign: "center" }}>No enrollments found.</td>
+                                            <td colSpan="4" style={{ textAlign: "center", padding: "15px" }}>
+                                                No enrollments found.
+                                            </td>
                                         </tr>
                                     ) : (
-                                        enrollments.map(en => (
-                                            <tr key={en.id}>
-                                                <td>{en.userId?._id || en.userId || "N/A"}</td>
-                                                <td>{en.fullName}</td>
-                                                {/* <td>{en.userEmail ? en.userEmail : 'N/A'}</td> */}
-                                                <td>{en.courseName}</td>
-                                                <td>{en.hasVideoAccess ? "Granted" : "Pending"}</td>
-                                                <td>
-                                                    <button
-                                                        onClick={() => handleVideoAccess(en.id, en.hasVideoAccess)}
-                                                        style={{
-                                                            background: en.hasVideoAccess ? "#f44336" : "#4CAF50",
-                                                            color: "white",
-                                                            border: "none",
-                                                            padding: "5px 10px",
-                                                            borderRadius: "4px"
-                                                        }}
-                                                    >
-                                                        {en.hasVideoAccess ? "Revoke Access" : "Grant Access"}
-                                                    </button>
-                                                    
-                                                </td>
-                                            </tr>
-                                        ))
+                                        enrollments.map(en => {
+                                            const allGranted = en.courses.every(c => c.hasVideoAccess); // ✅ Check all courses' access
+
+                                            return (
+                                                <tr key={en._id}>
+                                                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>{en.fullName}</td>
+                                                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                                                        {en.courses.map(c => c.courseName).join(', ')}
+                                                    </td>
+                                                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                                                        {allGranted ? "Granted" : "Pending"}
+                                                    </td>
+                                                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                                                        <button
+                                                            onClick={() => handleBulkVideoAccess(en._id, !allGranted)}
+                                                            style={{
+                                                                backgroundColor: allGranted ? "#f44336" : "#4CAF50",
+                                                                color: "white",
+                                                                border: "none",
+                                                                padding: "8px 12px",
+                                                                borderRadius: "4px",
+                                                                cursor: "pointer"
+                                                            }}
+                                                        >
+                                                            {allGranted ? "Revoke Access" : "Grant Access"}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
                                     )}
                                 </tbody>
                             </table>
                         )}
                     </div>
+
                 );
             case 'courses':
                 return (
@@ -974,7 +1020,7 @@ const AdminDashboard = () => {
                     <Link to="/home">
                         <img src={Logo} alt="Candles" className="logo-image" />
                     </Link>
-                    <h2> CANDLES & CAPITALS </h2>
+                    <h2> Candles & Capital </h2>
                 </div>
                 <ul className="nav-links">
                     <li><Link to="/home"> HOME </Link></li>

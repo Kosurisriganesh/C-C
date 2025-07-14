@@ -14,7 +14,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color:#f9f9f9; 
+  background-color:white; 
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
@@ -43,7 +43,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   color:black;
-  font-style: italic;
+  /* font-style: italic; */
   font-family: 'Inter', Times, serif;
   letter-spacing: 1px;
 }
@@ -52,6 +52,7 @@
   display: flex;
   list-style: none;
   margin: 0;
+  font-family: 'Times New Roman', Times, serif;
   padding: 0;
   margin-right: 20px;
   align-items: center;
@@ -61,6 +62,7 @@
   margin-left: 2rem;
   font-size: 0.9rem;
   font-weight: 600;
+  font-family: 'Times New Roman', Times, serif;
   cursor: pointer;
   transition: all 0.3s ease;
   padding: 0.5rem 0;
@@ -614,6 +616,7 @@
 /* Remove underlines from Link components */
 a {
   text-decoration: none;
+  font-family: 'Times New Roman', Times, serif;
   color: inherit;
 }
 

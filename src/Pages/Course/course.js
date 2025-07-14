@@ -217,7 +217,7 @@ useEffect(() => {
       <nav className="dashboard-nav">
         <div className="logo">
           <img src={Logo} alt="Candles" className="logo-image" />
-          <h2>CANDLES & CAPITAL</h2>
+          <h2>Candles & Capital</h2>
         </div>
         <ul className="nav-links">
           <li><Link to='./home'> HOME </Link></li>

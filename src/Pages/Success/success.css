@@ -1,3 +1,4 @@
+/* ===================== BASE STYLES ===================== */
 .success-main {
   background-color: #f8f9fa;
   padding: 60px 20px;
@@ -8,15 +9,26 @@
   max-width: 1100px;
   margin: auto;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .success-heading {
   font-size: 32px;
   margin-bottom: 40px;
   color: #222;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.5s;
+}
+
+.testimonial-slider {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
 }
 
 .testimonial-row {
+  flex: 0 0 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -27,38 +39,67 @@
   padding: 40px;
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.8s;
 }
 
+/* ===================== TEXT BLOCK ===================== */
 .testimonial-text {
   flex: 1;
   text-align: left;
   min-width: 300px;
 }
 
+.testimonial-text h3,
+.testimonial-text .course,
+.testimonial-text .review,
+.testimonial-text .rating {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.8s ease forwards;
+}
+
 .testimonial-text h3 {
   font-size: 24px;
   margin-bottom: 10px;
   color: #111;
+  animation-delay: 1.0s;
 }
 
 .testimonial-text .course {
   font-size: 16px;
   color: #6a11cb;
   margin-bottom: 15px;
+  animation-delay: 1.3s;
 }
 
 .testimonial-text .review {
   font-size: 18px;
   color: #444;
   line-height: 1.6;
+  animation-delay: 1.6s;
+  margin-bottom: 12px;
 }
 
+.testimonial-text .rating {
+  font-size: 20px;
+  color: #ffc107;
+  animation-delay: 1.9s;
+}
+
+/* ===================== VIDEO ===================== */
 .testimonial-video-wrapper {
   flex: 1;
   min-width: 300px;
   max-width: 480px;
   border-radius: 12px;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(40px);
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 2.2s;
 }
 
 .testimonial-video {
@@ -67,7 +108,7 @@
   border-radius: 12px;
 }
 
-/* Dots */
+/* ===================== DOTS ===================== */
 .success-dots {
   margin-top: 30px;
   display: flex;
@@ -89,7 +130,19 @@
   box-shadow: 0 0 8px #6a11cb;
 }
 
-/* Responsive */
+/* ===================== ANIMATION ===================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================== RESPONSIVE ===================== */
 @media (max-width: 768px) {
   .testimonial-row {
     flex-direction: column;
@@ -100,7 +153,19 @@
     text-align: center;
   }
 
+  .testimonial-video-wrapper {
+    max-width: 100%;
+  }
+
   .success-heading {
     font-size: 26px;
+  }
+
+  .testimonial-text h3 {
+    font-size: 22px;
+  }
+
+  .testimonial-text .review {
+    font-size: 16px;
   }
 }

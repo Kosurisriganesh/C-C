@@ -23,6 +23,7 @@ app.use(cors({
     credentials: true
 }));
 
+
 // Body parser middleware
 app.use(express.json());
 
@@ -42,7 +43,7 @@ const Contact = require('./models/contact');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
-app.use('/api/course', courseRoutes);
+app.use('/api/courses', courseRoutes);
 app.use('/api/admin/courses', adminCoursesRoutes);
 app.use('/api/contact', require('./routes/contact'));
 

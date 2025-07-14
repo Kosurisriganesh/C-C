@@ -2,14 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import ceo from '../../Assets/ceo.jpg';
 import Footer from '../../Components/Footer/footer';
+import Logo2 from '../../Assets/Logo2.png';
 import './about2.css';
 
 const About2 = () => (
     <div className="about-content">
         <nav className='dashboard-nav'>
             <div className="logo">
-                <img src={process.env.PUBLIC_URL + '/c&c2 (2).jpg'} alt="Candles" className="logo-image" />
-                <h2>CANDLES & CAPITALS</h2>
+                <img src={Logo2}alt="Candles" className="logo-image" />
+                <h2>Candles & Capital</h2>
             </div>
 
             <ul className="nav-links">

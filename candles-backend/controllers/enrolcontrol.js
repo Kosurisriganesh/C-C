@@ -42,156 +42,133 @@ const staticCourses = {
   }
 };
 
-// Enroll in a course
+   // Enroll Courses...
+
 exports.enrollInCourse = async (req, res) => {
-  // const {
-  //   userId,
-  //   courseId,
-  //   courseName,
-  //   // totalModules,
-  //   // instructor,
-  //   // thumbnail
-  // } = req.body;
-console.log('reqq',req.body)
-  // if (!userId || !courseId || !courseName) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     message: 'Missing required fields: userId, courseId, and courseName are required'
-  //   });
-  // }
+  const {
+    userId,
+    email,
+    courseId,
+    courseName,
+    totalModules,
+    instructor,
+    thumbnail
+  } = req.body;
 
-  // try {
-  //   // Check if already enrolled
-  //   const existingEnrollment = await User.findOne({courseId: courseId });
-  //   if (existingEnrollment) {
-  //     return res.status(400).json({
-  //       success: false,
-  //       message: 'User already enrolled in this course'
-  //     });
-  //   }
+  if (!userId || !courseId || !courseName) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields: userId, courseId, and courseName are required'
+    });
+  }
 
-  //   // Get course details (static or DB)
-  //   let course = staticCourses[courseId];
-  //   if (!course) {
-  //     course = await Course.findById(courseId).lean();
-  //     if (!course) {
-  //       return res.status(404).json({
-  //         success: false,
-  //         message: `Course with ID ${courseId} not found`
-  //       });
-  //     }
-  //   }
+  try {
+    // Check if already enrolled
+    const existingEnrollment = await Enrollment.findOne({ userId, courseId });
+    if (existingEnrollment) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already enrolled in this course'
+      });
+    }
 
-  //   // Create new enrollment with all required fields
-  //   const enrollment = new User({
-  //     courseId: courseId
-  //     // userId,
-  //     // courseId,
-  //     // courseName,
-  //     // completedModules: 0, // ALWAYS start from 0
-  //     // totalModules: totalModules || course.totalModules || 1,
-  //     // instructor: instructor || course.instructor || 'Instructor',
-  //     // thumbnail: thumbnail || course.thumbnail || '',
-  //     // progress: 0,
-  //     // enrollmentDate: new Date(),
-  //     // status: 'active',
-  //     // hasVideoAccess: false // <-- Default: no access to videos until admin grants
-  //   });
+    //  Create new enrollment
+    const enrollment = new Enrollment({
+      userId,
+      courseId,
+      courseName,
+      completedModules: 0,
+      totalModules: totalModules || 1,
+      instructor: instructor || 'Instructor',
+      thumbnail: thumbnail || '',
+      progress: 0,
+      enrollmentDate: new Date(),
+      status: 'active',
+      hasVideoAccess: false
+    });
 
-  //   await enrollment.save();
+    await enrollment.save();
 
-  //   console.log('New enrollment created:', enrollment);
+    // ✅ Optional: update user’s enrolled course list
+    await User.updateOne(
+      { email },
+      { $addToSet: { courseId: courseId } }
+    );
 
-  //   res.status(201).json({
-  //     success: true,
-  //     message: 'Enrolled successfully',
-  //     enrollment
-  //   });
-  // } catch (error) {
-  //   console.error('Error enrolling in course:', error);
-  //   res.status(500).json({
-  //     success: false,
-  //     message: 'Server error: Failed to enroll',
-  //     error: error.message
-  //   });
-  // }
+    res.status(201).json({
+      success: true,
+      message: 'Enrolled successfully',
+      enrollment
+    });
+  } catch (error) {
+    console.error('Error enrolling in course:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error: Failed to enroll',
+      error: error.message
+    });
+  }
 };
 
 // Get enrolled courses for a user
 exports.getEnrolledCourses = async (req, res) => {
-  const { uid } = req.params;
-
-  // try {
-  //   // Fetch enrollments
-  //   const enrollments = await Enrollment.find({ userId: uid, status: 'active' }).lean();
-
-  //   console.log('Raw enrollments from DB:', enrollments);
-
-  //   const courseIds = enrollments.map(enrollment => enrollment.courseId);
-
-  //   // Fetch DB courses
-  //   const dbCourses = await Course.find({
-  //     _id: { $in: courseIds.filter(id => !staticCourses[id]) }
-  //   }).lean();
-
-  //   // Process enrolled courses
-  //   const enrolledCourses = enrollments.map(enrollment => {
-  //     let course;
-  //     if (staticCourses[enrollment.courseId]) {
-  //       course = staticCourses[enrollment.courseId];
-  //     } else {
-  //       course = dbCourses.find(c => c._id.toString() === enrollment.courseId);
-  //     }
-
-  //     // Ensure proper data structure
-  //     const courseData = {
-  //       id: course?.id || course?._id?.toString() || enrollment.courseId,
-  //       title: course?.title || enrollment.courseName,
-  //       description: course?.description || '',
-  //       enrollmentDate: enrollment.enrollmentDate,
-  //       enrolledAt: enrollment.enrollmentDate,
-  //       status: enrollment.status,
-  //       instructor: enrollment.instructor || course?.instructor || 'Unknown Instructor',
-  //       thumbnail: enrollment.thumbnail || course?.thumbnail || '',
-  //       totalModules: enrollment.totalModules || course?.totalModules || 1,
-  //       completedModules: enrollment.completedModules || 0, // Ensure 0 if undefined
-  //       progress: enrollment.progress || 0,
-  //       hasVideoAccess: enrollment.hasVideoAccess ?? false // <-- Include this flag
-  //     };
-
-  //     console.log('Processed course data:', courseData);
-  //     return courseData;
-  //   });
-
-  //   console.log('Final enrolled courses:', enrolledCourses);
-
-  //   res.status(200).json({
-  //     success: true,
-  //     courses: enrolledCourses
-  //   });
-  // } catch (error) {
-  //   console.error('Error fetching enrolled courses:', error);
-  //   res.status(500).json({
-  //     success: false,
-  //     message: 'Server error: Failed to fetch enrolled courses',
-  //     error: error.message
-  //   });
-  // }
-
-  try{
-  const coursesData = await Course.find({}).lean();
-   res.status(200).json({
-      success: true,
-      courses: coursesData
+  console.log('cominggggggg')
+  const { uid } = req.params.uid;
+   try {
+  const result = await User.aggregate([
+     { "$match": { "email":req.params.uid} },
+     { $unwind: { path: "$courseId", preserveNullAndEmptyArrays: true } },
+        {$project :
+            {
+              "_id":1,
+              "courseId":1,
+              "fullName":1,
+              "phoneNumber":1,
+              "email":1,
+            }
+        },
+    {
+      $lookup: {
+        from: "courses",
+        localField: "courseId",
+        foreignField: "_id",
+        as: "course_info"
+      }
+    },
+    {
+      $unwind: {
+        path: "$course_info"
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+      //  "fullName":1,
+      //   "phoneNumber":1,
+      //   "email":1,
+        'courseId': '$course_info._id',
+        'courseName': '$course_info.title',
+        'courseDescription': '$course_info.description',
+        'courseInstructor': '$course_info.instructor'
+      }
+    }
+  ]);
+// console.log('result', result);
+  if (result.length !== 0) {
+    res.json({
+      error: false,
+      Status: "Success",
+      data: result,
+      msg: "Success"
     });
-  }catch(error){
-   res.status(500).json({
-      success: false,
-      message: 'Server error: Failed to fetch enrolled courses',
-      error: error.message
-    });
-
+  } else {
+    res.send({ Status: "Success", data: [] });
   }
+} catch (e) {
+  console.log('ee', e);
+  res.send({ Status: "Failed", msg: "Problem while sending the data" });
+}
+
 };
 
 // Admin: Grant or revoke video access for an enrollment
@@ -235,54 +212,91 @@ exports.getEnrollmentForUserCourse = async (req, res) => {
 // Get all enrollments (admin only)
 
 exports.getAllEnrollments = async (req, res) => {
-  try {
-    const enrollments = await Enrollment.find().populate('userId', 'email fullName').lean();
+  // try {
+  //   const enrollments = await Enrollment.find().populate('userId', 'email fullName').lean();
 
-    // Flatten output for table display
-      const enrollmentsWithUser = enrollments.map(e => ({
-        id: e._id,
-        userId: e.userId?._id || e.userId, // for reference
-        fullName: e.userId?.fullName || "Unknown",
-        userEmail: e.userId?.email || "NA",
-        courseId: e.courseId,
-        courseName: e.courseName,
-        enrollmentDate: e.enrollmentDate,
-        status: e.status,
-        progress: e.progress,
-        completedModules: e.completedModules,
-        totalModules: e.totalModules,
-        hasVideoAccess: e.hasVideoAccess ?? false ,
-        instructor: e.instructor,
-        thumbnail: e.thumbnail
-        // Add other fields as needed
-      }));
+  //   // Flatten output for table display
+  //     const enrollmentsWithUser = enrollments.map(e => ({
+  //       id: e._id,
+  //       userId: e.userId?._id || e.userId, // for reference
+  //       fullName: e.userId?.fullName || "Unknown",
+  //       userEmail: e.userId?.email || "NA",
+  //       courseId: e.courseId,
+  //       courseName: e.courseName,
+  //       enrollmentDate: e.enrollmentDate,
+  //       status: e.status,
+  //       progress: e.progress,
+  //       completedModules: e.completedModules,
+  //       totalModules: e.totalModules,
+  //       hasVideoAccess: e.hasVideoAccess ?? false ,
+  //       instructor: e.instructor,
+  //       thumbnail: e.thumbnail
+  //       // Add other fields as needed
+  //     }));
 
-    res.status(200).json({
-      success: true,
-      enrollments: enrollmentsWithUser
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error', error: error.message });
-  }
+  //   res.status(200).json({
+  //     success: true,
+  //     enrollments: enrollmentsWithUser
+  //   });
+  // } catch (error) {
+  //   res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  // }
 console.log('comming')
 
-// try {
-//   const resp = await User.aggregate([
-//     {
-//       $lookup: {
-//         from: 'enrollments',
-//         localField: 'course', // you probably want to match on userId
-//         foreignField: '_id',
-//         as: 'usersData'
-//       }
-//     }
-//     // You can uncomment and clean your projection/grouping logic here
-//   ]);
+try {
+  const resp = await User.aggregate([
+    { $match: {} },
+    {
+      $project: {
+        _id: 1,
+        courseId: 1,
+        fullName: 1,
+        phoneNumber: 1,
+        email: 1
+      }
+    },
+    { $unwind: { path: "$courseId", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: 'courses',
+        localField: 'courseId',
+        foreignField: '_id',
+        as: 'course_info'
+      }
+    },
+    { $unwind: { path: "$course_info" } },
+    {
+      $project: {
+        _id: 1,
+        fullName: 1,
+        phoneNumber: 1,
+        email: 1,
+        courseId: "$course_info._id",
+        courseName: "$course_info.title"
+      }
+    },
+    {
+      $group: {
+        _id: "$_id",
+        fullName: { $first: "$fullName" },
+        phoneNumber: { $first: "$phoneNumber" },
+        email: { $first: "$email" },
+        courses: {
+          $push: {
+            courseId: "$courseId",
+            courseName: "$courseName"
+          }
+        }
+      }
+    }
+  ]);
 
-//   res.send({ Status: "Success", data: resp });
+  res.send({ Status: "Success", data: resp });
 
-// } catch (err) {
-//   console.error(err);
-//   res.send({ Status: "Failed", msg: "Error occurred while getting enrollments" });
-// }
+} catch (err) {
+  console.error(err);
+  res.send({ Status: "Failed", msg: "Error occurred while getting enrollments" });
+}
+
 };
+

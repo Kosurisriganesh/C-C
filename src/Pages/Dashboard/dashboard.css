@@ -28,7 +28,7 @@ h1, h2, h3 {
 
 /* Dashboard container */
 .dashboard-container {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../Assets/stockbg.png');
+    /* background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../Assets/stockbg.png'); */
     min-height: 100vh;
     background-size: cover;
     background-position: center;
@@ -45,7 +45,7 @@ h1, h2, h3 {
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 2rem;
-    background-color:#2a355a;
+    background-color:white;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     position: fixed;
     top: 0;
@@ -81,7 +81,7 @@ h1, h2, h3 {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--primary-accent);
-    font-style: italic;
+    /* font-style: italic; */
     font-family: 'Poppins', sans-serif;
     letter-spacing: 1px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
@@ -91,6 +91,7 @@ h1, h2, h3 {
 .nav-links {
     display: flex;
     list-style: none;
+    font-family: 'Times New Roman', Times, serif;
     margin: 0;
     padding: 0;
     align-items: center;
@@ -99,6 +100,7 @@ h1, h2, h3 {
     margin-left: 2rem;
     font-size: 0.9rem;
     font-weight: 600;
+    font-family: 'Times New Roman', Times, serif;
     cursor: pointer;
     color: var(--text-dark);
     position: relative;
@@ -113,6 +115,7 @@ h1, h2, h3 {
 
 .nav-links a {
     text-decoration: none;
+    font-family: 'Times New Roman', Times, serif;
     color: inherit;
 }
 .nav-links li:hover {
@@ -482,6 +485,28 @@ h1, h2, h3 {
     box-shadow: 0 6px 15px rgba(30, 144, 255, 0.4);
 }
 
+/* Unenroll Button */
+.course-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.unenroll-button {
+  padding: 8px 14px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.unenroll-button:hover {
+  background-color: #d9363e;
+}
+
 /* Loading State */
 .loading-container {
     display: flex;
@@ -553,7 +578,7 @@ h1, h2, h3 {
 .course-thumbnail img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit:contain;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
     transition: transform 0.3s ease;

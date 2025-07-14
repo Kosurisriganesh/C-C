@@ -5,45 +5,9 @@ import { signOut } from 'firebase/auth';
 import './dashboard.css';
 import profilepic from '../../Assets/profilepic.jpg';
 import Footer from '../../Components/Footer/footer';
-import Logo from '../../Assets/Logo2.png'
+import Logo from '../../Assets/Logo2.png';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
-// Static course definitions for recommendations/fallbacks - ALL START FROM 0
-const courseMap = {
-  'technical': {
-    id: 'technical',
-    title: 'Technical Analysis',
-    instructor: 'SVS Karthik',
-    thumbnail: './Assets/technical analysis.jpg',
-    totalModules: 10,
-    completedModules: 0,
-  },
-  'fundamental': {
-    id: 'fundamental',
-    title: 'Fundamental Analysis',
-    instructor: 'SVS Karthik',
-    thumbnail: './Assets/fa.jpg',
-    totalModules: 8,
-    completedModules: 0,
-  },
-  'commodity': {
-    id: 'commodity',
-    title: 'Commodity Trading',
-    instructor: 'SVS Karthik',
-    thumbnail: './Assets/ct.jpg',
-    totalModules: 12,
-    completedModules: 0,
-  },
-  'forex': {
-    id: 'forex',
-    title: 'Futures & Options',
-    instructor: 'SVS Karthik',
-    thumbnail:  './Assets/forex.jpg',
-    totalModules: 10,
-    completedModules: 0,
-  },
-};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -75,31 +39,19 @@ const Dashboard = () => {
     return () => unsubscribe();
   }, []);
 
-  // Fetch enrolled courses from backend - ENSURE 0 MODULES FOR NEW USERS
+  // Fetch enrolled courses from backend
   useEffect(() => {
-    if (!user?.uid) {
+    if (!user?.email) {
       setEnrolledCourses([]);
       return;
     }
     setLoading(true);
-    fetch(`${API_BASE}/api/enrollments/users/${user.uid}/enrolled-courses`, {
+    fetch(`${API_BASE}/api/enrollments/users/${user.email}/enrolled-courses`, {
       credentials: 'include',
     })
       .then(res => res.json())
-      .then(data => {
-        // CRITICAL: Ensure each course starts with 0 completed modules for new users
-        console.log('data.courses',data.courses)
-        const courses = (data.courses || []).map(course => ({
-          ...course,
-          id: course._id,
-          // Force completedModules to be 0 if it's undefined, null, or not a number
-          completedModules: (typeof course.completedModules === 'number' && course.completedModules >= 0) 
-            ? course.completedModules 
-            : 0,
-          totalModules: course.totalModules || courseMap[course.id]?.totalModules || 1,
-        }));
-        setRecommendedCourses(courses);
-        setEnrolledCourses(courses);
+      .then(response => {
+        setEnrolledCourses(response.data || []);
         setLoading(false);
       })
       .catch((error) => {
@@ -108,72 +60,89 @@ const Dashboard = () => {
       });
   }, [user]);
 
-  // List recommended courses: those not enrolled
+  // Fetch all courses from DB, and filter out enrolled
   useEffect(() => {
-    const enrolledIds = enrolledCourses.map(c => c._id);
-     setRecommendedCourses(
-       Object.values(courseMap).filter(c => !enrolledIds.includes(c._id))
-     );
-    // setRecommendedCourses(enrolledCourses.filter(c=>!enrolledIds.includes(c._id)));
+    fetch(`${API_BASE}/api/courses/recommended-courses`, {
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(response => {
+        const enrolledIds = enrolledCourses.map(c => c._id || c.id);
+        const allCourses = response.data || response.courses || [];
+        setRecommendedCourses(
+          allCourses.filter(
+            course => !enrolledIds.includes(course._id || course.id)
+          )
+        );
+      })
+      .catch((error) => {
+        console.error('Error fetching recommended courses:', error);
+      });
   }, [enrolledCourses]);
 
-  // Backend course enrollment - EXPLICITLY SET TO 0
-  const enrollInCourse = async (courseId, courseName) => {
-    console.log(`Enrolling in course: ${courseId}`);
-    console.log(`Course Name: ${courseName}`);
-    if (!user) return;
-    
-    try {
-      const courseDetails = courseMap[courseId];
-      const res = await fetch(`${API_BASE}/api/enrollments/enroll`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          userId: user.uid,
-          courseId,
-          courseName,
-          completedModules: 0, // EXPLICITLY SET TO 0 FOR NEW ENROLLMENTS
-          totalModules: courseDetails?.totalModules || 1,
+  // Enroll in course using DB course info
+const enrollInCourse = async (courseId) => {
+  if (!user) return;
+
+  const courseDetails = recommendedCourses.find(
+    c => (c._id || c.id) === courseId
+  );
+
+  if (!courseDetails) {
+    alert("Course information not found.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/enrollments/enroll`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        userId: user.uid,
+        email: user.email,
+        courseId: courseDetails._id || courseDetails.id,
+        courseName: courseDetails.title,
+        completedModules: 0,
+        totalModules: courseDetails.totalModules || 1,
+        enrolledAt: new Date().toISOString(),
+        instructor: courseDetails.instructor || 'Instructor',
+        thumbnail: courseDetails.thumbnail || '',
+        progress: 0
+      })
+    });
+
+    const data = await res.json();
+    console.log("Enrollment API response:", data); // optional debug
+
+    if (data.success) {
+      setEnrolledCourses(prev => [
+        ...prev,
+        {
+          ...courseDetails,
+          completedModules: 0,
+          totalModules: courseDetails.totalModules || 1,
           enrolledAt: new Date().toISOString(),
-          instructor: courseDetails?.instructor || 'Instructor',
-          thumbnail: courseDetails?.thumbnail || '',
-          progress: 0 // Also set progress to 0%
-        })
-      });
-      
-      const data = await res.json();
-      console.log('Enrollment response:', data);
-      
-      if (data.success) {
-        alert(`Successfully enrolled in ${courseName}!`);
-        
-        // Refresh enrolled courses with proper initialization
-        const enrolledRes = await fetch(`${API_BASE}/api/enrollments/users/${user.uid}/enrolled-courses`, {
-          credentials: 'include',
-        });
-        const enrolledData = await enrolledRes.json();
-        
-        // ENSURE proper initialization of all course progress
-        const updatedCourses = (enrolledData.courses || []).map(course => ({
-          ...course,
-          id: course.id || course._id,
-          // Double-check: Force 0 for new enrollments
-          completedModules: (typeof course.completedModules === 'number' && course.completedModules >= 0) 
-            ? course.completedModules 
-            : 0,
-          totalModules: course.totalModules || courseMap[course.id]?.totalModules || 1,
-        }));
-        
-        setEnrolledCourses(updatedCourses);
+          courseName: courseDetails.title,
+          courseInstructor: courseDetails.instructor,
+          id: courseDetails._id || courseDetails.id
+        }
+      ]);
+      alert("Enrolled successfully!");
+    } else {
+      // ✅ Show specific alert if already enrolled
+      if (data.message === "User already enrolled in this course") {
+        alert("You have already enrolled in this course.");
       } else {
         alert(data.message || "Enrollment failed");
       }
-    } catch (e) {
-      console.error('Enrollment error:', e);
-      alert("Enrollment failed: " + e.message);
     }
-  };
+  } catch (e) {
+    console.error('Enrollment error:', e);
+    alert("Enrollment failed: " + e.message);
+  }
+};
+
 
   const handleProfileClick = () => setShowProfileDropdown(!showProfileDropdown);
 
@@ -190,25 +159,17 @@ const Dashboard = () => {
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
-  const getCourseFirstVideo = (courseId) => {
-    const courseVideoMap = {
-      'technical': 'tech-1',
-      'fundamental': 'fund-1',
-      'commodity': 'comm-1',
-      'forex': 'forex-1',
-    };
-    return courseVideoMap[courseId] || '';
-  };
+  // Dummy: you might want to use the first module/video id from the actual DB course structure
+  const getCourseFirstVideo = (courseId) => '';
 
   if (loading) return <div className="loading-container">Loading...</div>;
 
-  // Calculate progress - ENSURE 0% for new enrollments
+  // Calculate progress - ensure 0% for new enrollments
   const courseProgress = {};
   enrolledCourses.forEach(course => {
     const completed = course.completedModules || 0;
     const total = course.totalModules || 1;
-    // Ensure progress is never negative and always starts from 0
-    courseProgress[course.id] = completed >= 0 ? Math.round((completed / total) * 100) : 0;
+    courseProgress[course._id || course.id] = completed >= 0 ? Math.round((completed / total) * 100) : 0;
   });
 
   return (
@@ -218,7 +179,7 @@ const Dashboard = () => {
           <Link to="/home">
             <img src={Logo} alt="Candles" className="logo-image" />
           </Link>
-          <h2> CANDLES & CAPITAL </h2>
+          <h2> Candles & Capital </h2>
         </div>
         <ul className="nav-links">
           <li><Link to="/home"> HOME </Link></li>
@@ -317,11 +278,11 @@ const Dashboard = () => {
           {enrolledCourses.length > 0 ? (
             <div className="enrolled-courses-grid">
               {enrolledCourses.map(course => (
-                <div key={course.id} className="course-card">
+                <div key={course._id || course.id} className="course-card">
                   <div className="course-thumbnail">
                     <img
-                      src={course.thumbnail}
-                      alt={course.title}
+                      src={course.thumbnail || process.env.PUBLIC_URL + ''}
+                      alt={course.courseName || course.title}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = process.env.PUBLIC_URL + '/c&c2 (2).jpg';
@@ -329,23 +290,22 @@ const Dashboard = () => {
                     />
                   </div>
                   <div className="course-details">
-                    <h3>{course.title}</h3>
-                    <p className="instructor">Instructor: {course.instructor}</p>
+                    <h3>{course.courseName || course.title}</h3>
+                    <p className="instructor">Instructor: {course.courseInstructor || course.instructor}</p>
                     {course.enrolledAt && (
                       <p className="enrolled-date">
                         Enrolled on: {new Date(course.enrolledAt).toLocaleDateString()}
                       </p>
                     )}
-                    
                     <div className="progress-container">
                       <div className="progress-bar">
                         <div
                           className="progress-fill"
-                          style={{ width: `${courseProgress[course.id] || 0}%` }}
+                          style={{ width: `${courseProgress[course._id || course.id] || 0}%` }}
                         ></div>
                       </div>
                       <span className="progress-text">
-                        {courseProgress[course.id] || 0}% Complete
+                        {courseProgress[course._id || course.id] || 0}% Complete
                       </span>
                     </div>
                     <div className="course-modules-info">
@@ -354,7 +314,7 @@ const Dashboard = () => {
                       </span>
                     </div>
                     <Link
-                      to={`/Course?video=${getCourseFirstVideo(course.id)}`}
+                      to={`/Course?video=${getCourseFirstVideo(course._id || course.id)}`}
                       className="continue-course-button"
                     >
                       {(course.completedModules || 0) === 0 ? 'Start Course' : 'Continue Learning'}
@@ -377,8 +337,7 @@ const Dashboard = () => {
           <div className="recommended-courses-grid">
             {recommendedCourses.length > 0 ? (
               recommendedCourses.map(course => (
-                <div key={course.id} className="course-card">
-                {console.log('378',course)}
+                <div key={course._id || course.id} className="course-card">
                   <div className="course-thumbnail">
                     <img
                       src={course.thumbnail || process.env.PUBLIC_URL + '/c&c2 (2).jpg'}
@@ -391,13 +350,16 @@ const Dashboard = () => {
                   </div>
                   <div className="course-details">
                     <h3>{course.title}</h3>
-                    
                     <button
-                      onClick={() => enrollInCourse(course._id, course.title)}
+                      onClick={() => enrollInCourse(course._id || course.id)}
                       className="enroll-button"
-                      disabled={enrolledCourses.some(enrolled => enrolled.id === course.id)}
+                      disabled={enrolledCourses.some(enrolled =>
+                        (enrolled._id || enrolled.id) === (course._id || course.id)
+                      )}
                     >
-                      {enrolledCourses.some(enrolled => enrolled.id === course.id) ? 'Enrolled' : 'Enroll Now'}
+                      {enrolledCourses.some(enrolled =>
+                        (enrolled._id || enrolled.id) === (course._id || course.id)
+                      ) ? 'Enrolled' : 'Enroll Now'}
                     </button>
                   </div>
                 </div>
@@ -420,14 +382,14 @@ const Dashboard = () => {
             <div className="stat-card">
               <div className="stat-icon">⏱️</div>
               <div className="stat-value">
-                {enrolledCourses.reduce((total, course) => total + course.completedModules, 0)}
+                {enrolledCourses.reduce((total, course) => total + (course.completedModules || 0), 0)}
               </div>
               <div className="stat-label">Modules Completed</div>
             </div>
             <div className="stat-card">
               <div className="stat-icon">🏆</div>
               <div className="stat-value">
-                {enrolledCourses.filter(course => course.completedModules === course.totalModules).length}
+                {enrolledCourses.filter(course => (course.completedModules || 0) === (course.totalModules || 1)).length}
               </div>
               <div className="stat-label">Courses Completed</div>
             </div>
@@ -438,7 +400,7 @@ const Dashboard = () => {
                   ? "0%"
                   : Math.round(
                     enrolledCourses.reduce((sum, course) =>
-                      sum + (course.completedModules / course.totalModules), 0
+                      sum + ((course.completedModules || 0) / (course.totalModules || 1)), 0
                     ) / enrolledCourses.length * 100
                   ) + "%"
                 }
@@ -447,7 +409,6 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-      
       </div>
       <Footer />
     </div>
