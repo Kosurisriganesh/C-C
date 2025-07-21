@@ -145,7 +145,7 @@
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 768px) {
   .testimonial-row {
-    flex-direction: column;
+    flex-direction: row;
     padding: 20px;
   }
 
@@ -167,5 +167,54 @@
 
   .testimonial-text .review {
     font-size: 16px;
+  }
+}
+@media (max-width: 320px) {
+  .success-main {
+    padding: 20px 8px;
+  }
+
+  .success-heading {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .testimonial-row {
+    padding: 16px 10px;
+    gap: 16px;
+  }
+
+  .testimonial-text h3 {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .testimonial-text .course {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .testimonial-text .review {
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .testimonial-text .rating {
+    font-size: 14px;
+  }
+
+  .testimonial-video-wrapper {
+    max-width: 50%;
+  }
+
+  .testimonial-video {
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .success-dot {
+    width: 10px;
+    height: 10px;
   }
 }

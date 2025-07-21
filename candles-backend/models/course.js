@@ -17,7 +17,12 @@ const videoSchema = new mongoose.Schema({
   videoUrl: { 
     type: String, 
     required: true 
+  },
+  pdfUrl: { 
+    type: String, 
+    default: "" 
   }
+
 }, { 
   _id: false 
 });
@@ -50,6 +55,10 @@ const courseSchema = new mongoose.Schema({
   videos: { 
     type: [videoSchema], 
     default: [] 
+  },
+  date: {
+    type: Date,
+    default: Date.now
   }
 });
 

@@ -17,4 +17,9 @@ router.get('/user/:userId/course/:courseId', enrollmentController.getEnrollmentF
 // GET /api/enrollments/all (admin only)
 router.get('/all', enrollmentController.getAllEnrollments);
 
+
+router.get('/users/:uid/accessed-courses', enrollmentController.getUserAccessedCourses);
+
+
+
 module.exports = router;

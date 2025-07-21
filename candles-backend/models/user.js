@@ -42,6 +42,10 @@ const UserSchema = new mongoose.Schema({
   lastLogoutAt: {
     type: Date
   },
+  videoAccess: {
+    type: Boolean,
+    default: false
+  },
   date: {
     type: Date,
     default: Date.now

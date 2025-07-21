@@ -4,13 +4,15 @@ import { auth } from '../Firebase/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import axios from 'axios';
 import './course.css';
+
 import profilepic from '../../Assets/profilepic.jpg';
+import Header2 from '../../Components/Header2/headerProfile';
 import Footer from '../../Components/Footer/footer';
-import Logo from '../../Assets/Logo2.png';
+import ReactPlayer from 'react-player';
+
 
 const API_BASE_URL = "http://localhost:5000";
 
-// Helper to ensure YouTube URL is always embeddable
 function toYouTubeEmbed(url) {
   if (!url) return "";
   if (url.includes("/embed/")) return url;
@@ -19,8 +21,7 @@ function toYouTubeEmbed(url) {
   match = url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/);
   if (match) return `https://www.youtube.com/embed/${match[1]}`;
   match = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
-  if (match) return `https://www.youtube.com/embed/${match[1]}`;
-  return url;
+  return match ? `https://www.youtube.com/embed/${match[1]}` : url;
 }
 
 function isLiveMeetingLink(url) {
@@ -44,9 +45,19 @@ const Course = () => {
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [courses, setCourses] = useState([]);
   const [iframeError, setIframeError] = useState(false);
-  const [canWatch, setCanWatch] = useState(false); // NEW: flag for admin video access
+  const [canWatch, setCanWatch] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
 
-  // Fetch courses from backend
+  const toggleProfileDropdown = () => setDropdownOpen(prev => !prev);
+  const toggleDropdown = (key) => setOpenDropdown(prev => (prev === key ? null : key));
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setOpenDropdown(null);
+    document.body.classList.remove('menu-open');
+  };
+
   useEffect(() => {
     axios.get(`${API_BASE_URL}/api/admin/courses`)
       .then(res => setCourses(res.data))
@@ -56,25 +67,25 @@ const Course = () => {
       });
   }, []);
 
-  // Fetch enrolled courses for the user (array of IDs)
   const fetchEnrolledCourses = async (currentUser) => {
     if (!currentUser || !currentUser.uid) {
       setEnrolledCourses([]);
       return;
     }
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/enrollments/users/${currentUser.uid}/enrolled-courses`);
-      setEnrolledCourses(res.data.courses.map(c => ({
-        id: c.id || c.courseId,
-        hasVideoAccess: c.hasVideoAccess // Save access status for each course
-      })));
+      const res = await axios.get(`${API_BASE_URL}/api/enrollments/users/${currentUser.email}/enrolled-courses`);
+      console.log('res.data.courses', res.data);
+      setSelectedVideo(res?.data?.data)      // setEnrolledCourses(res.data.courses.map(c => ({
+      //   id: c.id || c.courseId,
+      //   hasVideoAccess: c.hasVideoAccess
+      // })));
+      // setCanWatch()
     } catch (e) {
       setEnrolledCourses([]);
       console.error("Failed to fetch enrolled courses:", e);
     }
   };
 
-  // Auth state listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -95,7 +106,6 @@ const Course = () => {
     return () => unsubscribe();
   }, [navigate]);
 
-  // Set default to first course details after loading courses if no video specified
   useEffect(() => {
     if (courses.length > 0 && activeCategory === null && !videoToPlay) {
       const firstCourse = courses[0];
@@ -108,7 +118,6 @@ const Course = () => {
     }
   }, [courses, videoToPlay]);
 
-  // Video auto-play based on query parameter
   useEffect(() => {
     if (videoToPlay && courses.length > 0) {
       let foundCategory = null;
@@ -132,39 +141,34 @@ const Course = () => {
     }
   }, [videoToPlay, courses]);
 
-  // Reset iframe error when selected video changes
-  useEffect(() => {
-    setIframeError(false);
-  }, [selectedVideo]);
+  useEffect(() => setIframeError(false), [selectedVideo]);
 
-  // Check if user can watch videos (admin granted access)
- 
-useEffect(() => {
-  let interval = null;
+  //   useEffect(() => {
+  //     let interval = null;
+  //     async function checkAccess() {
+  //       if (!user || !activeCategory) {
+  //         setCanWatch(false);
+  //         return;
+  //       }
+  //       try {
+  //        console.log('Checking access for user:', user.uid);
+  // //      const res = await axios.get(`${API_BASE_URL}/api/enrollments/users/${currentUser.uid}/enrolled-courses`);
 
-  async function checkAccess() {
-    if (!user || !activeCategory) {
-      setCanWatch(false);
-      return;
-    }
-    try {
-      const courseId = activeCategory;
-      const res = await axios.get(`${API_BASE_URL}/api/enrollments/user/${user.uid}/course/${courseId}`);
-      setCanWatch(res.data.enrollment?.hasVideoAccess === true);
-    } catch {
-      setCanWatch(false);
-    }
-  }
-
-  if (user && activeCategory) {
-    checkAccess(); 
-    interval = setInterval(checkAccess, 2000); // <-- Change interval here
-  }
-
-  return () => {
-    if (interval) clearInterval(interval);
-  };
-}, [user, activeCategory]);
+  //         const res = await axios.get(`${API_BASE_URL}/api/users/${user.uid}/enrolled-courses`);
+  //         console.log('Access check response:', res.data);
+  //         // setCanWatch(res.data.enrollment?.hasVideoAccess === true);
+  //       } catch {
+  //         setCanWatch(false);
+  //       }
+  //     }
+  //     if (user && activeCategory) {
+  //       checkAccess();
+  //       interval = setInterval(checkAccess, 2000);
+  //     }
+  //     return () => {
+  //       if (interval) clearInterval(interval);
+  //     };
+  //   }, [user, activeCategory]);
 
   const handleVideoSelect = (categoryId, videoId) => {
     if (!user) {
@@ -174,7 +178,6 @@ useEffect(() => {
     }
     setActiveCategory(categoryId);
     setExpandedCategory(categoryId);
-
     const category = courses.find(cat => cat._id === categoryId);
     if (category && category.videos && category.videos.length > 0) {
       const video = category.videos.find(vid => vid.id === videoId);
@@ -185,159 +188,95 @@ useEffect(() => {
     }
   };
 
-  const handleCategoryChange = (categoryId) => {
-    setActiveCategory(categoryId);
-    setExpandedCategory(categoryId);
-
-    const category = courses.find(cat => cat._id === categoryId);
-    if (category) {
-      setSelectedVideo(null);
-      setIsPlaying(false);
-    } else {
-      setSelectedVideo(null);
-      setIsPlaying(false);
-    }
-  };
-
   const toggleCategoryExpansion = (categoryId) => {
-    setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
+    setExpandedCategory(prev => (prev === categoryId ? null : categoryId));
   };
-
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
   const togglePlayPause = () => setIsPlaying(!isPlaying);
 
   const currentCourse = courses.find(c => c._id === activeCategory);
-
-  // Check if user is enrolled and has access for the selected course
-  const userEnrollment = enrolledCourses.find(ec => ec.id === activeCategory);
+  const getYouTubeThumbnail = (url) => {
+    const videoId = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  };
 
   return (
     <div className='course-container'>
-      <nav className="dashboard-nav">
-        <div className="logo">
-          <img src={Logo} alt="Candles" className="logo-image" />
-          <h2>Candles & Capital</h2>
-        </div>
-        <ul className="nav-links">
-          <li><Link to='./home'> HOME </Link></li>
-          <li className="dropdown-container">
-            <span><Link to="/about">ABOUT</Link></span>
-            <ul className="dropdown-menu">
-              <li><Link to="/about">Our Story</Link></li>
-              <li><Link to="/about2">About Karthik sir</Link></li>
-            </ul>
-          </li>
-          <li className="dropdown-container">
-            <span><Link to="/course">COURSES</Link></span>
-            <ul className="dropdown-menu">
-              {courses.map(course => (
-                <li key={course._id} onClick={() => handleCategoryChange(course._id)}>{course.title}</li>
-              ))}
-            </ul>
-          </li>
-          <li><Link to='./contact'> CONTACT</Link></li>
-          <li className="user-profile-container">
-            {loading ? (
-              <div className="user-profile-icon">
-                <span className="profile-name">Loading...</span>
-              </div>
-            ) : (
-              <div className="user-profile-icon" onClick={toggleDropdown}>
-                <img
-                  src={user?.avatar}
-                  alt="Profile"
-                  className="profile-image"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = profilepic;
-                  }}
-                />
-                <span className="profile-name">{user?.name}</span>
-                <i className="fas fa-chevron-down"></i>
-              </div>
-            )}
-            {dropdownOpen && user && (
-              <div className="user-info-card">
-                <h2>Your Account Information</h2>
-                <div className="user-info-details">
-                  <div className="user-info-avatar">
-                    <img
-                      src={user?.avatar}
-                      alt="User Avatar"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = profilepic;
-                      }}
-                    />
-                  </div>
-                  <div className="user-info-text">
-                    <p><strong>Name:</strong> {user?.name}</p>
-                    <p><strong>Email:</strong> {user?.email}</p>
-                    <p><strong>Account Type:</strong> {user?.role}</p>
-                  </div>
-                </div>
-                <Link to="/Profile" className="view-profile-button">
-                  View Full Profile
-                </Link>
-              </div>
-            )}
-          </li>
-        </ul>
-      </nav>
+      <Header2
+        isMobile={window.innerWidth <= 768}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+        openDropdown={openDropdown}
+        toggleDropdown={toggleDropdown}
+        closeMenu={closeMenu}
+        courses={courses}
+        user={user}
+        loading={loading}
+      />
+
       <div className="course-content-wrapper">
-        <div className="course-sidebar">
-          <h3>Course Categories</h3>
-          <ul className="course-categories">
-            {courses.map(category => (
-              <li key={category._id}>
-                <div
-                  className={`category-header ${activeCategory === category._id ? 'active' : ''}`}
-                  onClick={() => handleCategoryChange(category._id)}
-                >
-                  <span>{category.title}</span>
-                  {category.videos && category.videos.length > 0 && (
-                    <button
-                      className="expand-toggle"
-                      onClick={e => {
-                        e.stopPropagation();
-                        toggleCategoryExpansion(category._id);
-                      }}
+        <div className="course-sidebar-wrapper">
+          {sidebarOpen ? (
+            <div className="course-sidebar">
+              <div className="sidebar-heading-toggle" onClick={() => setSidebarOpen(false)}>
+                 
+                <h3>Course Categories</h3>
+                
+                <span className="toggle-arrow">←</span>
+                
+              </div>
+              <ul className="course-categories">
+                {courses.map(category => (
+                  <li key={category._id}>
+                    {console.log('category', category)}
+                    <div
+                      className={`category-header ${activeCategory === category._id ? 'active' : ''}`}
+                      onClick={() => toggleCategoryExpansion(category._id)}
                     >
-                      {expandedCategory === category._id ? '▼' : '▶'}
-                    </button>
-                  )}
-                  {activeCategory === category._id && <span className="active-indicator"></span>}
-                </div>
-                {category.videos && category.videos.length > 0 && expandedCategory === category._id && (
-                  <div>
-                    <ul className="video-list">
-                      {category.videos.map(video => (
-                        <li
-                          key={video.id}
-                          className={`video-item ${selectedVideo && selectedVideo.id === video.id ? 'active' : ''}`}
-                          onClick={() => handleVideoSelect(category._id, video.id)}
-                        >
-                          <div className="video-item-content">
-                            <span className="video-title">{video.title}</span>
-                            <span className="video-duration">{video.duration}</span>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-          <div className="sidebar-info-box">
-            <h4>Need Help Choosing?</h4>
-            <p>Not sure which course is right for you? Schedule a free consultation with our experts.</p>
-            <button className="consultation-btn" onClick={() => navigate('/contact')}>Book Demo</button>
-          </div>
+                      <div className="category-title-arrow">
+                        <span className="category-title">{category.title}</span>
+                        {category.videos?.length > 0 && (
+                          <span className="course-toggle-arrow">
+                            {expandedCategory === category._id ? '▼' : '▶'}
+                          </span>
+                        )}
+                      </div>
+                      {activeCategory === category._id && <span className="active-indicator"></span>}
+                    </div>
+
+                    {category.videos && expandedCategory === category._id && (
+                      <ul className="video-list">
+                        {category.videos.map(video => (
+                          <li
+                            key={video._id}
+                            className={`video-item ${selectedVideo?._id === video._id ? 'active' : ''}`}
+                            onClick={() => handleVideoSelect(category._id, video._id)}
+                          >
+                            <div className="video-item-content">
+                              <span className="video-title">{video.title}</span>
+                              <span className="video-duration">{video.duration}</span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="sidebar-info-box">
+                <h4>Need Help Choosing?</h4>
+                <p>Not sure which course is right for you? Schedule a free consultation with our experts.</p>
+                <button className="consultation-btn" onClick={() => navigate('/contact')}>Book Demo</button>
+              </div>
+            </div>
+          ) : (
+            <button className="sidebar-open-arrow" onClick={() => setSidebarOpen(true)}>→</button>
+          )}
         </div>
+
         <div className='Course-cover'>
-          {selectedVideo ? (
+          {/* {selectedVideo ? (
             user ? (
               canWatch ? (
                 <div className="video-player-container">
@@ -345,12 +284,7 @@ useEffect(() => {
                   <div className="video-player">
                     {isLiveMeetingLink(selectedVideo.videoUrl) ? (
                       <div className="live-meet-wrapper">
-                        <a
-                          href={selectedVideo.videoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="join-meet-btn"
-                        >
+                        <a href={selectedVideo.videoUrl} target="_blank" rel="noopener noreferrer" className="join-meet-btn">
                           Join Live Class
                         </a>
                         <p style={{ marginTop: "10px" }}>Click the button above to join the live session in a new tab.</p>
@@ -379,6 +313,15 @@ useEffect(() => {
                       </div>
                     )}
                   </div>
+
+                  {selectedVideo.pdfUrl && (
+                    <div className="pdf-download-section">
+                      <a href={selectedVideo.pdfUrl} target="_blank" rel="noopener noreferrer" className="download-pdf-btn">
+                        📄 Download PDF
+                      </a>
+                    </div>
+                  )}
+
                   <div className="video-info">
                     {currentCourse && (
                       <p className="video-instructor">
@@ -414,9 +357,81 @@ useEffect(() => {
               <h3>Explore Our Courses</h3>
               <p>Choose a course from the sidebar to view in Right side</p>
             </div>
+          )} */}
+
+          {/* {console.log('selectedVideo', selectedVideo, 'expandedCategory', expandedCategory)} */}
+
+          {selectedVideo?.map((video, i) =>
+            expandedCategory === video.courseId && video.videoAccess === true && (
+              <div className="video-player-container" key={i}>
+                <h2 className="video-title">{video?.courseName}</h2>
+                <div className="video-player">
+                  {video.videos.map((selectedVideo, index) => (
+                    <div key={index}>
+                      {selectedVideo?.title === 'Live-class' ? (
+                        <div className="live-meet-wrapper">
+                          <a href={selectedVideo.videoUrl} target="_blank" rel="noopener noreferrer" className="join-meet-btn">
+                            Join Live Class
+                          </a>
+                          <p style={{ marginTop: "10px" }}>Click the button above to join the live session in a new tab.</p>
+                        </div>
+                      ) : (
+                        !iframeError ? (
+                          <>
+                            <div key={index} className="video-thumbnail-container">
+                              <img
+                                src={getYouTubeThumbnail(selectedVideo.videoUrl)}
+                                alt={selectedVideo.title}
+                                className="video-thumbnail"
+                                onClick={() => window.open(selectedVideo.videoUrl, '_blank')}
+                              />
+                                {selectedVideo.pdfUrl && (
+                                  <div className="pdf-download-section">
+                                    <a href={selectedVideo.pdfUrl} target="_blank" rel="noopener noreferrer" className="download-pdf-btn">
+                                      📄 Download PDF
+                                    </a>
+                                  </div>
+                                )}
+                              <p className="video-title">{selectedVideo.title}</p>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="video-error">
+                            <p>Sorry, this video cannot be played (embedding may be disabled).</p>
+                          </div>
+                        )
+                      )}
+                      
+                      
+
+                      <div className="video-info">
+                        {currentCourse && (
+                          <p className="video-instructor">
+                            <strong>Instructor:</strong> {currentCourse.instructor}
+                          </p>
+                        )}
+                        {currentCourse && (
+                          <p className="video-total">
+                            <strong>Total Videos in this Course:</strong> {currentCourse.videos?.length || 0}
+                          </p>
+                        )}
+                        {selectedVideo.description && (
+                          <p className="video-description">
+                            <strong>Description:</strong> {selectedVideo.description}
+                          </p>
+                        )}
+                        
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
           )}
+
         </div>
       </div>
+
       <Footer />
     </div>
   );

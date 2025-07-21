@@ -1,5 +1,5 @@
 /* ===== GENERAL LAYOUT ===== */
-.dashboard-container,
+
 .course-container {
   min-height: 100vh;
   background: #f8f9fa;
@@ -7,156 +7,69 @@
   padding: 0;
 }
 
-/* ===== NAVBAR ===== */
-.dashboard-nav {
+/* ===== Menu bar toggle button (hamburger for sidebar) ===== */
+.course-sidebar-wrapper {
+  position: relative;
+}
+
+.sidebar-heading-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f4f4f4;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.sidebar-heading-toggle h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.toggle-arrow {
+  font-size: 20px;
+  font-weight: bold;
+  color: #444;
+}
+
+.sidebar-open-arrow {
+  position: fixed;
+  left: 0;
+  top: 120px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 0 5px 5px 0;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 20px;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+  .sidebar-open-arrow {
+    top: 80px;
+  }
+}
+
+/* Course title + arrow row */
+.category-title-arrow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background-color:cadetblue;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  width: 100vw;
-  z-index: 1000;
-  box-sizing: border-box;
-}
-.logo {
-  display: flex;
-  align-items: center;
-}
-.logo img, .logo-image {
-  height: 40px;
-  width: auto;
-  margin-right: 10px;
-  object-fit: contain;
-  mix-blend-mode: multiply;
-}
-.logo h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #222;
-  /* font-style: italic; */
-  font-family: 'Inter', Times, serif;
-  letter-spacing: 1px;
+  padding: 10px 14px;
 }
 
-/* Hamburger menu for mobile (top nav) */
-.menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 2rem;
-  margin-left: auto;
-  z-index: 1201;
-}
-.menu-toggle span {
-  display: block;
-  width: 28px;
-  height: 3px;
-  margin: 6px 0;
-  background: #4a90e2;
-  border-radius: 2px;
-  transition: all 0.3s;
-}
-
-/* Nav links */
-.nav-links {
-  display: flex;
-  list-style: none;
-  font-family: 'Times New Roman', Times, serif;
-  margin: 0;
-  padding: 0;
-  align-items: center;
-  margin-right: 20px;
-  transition: max-height 0.3s;
-}
-.nav-links li {
-  margin-left: 2rem;
-  font-size: 0.98rem;
-  font-family: 'Times New Roman', Times, serif;
+.category-title {
   font-weight: 600;
-  cursor: pointer;
-  transition: color 0.3s;
-  padding: 0.5rem 0;
-  color: #223366;
-  position: relative;
-}
-.nav-links li a {
-  color: inherit;
-  font-family: 'Times New Roman', Times, serif;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-.nav-links li:hover, .nav-links li a:hover {
-  color: #4a90e2;
-}
-.nav-links li:first-child { color: #223366; }
-
-/* Dropdown */
-.dropdown-container {
-  position: relative;
-  cursor: pointer;
-  user-select: none;
-}
-.dropdown-container span {
-  display: inline-block;
-  padding: 5px 0;
-  color: #333;
-  font-weight: 600;
-  transition: color 0.3s;
-}
-.dropdown-container:hover span,
-.dropdown-container.open span {
-  color: #4a90e2;
-}
-.dropdown-container span a { color: inherit; }
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background-color: white;
-  min-width: 180px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-  border-radius: 4px;
-  padding: 0.5rem 0;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
-  transition: all 0.3s;
-  z-index: 101;
-  margin-top: 5px;
-  display: block;
-}
-.dropdown-container:hover .dropdown-menu,
-.dropdown-container.open .dropdown-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-.dropdown-menu li {
-  padding: 8px 20px;
-  margin: 0;
-  transition: all 0.3s;
-  color: #333;
-  cursor: pointer;
-}
-.dropdown-menu li:hover {
-  background-color: #f8f8f8;
-  color: #4a90e2;
-  padding-left: 25px;
-}
-.dropdown-menu li a {
-  color: inherit;
-  text-decoration: none;
-  display: block;
-  width: 100%;
-  height: 100%;
 }
 
-/* ===== Menu bar toggle button (hamburger for sidebar) ===== */
+.course-toggle-arrow {
+  font-size: 16px;
+  color: #555;
+}
+
 .sidebar-toggle {
   display: none;
   position: fixed;
@@ -534,7 +447,7 @@
 .video-player {
   position: relative;
   width: 100%;
-  padding-top: 56.25%;
+  padding-top: 0;
   margin-bottom: 20px;
 }
 .video-player iframe {
@@ -780,7 +693,27 @@
   box-shadow: 0 8px 24px -10px #6366f1aa;
   transform: translateY(-2px) scale(1.04);
 }
-/* ====== FOOTER (unchanged) ====== */
+.video-access-block  {
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+  padding: 100px 20px;
+}
+.video-access-block h2 {
+  text-align: center;
+  font-size: 2rem;
+  /* padding: 100px 20px; */
+  color:brown;
+
+}
+.video-access-block p {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-top: 50px;
+  color:black;
+}
+
+
+/* ====== FOOTER (unchanged) ======
 .site-footer {
   background-color: #2c3e50;
   color: #ecf0f1;
@@ -876,7 +809,7 @@
   transition: color 0.3s;
 }
 .footer-bottom-links a:hover { color: #4a90e2; }
-.footer-bottom h3 { font-size: 0.9rem; color: #bdc3c7; margin: 0; }
+.footer-bottom h3 { font-size: 0.9rem; color: #bdc3c7; margin: 0; } */
 
 /* ====== RESPONSIVE ADJUSTMENTS ====== */
 @media (max-width: 1100px) {
@@ -1027,7 +960,7 @@
 
 .default-course-view {
   text-align: center;
-  padding: 40px 20px;
+  padding: 100px 20px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -1036,10 +969,32 @@
 
 .default-course-view h3 {
   font-size: 2rem;
+  text-align: center;
+  /* padding:100px; */
+  margin:50px;
   color: #333;
 }
 
 .default-course-view p {
   font-size: 1.2rem;
+  padding-top: 10px;
   color: #555;
+}
+
+.pdf-download-section {
+  margin-top: 15px;
+  text-align: left;
+}
+
+.download-pdf-btn {
+  background-color: #2b6cb0;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.download-pdf-btn:hover {
+  background-color: #2c5282;
 }

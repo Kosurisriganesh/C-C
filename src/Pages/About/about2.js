@@ -1,44 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ceo from '../../Assets/ceo.jpg';
+import Header from '../../Components/Header/header';
 import Footer from '../../Components/Footer/footer';
 import Logo2 from '../../Assets/Logo2.png';
 import './about2.css';
 
 const About2 = () => (
     <div className="about-content">
-        <nav className='dashboard-nav'>
-            <div className="logo">
-                <img src={Logo2}alt="Candles" className="logo-image" />
-                <h2>Candles & Capital</h2>
-            </div>
-
-            <ul className="nav-links">
-                <li><Link to='/home'> HOME </Link></li>
-
-                <li className="dropdown-container">
-                    <span><Link to='/about'>ABOUT</Link></span>
-                    <ul className="dropdown-menu">
-                        <li><Link to='/about'>Our Story</Link></li>
-                        <li><Link to='/about2'>About Karthik sir</Link></li>
-                    </ul>
-                </li>
-
-                <li className="dropdown-container">
-                    <span><Link to='/course'> COURSE</Link></span>
-                    <ul className="dropdown-menu">
-                        <li>Technical Analysis</li>
-                        <li>Fundamental Analysis</li>
-                        <li>Commodity Trading</li>
-                        <li>Features & Option</li>
-                    </ul>
-                </li>
-
-                <li><Link to='/contact'> CONTACT </Link></li>
-                
-                <li><Link to='/login'> LOGIN </Link></li>
-            </ul>
-        </nav>
+        <Header />
 
         <div className='container'>
             <h2>About Our CEO / Founder</h2>

@@ -29,15 +29,15 @@ h1, h2, h3 {
 /* Dashboard container */
 .dashboard-container {
     /* background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../Assets/stockbg.png'); */
-    min-height: 100vh;
+    /* /* min-height: 100vh;
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     padding-top: 70px;
     padding-bottom: 35px;
     padding-left: 35px;
-    padding-right: 35px;
-}
+    padding-right: 35px; */
+} 
 
 /* Navbar styles */
 .dashboard-nav {
@@ -116,7 +116,7 @@ h1, h2, h3 {
 .nav-links a {
     text-decoration: none;
     font-family: 'Times New Roman', Times, serif;
-    color: inherit;
+    color: black;
 }
 .nav-links li:hover {
     color: var(--primary-accent);

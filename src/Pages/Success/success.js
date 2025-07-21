@@ -3,10 +3,10 @@ import "./success.css";
 
 const testimonials = [
   {
-    name: "Rohit Sharma",
-    course: "Technical Analysis",
-    video: "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
-    text: "C&C's technical analysis course gave me the confidence to trade successfully. The hands-on practice and mentorship are unmatched!",
+    name: "K.NAGESHWARA RAO",
+    course:"FUTURES & OPTIONS",
+    video: "https://www.youtube.com/shorts/n3_PFByO2zM",
+    text:  "C&C's Futures & Options course simplified complex trading concepts with real-world strategies. It gave me the tools to hedge risk and profit confidently in volatile markets.",
     rating: 5,
   },
   {
@@ -36,9 +36,11 @@ const Success = () => {
       setCurrent((prev) => (prev + 1) % testimonials.length);
     }, AUTO_SLIDE_DELAY);
 
-    // Control video play/pause
-    videoRefs.current.forEach((video, idx) => {
-      if (video) {
+    testimonials.forEach((t, idx) => {
+      const isYouTube = t.video.includes("youtube.com");
+      const video = videoRefs.current[idx];
+
+      if (!isYouTube && video) {
         if (idx === current) {
           video.currentTime = 0;
           video.play().catch(() => {});
@@ -52,7 +54,8 @@ const Success = () => {
     return () => clearTimeout(timer);
   }, [current]);
 
-  const handleVideoClick = (index) => {
+  const handleVideoClick = (index, isYouTube) => {
+    if (isYouTube) return;
     const video = videoRefs.current[index];
     if (video) {
       video.muted = false;
@@ -60,8 +63,17 @@ const Success = () => {
     }
   };
 
-  const renderStars = (count) => {
-    return "★".repeat(count) + "☆".repeat(5 - count);
+  const renderStars = (count) => "★".repeat(count) + "☆".repeat(5 - count);
+
+  const getYouTubeEmbedURL = (url) => {
+    let videoId = "";
+    if (url.includes("shorts")) {
+      videoId = url.split("/shorts/")[1]?.split("?")[0];
+    } else if (url.includes("watch?v=")) {
+      videoId = url.split("v=")[1]?.split("&")[0];
+    }
+    // Removed autoplay and mute for sound
+    return `https://www.youtube.com/embed/${videoId}?rel=0`;
   };
 
   return (
@@ -73,32 +85,47 @@ const Success = () => {
           className="testimonial-slider"
           style={{ transform: `translateX(-${current * 100}%)` }}
         >
-          {testimonials.map((t, idx) => (
-            <div className="testimonial-row" key={idx}>
-              <div className="testimonial-text">
-                <h3>{t.name}</h3>
-                <p className="course">({t.course})</p>
-                <p className="review">"{t.text}"</p>
-                <p className="rating">{renderStars(t.rating)}</p>
-              </div>
+          {testimonials.map((t, idx) => {
+            const isYouTube = t.video.includes("youtube.com");
 
-              <div className="testimonial-video-wrapper">
-                <video
-                  ref={(el) => (videoRefs.current[idx] = el)}
-                  className="testimonial-video"
-                  controls={false}
-                  muted
-                  playsInline
-                  preload="auto"
-                  poster="https://images.unsplash.com/photo-1581093588401-12b66ade986d?auto=format&fit=crop&w=600&q=80"
-                  onClick={() => handleVideoClick(idx)}
-                >
-                  <source src={t.video} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+            return (
+              <div className="testimonial-row" key={idx}>
+                <div className="testimonial-text">
+                  <h3>{t.name}</h3>
+                  <p className="course">({t.course})</p>
+                  <p className="review">"{t.text}"</p>
+                  <p className="rating">{renderStars(t.rating)}</p>
+                </div>
+
+                <div className="testimonial-video-wrapper">
+                  {isYouTube ? (
+                    <iframe
+                      className="testimonial-video"
+                      src={getYouTubeEmbedURL(t.video)}
+                      title={`YouTube video by ${t.name}`}
+                      frameBorder="0"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  ) : (
+                    <video
+                      ref={(el) => (videoRefs.current[idx] = el)}
+                      className="testimonial-video"
+                      controls={false}
+                      muted
+                      playsInline
+                      preload="auto"
+                      poster="https://images.unsplash.com/photo-1581093588401-12b66ade986d?auto=format&fit=crop&w=600&q=80"
+                      onClick={() => handleVideoClick(idx, false)}
+                    >
+                      <source src={t.video} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="success-dots">

@@ -1339,11 +1339,23 @@ a {
     font-weight: 500; /* font-medium */
 }
 
+
 /* Actions for individual videos */
 .video-actions {
     display: flex;
     gap: 0.5rem; /* space-x-2 */
 }
+.video-actions button {
+  margin-left: 6px;
+}
+
+.edit-pdf-btn {
+  background-color: transparent;
+  color: #4caf50;
+  border: none;
+  cursor: pointer;
+}
+
 
 .edit-video-btn,
 .delete-video-btn {

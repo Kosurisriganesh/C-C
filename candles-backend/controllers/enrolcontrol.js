@@ -125,6 +125,69 @@ exports.getEnrolledCourses = async (req, res) => {
               "fullName":1,
               "phoneNumber":1,
               "email":1,
+              'videoAccess':1
+            }
+        },
+    {
+      $lookup: {
+        from: "courses",
+        localField: "courseId",
+        foreignField: "_id",
+        as: "course_info"
+      }
+    },
+    {
+      $unwind: {
+        path: "$course_info"
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        'videoAccess':1,
+      //  "fullName":1,
+      //   "phoneNumber":1,
+      //   "email":1,
+        'courseId': '$course_info._id',
+        'courseName': '$course_info.title',
+        'courseDescription': '$course_info.description',
+        'courseInstructor': '$course_info.instructor',
+        'videos': '$course_info.videos',
+      }
+    }
+  ]);
+// console.log('result', result);
+  if (result.length !== 0) {
+    res.json({
+      error: false,
+      Status: "Success",
+      data: result,
+      msg: "Success"
+    });
+  } else {
+    res.send({ Status: "Success", data: [] });
+  }
+} catch (e) {
+  console.log('ee', e);
+  res.send({ Status: "Failed", msg: "Problem while sending the data" });
+}
+
+};
+
+exports.getUserAccessedCourses = async (req, res) => {
+  console.log('cominggggggg')
+  const { uid } = req.params.uid;
+   try {
+  const result = await User.aggregate([
+     { "$match": { "email":req.params.uid, 'videoAccess':true} },
+     { $unwind: { path: "$courseId", preserveNullAndEmptyArrays: true } },
+        {$project :
+            {
+              "_id":1,
+              "courseId":1,
+              "fullName":1,
+              "phoneNumber":1,
+              "email":1,
             }
         },
     {
@@ -149,7 +212,8 @@ exports.getEnrolledCourses = async (req, res) => {
         'courseId': '$course_info._id',
         'courseName': '$course_info.title',
         'courseDescription': '$course_info.description',
-        'courseInstructor': '$course_info.instructor'
+        'courseInstructor': '$course_info.instructor',
+        'videos': '$course_info.videos'
       }
     }
   ]);
@@ -173,27 +237,34 @@ exports.getEnrolledCourses = async (req, res) => {
 
 // Admin: Grant or revoke video access for an enrollment
 exports.setVideoAccess = async (req, res) => {
+  console.log('setVideoAccess called', req.body);
+
   const { enrollmentId } = req.params;
   const { hasVideoAccess } = req.body;
+  console.log('enrollmentId:', enrollmentId);
 
   if (typeof hasVideoAccess !== 'boolean') {
     return res.status(400).json({ success: false, message: 'hasVideoAccess must be a boolean' });
   }
 
   try {
-    const updated = await Enrollment.findByIdAndUpdate(
+    const updated = await User.findByIdAndUpdate(
       enrollmentId,
-      { hasVideoAccess },
-      { new: true }
+      { videoAccess: hasVideoAccess },
+      { new: true } // return the updated document
     );
+
     if (!updated) {
-      return res.status(404).json({ success: false, message: 'Enrollment not found' });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
-    res.json({ success: true, enrollment: updated });
+
+    return res.json({ success: true, message: 'Successfully updated user', user: updated });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    console.error('Error updating video access:', error);
+    return res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
+
 
 // Get a user's enrollment for a course (to check access)
 exports.getEnrollmentForUserCourse = async (req, res) => {
@@ -252,7 +323,8 @@ try {
         courseId: 1,
         fullName: 1,
         phoneNumber: 1,
-        email: 1
+        email: 1,
+        videoAccess:1
       }
     },
     { $unwind: { path: "$courseId", preserveNullAndEmptyArrays: true } },
@@ -271,6 +343,7 @@ try {
         fullName: 1,
         phoneNumber: 1,
         email: 1,
+        videoAccess:1,
         courseId: "$course_info._id",
         courseName: "$course_info.title"
       }
@@ -281,6 +354,7 @@ try {
         fullName: { $first: "$fullName" },
         phoneNumber: { $first: "$phoneNumber" },
         email: { $first: "$email" },
+        videoAccess: { $first: "$videoAccess" },
         courses: {
           $push: {
             courseId: "$courseId",

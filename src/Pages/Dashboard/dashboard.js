@@ -51,6 +51,7 @@ const Dashboard = () => {
     })
       .then(res => res.json())
       .then(response => {
+        console.log('Enrolled courses response:', response.data);
         setEnrolledCourses(response.data || []);
         setLoading(false);
       })
@@ -67,11 +68,12 @@ const Dashboard = () => {
     })
       .then(res => res.json())
       .then(response => {
-        const enrolledIds = enrolledCourses.map(c => c._id || c.id);
+        const enrolledIds = enrolledCourses.map(c => c.courseId);
+        console.log('response',response)
         const allCourses = response.data || response.courses || [];
         setRecommendedCourses(
           allCourses.filter(
-            course => !enrolledIds.includes(course._id || course.id)
+            course => !enrolledIds.includes(course._id)
           )
         );
       })

@@ -7,6 +7,8 @@ import Footer from '../../Components/Footer/footer';
 import { Table, TableHead, TableRow, TableCell, TableBody, Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
+
 
 import Logo from '../../Assets/Logo2.png';
 
@@ -295,29 +297,29 @@ const AdminDashboard = () => {
             fetchEnrollments();
         }
     }, [activeMenuItem, fetchEnrollments]);
-
-    const handleBulkVideoAccess = async (userId, grantAccess) => {
-        await fetch(`${API_BASE_URL}/api/enrollments/user/${userId}/video-access`, {
+const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/enrollments/${enrollmentId}/video-access`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ grantAccess })
+            body: JSON.stringify({ hasVideoAccess: grantAccess }),
         });
 
-        // Update UI state
-        setEnrollments(prev =>
-            prev.map(en =>
-                en.id === userId
-                    ? {
-                        ...en,
-                        courses: en.courses.map(course => ({
-                            ...course,
-                            hasVideoAccess: grantAccess
-                        }))
-                    }
-                    : en
-            )
-        );
-    };
+        if (!response.ok) {
+            throw new Error('Failed to update access');
+        }
+
+        const result = await response.json();
+        console.log('Updated enrollment:', result);
+        if(result)
+       fetchEnrollments();
+    } catch (err) {
+        console.error("Failed to update video access:", err);
+        alert("Error updating video access");
+    }
+};
+
+
 
     // ------------------ COURSE MANAGEMENT ------------------
     const handleAddCourse = () => {
@@ -337,7 +339,7 @@ const AdminDashboard = () => {
             title: courseData.title,
             description: courseData.description,
             instructor: courseData.instructor,
-            thumbnail : courseData.thumbnail,
+            thumbnail: courseData.thumbnail,
 
             videos: Array.isArray(courseData.videos) ? courseData.videos : []
         };
@@ -472,6 +474,25 @@ const AdminDashboard = () => {
         });
         setShowConfirmationModal(true);
     };
+
+    const handleEditPDF = async (courseId, video) => {
+        const pdfUrl = prompt(`Enter PDF URL for "${video.title}"`, video.pdfUrl || '');
+
+        if (pdfUrl && pdfUrl !== video.pdfUrl) {
+            try {
+                await axios.put(`/api/courses/${courseId}/videos/${video._id}/pdf`, {
+                    pdfUrl,
+                });
+
+                alert("PDF updated successfully!");
+                fetchCourses(); // refresh course data
+            } catch (err) {
+                console.error("Error updating PDF:", err);
+                alert("Failed to update PDF.");
+            }
+        }
+    };
+
 
     // ------------------ USER MANAGEMENT ------------------
     const handleDeleteUser = async (userId) => {
@@ -653,6 +674,12 @@ const AdminDashboard = () => {
                                                 value={video.videoUrl}
                                                 onChange={e => handleVideoChange(idx, 'videoUrl', e.target.value)}
                                             />
+                                            <input
+                                                type="url"
+                                                placeholder="PDF Drive Link"
+                                                value={video.pdfUrl || ''}
+                                                onChange={e => handleVideoChange(idx, 'pdfUrl', e.target.value)}
+                                            />
                                             <button type="button" onClick={() => handleRemoveVideoField(idx)}>
                                                 Remove
                                             </button>
@@ -662,6 +689,7 @@ const AdminDashboard = () => {
                                         + Add Video
                                     </button>
                                 </div>
+
                             </div>
                         </div>
 
@@ -855,9 +883,13 @@ const AdminDashboard = () => {
                                             </td>
                                         </tr>
                                     ) : (
-                                        enrollments.map(en => {
-                                            const allGranted = en.courses.every(c => c.hasVideoAccess); // ✅ Check all courses' access
-
+                                        enrollments
+                                            .slice() // avoid mutating original array
+                                            .sort((a, b) => a.fullName.localeCompare(b.fullName))
+                                            .map(en => {
+                                            console.log('Enrollment:', en);
+                                            const allGranted = en?.videoAccess // ✅ Check all courses' access
+                                            console.log('All courses granted access:', allGranted);
                                             return (
                                                 <tr key={en._id}>
                                                     <td style={{ padding: "10px", border: "1px solid #ddd" }}>{en.fullName}</td>
@@ -896,44 +928,104 @@ const AdminDashboard = () => {
                 return (
                     <div className="course-management">
                         <h2>Course Management</h2>
+
                         <div className="course-controls">
-                            <button className="add-course-btn" onClick={handleAddCourse}>Add New Course</button>
+                            <button className="add-course-btn" onClick={handleAddCourse}>
+                                Add New Course
+                            </button>
                         </div>
+
                         <div className="courses-list">
+                            {console.log('courses',courses)}
                             {courses.length > 0 ? (
-                                courses.map(course => (
+                                courses.map((course) => (
                                     <div key={course._id} className="course-item">
                                         <h3>{course.title}</h3>
                                         <p>{course.description}</p>
-                                        <p><strong>Instructor:</strong> {course.instructor}</p>
+                                        <p>
+                                            <strong>Instructor:</strong> {course.instructor}
+                                        </p>
+
                                         <h4>Videos:</h4>
                                         {course.videos && course.videos.length > 0 ? (
                                             <ul className="videos-list">
-                                                {course.videos.map(video => (
-                                                    <li key={video.id} className="video-item">
-                                                        <span>
-                                                            {video.title}
-                                                            <a href={video.videoUrl}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                style={{ color: 'blue', textDecoration: 'underline' }}>
-                                                                View Video
-                                                            </a>
-                                                        </span>
+                                                {course.videos.map((video, index) => (
+                                                    <li key={video.id || index} className="video-item">
+                                                        <div style={{ display: "flex", flexDirection: "column" }}>
+                                                            <span>
+                                                                {video.title} &nbsp;
+                                                                <a
+                                                                    href={video.videoUrl}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    style={{ color: "blue", textDecoration: "underline" }}
+                                                                >
+                                                                    ▶ View Video
+                                                                </a>
+                                                            </span>
+
+                                                            {video.pdfUrl && (
+                                                                <a
+                                                                    href={video.pdfUrl}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    style={{ color: "green", fontSize: "0.9rem", marginTop: "4px", textDecoration: "underline" }}
+                                                                >
+                                                                    📄 View PDF
+                                                                </a>
+                                                            )}
+                                                        </div>
+
                                                         <div className="video-actions">
-                                                            <button className="edit-video-btn" onClick={() => handleEditVideo(course._id, video)}><EditIcon /></button>
-                                                            <button className="delete-video-btn" onClick={() => handleDeleteVideo(course._id, video.id)}><DeleteIcon /></button>
+                                                            <button
+                                                                className="edit-video-btn"
+                                                                onClick={() => handleEditVideo(course._id, video)}
+                                                            >
+                                                                <EditIcon />
+                                                            </button>
+                                                            <button
+                                                                className="delete-video-btn"
+                                                                onClick={() => handleDeleteVideo(course._id, video.id)}
+                                                            >
+                                                                <DeleteIcon />
+                                                            </button>
+                                                            <button
+                                                                className="edit-pdf-btn"
+                                                                onClick={() => handleEditPDF(course._id, video)}
+                                                            >
+                                                                📄 Edit PDF
+                                                            </button>
                                                         </div>
                                                     </li>
                                                 ))}
                                             </ul>
                                         ) : (
-                                            <p className="no-videos-message">No videos added yet. Click "Add Video" below.</p>
+                                            <p className="no-videos-message">
+                                                No videos added yet. Click "Add Video" below.
+                                            </p>
                                         )}
+
                                         <div className="course-actions">
-                                            <button className="add-video-to-course-btn" onClick={() => handleAddVideo(course._id)}>Add Video</button>
-                                            <button className="edit-course-btn" onClick={() => handleEditCourse(course)}><EditIcon />Course</button>
-                                            <button className="delete-course-btn" onClick={() => handleDeleteCourse(course._id)}><DeleteIcon />Course</button>
+                                            <button
+                                                className="add-video-to-course-btn"
+                                                onClick={() => handleAddVideo(course._id)}
+                                            >
+                                                Add Video
+                                            </button>
+                                            <button
+                                                className="edit-course-btn"
+                                                onClick={() => handleEditCourse(course)}
+                                            >
+                                                <EditIcon />
+                                                Course
+                                            </button>
+                                            <button
+                                                className="delete-course-btn"
+                                                onClick={() => handleDeleteCourse(course._id)}
+                                            >
+                                                <DeleteIcon />
+                                                Course
+                                            </button>
                                         </div>
                                     </div>
                                 ))
@@ -942,6 +1034,7 @@ const AdminDashboard = () => {
                             )}
                         </div>
                     </div>
+
                 );
             case 'messages':
                 if (user?.role !== 'Admin') {
