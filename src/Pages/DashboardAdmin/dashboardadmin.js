@@ -4,10 +4,15 @@ import { auth } from '../../Pages/Firebase/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import './dashboardadmin.css';
 import Footer from '../../Components/Footer/footer';
-import { Table, TableHead, TableRow, TableCell, TableBody, Button } from '@mui/material';
+import { Table, TableHead, TableRow, TableCell, TableBody, Button,Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import axios from 'axios';
+import Switch from '@mui/material/Switch';
+
 
 
 import Logo from '../../Assets/Logo2.png';
@@ -41,6 +46,8 @@ const AdminDashboard = () => {
     const [roleFilter, setRoleFilter] = useState('all');
     const [enrollments, setEnrollments] = useState([]);
     const [enrollmentsLoading, setEnrollmentsLoading] = useState(false);
+    const [status, setStatus] = useState('active');
+    const [isRecommended, setIsRecommended] = useState(false);
 
 
 
@@ -297,27 +304,27 @@ const AdminDashboard = () => {
             fetchEnrollments();
         }
     }, [activeMenuItem, fetchEnrollments]);
-const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/enrollments/${enrollmentId}/video-access`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ hasVideoAccess: grantAccess }),
-        });
+    const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/enrollments/${enrollmentId}/video-access`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ hasVideoAccess: grantAccess }),
+            });
 
-        if (!response.ok) {
-            throw new Error('Failed to update access');
+            if (!response.ok) {
+                throw new Error('Failed to update access');
+            }
+
+            const result = await response.json();
+            console.log('Updated enrollment:', result);
+            if (result)
+                fetchEnrollments();
+        } catch (err) {
+            console.error("Failed to update video access:", err);
+            alert("Error updating video access");
         }
-
-        const result = await response.json();
-        console.log('Updated enrollment:', result);
-        if(result)
-       fetchEnrollments();
-    } catch (err) {
-        console.error("Failed to update video access:", err);
-        alert("Error updating video access");
-    }
-};
+    };
 
 
 
@@ -590,7 +597,10 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                 description,
                 instructor,
                 videos: filteredVideos,
-                thumbnail
+                thumbnail,
+                status,
+                isRecommended
+
             });
         };
         if (!isOpen) return null;
@@ -601,6 +611,7 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                     <form onSubmit={handleSubmit}>
                         <div className="modal-body">
                             <div className="modal-left">
+                                {/* Title */}
                                 <div className="form-group">
                                     <label htmlFor="courseTitle">Title:</label>
                                     <input
@@ -611,6 +622,8 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                         required
                                     />
                                 </div>
+
+                                {/* Instructor */}
                                 <div className="form-group">
                                     <label htmlFor="courseInstructor">Instructor:</label>
                                     <input
@@ -621,6 +634,8 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                         required
                                     />
                                 </div>
+
+                                {/* Description */}
                                 <div className="form-group">
                                     <label htmlFor="courseDescription">Description:</label>
                                     <textarea
@@ -632,20 +647,20 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                     ></textarea>
                                 </div>
 
-                                {/* Thumbnail URL field */}
+                                {/* Thumbnail */}
                                 <div className="form-group">
                                     <label htmlFor="thumbnailUrl">Course Thumbnail URL:</label>
                                     <input
                                         type="url"
                                         id="thumbnailUrl"
-                                        placeholder="https://yourdomain.com/images/technical.jpg"
+                                        placeholder="https://yourdomain.com/images/course.jpg"
                                         value={thumbnail}
                                         onChange={(e) => setThumbnail(e.target.value)}
                                         required
                                     />
                                 </div>
 
-                                {/* Thumbnail preview */}
+                                {/* Thumbnail Preview */}
                                 {thumbnail && (
                                     <div className="image-preview">
                                         <img
@@ -655,13 +670,42 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                         />
                                     </div>
                                 )}
+
+                                {/* Course Status */}
+                                <div className="form-group">
+                                    <label htmlFor="courseStatus">Course Status:</label>
+                                    <select
+                                        id="courseStatus"
+                                        value={status}
+                                        onChange={(e) => setStatus(e.target.value)}
+                                        required
+                                    >
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+
+                                {/* MUI Recommended Checkbox */}
+                                <div className="form-group">
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={isRecommended}
+                                                onChange={(e) => setIsRecommended(e.target.checked)}
+                                                color="primary"
+                                            />
+                                        }
+                                        label="Mark as Recommended"
+                                    />
+                                </div>
                             </div>
 
+                            {/* Videos Section */}
                             <div className="modal-right">
                                 <div className="form-group">
                                     <label>Videos:</label>
                                     {videos.map((video, idx) => (
-                                        <div key={video.id || idx} className="video-box">
+                                        <div key={idx} className="video-box">
                                             <input
                                                 type="text"
                                                 placeholder="Video Title"
@@ -689,12 +733,12 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                         + Add Video
                                     </button>
                                 </div>
-
                             </div>
                         </div>
 
-                        <div className="modal-actions">
-                            <button type="submit" className="save-btn">Save</button>
+                        {/* Form Action Buttons */}
+                        <div className="modal-actions" style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                            <button type="submit" className="save-btn">Update</button>
                             <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
                         </div>
                     </form>
@@ -792,6 +836,7 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                 return (
                     <div className="dashboard-overview">
                         <p>Welcome to your Admin Dashboard. Use the sidebar to navigate.</p>
+                        
                     </div>
                 );
             case 'users':
@@ -820,7 +865,7 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                         <th>Email</th>
                                         <th>Phone</th>
                                         <th>Date Joined</th>
-                                        <th>Status</th>
+                                        {/* <th>Status</th> */}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -832,14 +877,24 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                             <td>{u.email}</td>
                                             <td>{u.phoneNumber || '-'}</td>
                                             <td>{u.date ? new Date(u.date).toLocaleDateString() : '-'}</td>
-                                            <td>
+                                            {/* <td>
                                                 <span style={{
-                                                    color: u.status ? "red" : "green",
+                                                    // color: u.status ? "green" : "red",
                                                     fontWeight: "bold"
                                                 }}>
-                                                    {u.status ? "Inactive" : "Active"}
+                                                    {console.log('u.status',u)}
+                                                    {u.status ? "Active" : "Inactive"}
+                                                    <Typography>Inactive</Typography>
+                                                    <Switch
+                                                    // checked={formData.isAdmin}
+                                                    // onChange={handleChange}
+                                                    name="Status"
+                                                    id="status"
+                                                    // disabled={isLoading}
+                                                    />
+                                                    <Typography>Active</Typography>
                                                 </span>
-                                            </td>
+                                            </td> */}
                                             <td className="action-buttons">
                                                 <button className="delete-btn" onClick={() => handleDeleteUser(u._id)}>Delete</button>
                                             </td>
@@ -852,11 +907,11 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="pagination">
+                        {/* <div className="pagination">
                             <button>« Previous</button>
                             <span>Page 1</span>
                             <button>Next »</button>
-                        </div>
+                        </div> */}
                     </div>
                 );
             case 'enrollments':
@@ -887,36 +942,36 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                             .slice() // avoid mutating original array
                                             .sort((a, b) => a.fullName.localeCompare(b.fullName))
                                             .map(en => {
-                                            console.log('Enrollment:', en);
-                                            const allGranted = en?.videoAccess // ✅ Check all courses' access
-                                            console.log('All courses granted access:', allGranted);
-                                            return (
-                                                <tr key={en._id}>
-                                                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>{en.fullName}</td>
-                                                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                                                        {en.courses.map(c => c.courseName).join(', ')}
-                                                    </td>
-                                                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                                                        {allGranted ? "Granted" : "Pending"}
-                                                    </td>
-                                                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                                                        <button
-                                                            onClick={() => handleBulkVideoAccess(en._id, !allGranted)}
-                                                            style={{
-                                                                backgroundColor: allGranted ? "#f44336" : "#4CAF50",
-                                                                color: "white",
-                                                                border: "none",
-                                                                padding: "8px 12px",
-                                                                borderRadius: "4px",
-                                                                cursor: "pointer"
-                                                            }}
-                                                        >
-                                                            {allGranted ? "Revoke Access" : "Grant Access"}
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
+                                                console.log('Enrollment:', en);
+                                                const allGranted = en?.videoAccess // ✅ Check all courses' access
+                                                console.log('All courses granted access:', allGranted);
+                                                return (
+                                                    <tr key={en._id}>
+                                                        <td style={{ padding: "10px", border: "1px solid #ddd" }}>{en.fullName}</td>
+                                                        <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                                                            {en.courses.map(c => c.courseName).join(', ')}
+                                                        </td>
+                                                        <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                                                            {allGranted ? "Granted" : "Pending"}
+                                                        </td>
+                                                        <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                                                            <button
+                                                                onClick={() => handleBulkVideoAccess(en._id, !allGranted)}
+                                                                style={{
+                                                                    backgroundColor: allGranted ? "#f44336" : "#4CAF50",
+                                                                    color: "white",
+                                                                    border: "none",
+                                                                    padding: "8px 12px",
+                                                                    borderRadius: "4px",
+                                                                    cursor: "pointer"
+                                                                }}
+                                                            >
+                                                                {allGranted ? "Revoke Access" : "Grant Access"}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
                                     )}
                                 </tbody>
                             </table>
@@ -936,7 +991,7 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                         </div>
 
                         <div className="courses-list">
-                            {console.log('courses',courses)}
+                            {console.log('courses', courses)}
                             {courses.length > 0 ? (
                                 courses.map((course) => (
                                     <div key={course._id} className="course-item">
@@ -977,7 +1032,7 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                                         </div>
 
                                                         <div className="video-actions">
-                                                            <button
+                                                            {/* <button
                                                                 className="edit-video-btn"
                                                                 onClick={() => handleEditVideo(course._id, video)}
                                                             >
@@ -994,7 +1049,7 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                                                 onClick={() => handleEditPDF(course._id, video)}
                                                             >
                                                                 📄 Edit PDF
-                                                            </button>
+                                                            </button> */}
                                                         </div>
                                                     </li>
                                                 ))}
@@ -1010,6 +1065,7 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                                                 className="add-video-to-course-btn"
                                                 onClick={() => handleAddVideo(course._id)}
                                             >
+                                                <AddIcon />
                                                 Add Video
                                             </button>
                                             <button
@@ -1118,6 +1174,7 @@ const handleBulkVideoAccess = async (enrollmentId, grantAccess) => {
                 <ul className="nav-links">
                     <li><Link to="/home"> HOME </Link></li>
                     <li><Link to="/about"> ABOUT </Link></li>
+
                     <li className="dropdown-container">
                         <span><Link to="/Course"> COURSES </Link></span>
                         <ul className="dropdown-menu">

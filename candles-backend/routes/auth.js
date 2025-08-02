@@ -104,8 +104,9 @@ router.post('/login', async (req, res) => {
     }
 
     // Set status to active (false = active/online)
+    // console.log('=== LOGIN ATTEMPT ===',user._id);
     await User.findByIdAndUpdate(user._id, { 
-      status: false, // online
+      // status: true, // online
       lastActivity: new Date(),
       lastLoginAt: new Date()
     });
@@ -172,10 +173,12 @@ router.post('/logout', async (req, res) => {
     }
 
     // Update status
+    console.log('Updating user status to offline:', user.email);
+    console.log('User ID:', user._id);
     const updatedUser = await User.findByIdAndUpdate(
       user._id,
       {
-        status: true, // offline
+        status: false, // offline
         lastActivity: new Date(),
         lastLogoutAt: new Date()
       },
