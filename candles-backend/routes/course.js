@@ -78,6 +78,40 @@ router.put('/:courseId/videos/:videoId/pdf', requireAdmin, async (req, res) => {
   }
 });
 
+/**
+ * @route   GET /api/courses/live-tracking
+ * @desc    Get all courses
+ * @access  Public
+ */
+// POST /api/track-video
+router.post('/track-video', async (req, res) => {
+  const { userId, videoId, courseId, timestamp } = req.body;
+  if (!userId || !videoId || !courseId) {
+    return res.status(400).json({ message: 'Missing parameters' });
+  }
+
+  try {
+    await VideoProgressModel.updateOne(
+      { userId, videoId },
+      {
+        $set: {
+          courseId,
+          lastViewedAt: timestamp || new Date(),
+        },
+        $inc: { viewCount: 1 }
+      },
+      { upsert: true }
+    );
+
+    res.status(200).json({ message: 'Tracked successfully' });
+  } catch (err) {
+    console.error('Tracking failed:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
 
 /**
  * @route   GET /api/courses

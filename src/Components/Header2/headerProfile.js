@@ -54,6 +54,7 @@ const HeaderWithProfile = ({
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setShowProfileDropdown(false);
+    
     navigate('/login');
   };
 

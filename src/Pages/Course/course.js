@@ -195,10 +195,13 @@ const Course = () => {
   const togglePlayPause = () => setIsPlaying(!isPlaying);
 
   const currentCourse = courses.find(c => c._id === activeCategory);
+
   const getYouTubeThumbnail = (url) => {
-    const videoId = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
-    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    const regex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg` : "";
   };
+
 
   return (
     <div className='course-container'>
@@ -218,12 +221,12 @@ const Course = () => {
         <div className="course-sidebar-wrapper">
           {sidebarOpen ? (
             <div className="course-sidebar">
+              <><Link to="/dashboard" className="back-link">← Back to Dashboard </Link>
+              </>
               <div className="sidebar-heading-toggle" onClick={() => setSidebarOpen(false)}>
-                 
                 <h3>Course Categories</h3>
-                
                 <span className="toggle-arrow">←</span>
-                
+
               </div>
               <ul className="course-categories">
                 {courses.map(category => (
@@ -244,7 +247,7 @@ const Course = () => {
                       {activeCategory === category._id && <span className="active-indicator"></span>}
                     </div>
 
-                    {category.videos && expandedCategory === category._id && (
+                    {/* {category.videos && expandedCategory === category._id && (
                       <ul className="video-list">
                         {category.videos.map(video => (
                           <li
@@ -259,7 +262,7 @@ const Course = () => {
                           </li>
                         ))}
                       </ul>
-                    )}
+                    )} */}
                   </li>
                 ))}
               </ul>
@@ -361,71 +364,91 @@ const Course = () => {
 
           {/* {console.log('selectedVideo', selectedVideo, 'expandedCategory', expandedCategory)} */}
 
-          {selectedVideo?.map((video, i) =>
-            expandedCategory === video.courseId && video.videoAccess === true && (
-              <div className="video-player-container" key={i}>
-                <h2 className="video-title">{video?.courseName}</h2>
-                <div className="video-player">
-                  {video.videos.map((selectedVideo, index) => (
-                    <div key={index}>
-                      {selectedVideo?.title === 'Live-class' ? (
-                        <div className="live-meet-wrapper">
-                          <a href={selectedVideo.videoUrl} target="_blank" rel="noopener noreferrer" className="join-meet-btn">
-                            Join Live Class
-                          </a>
-                          <p style={{ marginTop: "10px" }}>Click the button above to join the live session in a new tab.</p>
-                        </div>
-                      ) : (
-                        !iframeError ? (
-                          <>
-                            <div key={index} className="video-thumbnail-container">
-                              <img
-                                src={getYouTubeThumbnail(selectedVideo.videoUrl)}
-                                alt={selectedVideo.title}
-                                className="video-thumbnail"
-                                onClick={() => window.open(selectedVideo.videoUrl, '_blank')}
-                              />
-                                {selectedVideo.pdfUrl && (
-                                  <div className="pdf-download-section">
-                                    <a href={selectedVideo.pdfUrl} target="_blank" rel="noopener noreferrer" className="download-pdf-btn">
-                                      📄 Download PDF
-                                    </a>
-                                  </div>
-                                )}
-                              <p className="video-title">{selectedVideo.title}</p>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="video-error">
-                            <p>Sorry, this video cannot be played (embedding may be disabled).</p>
-                          </div>
-                        )
-                      )}
-                      
-                      
-
-                      <div className="video-info">
-                        {currentCourse && (
-                          <p className="video-instructor">
-                            <strong>Instructor:</strong> {currentCourse.instructor}
-                          </p>
-                        )}
-                        {currentCourse && (
-                          <p className="video-total">
-                            <strong>Total Videos in this Course:</strong> {currentCourse.videos?.length || 0}
-                          </p>
-                        )}
-                        {selectedVideo.description && (
-                          <p className="video-description">
-                            <strong>Description:</strong> {selectedVideo.description}
-                          </p>
-                        )}
-                        
-                      </div>
+        {/* Show Login/Access Denied/Player */}
+        
+          {!user ? (
+            <div className="video-login-block">
+              <h2>Please log in to watch this video</h2>
+              <button className="login-btn" onClick={() => navigate('/login')}>Log In</button>
+            </div>
+          ) : selectedVideo?.some(
+              courseData => expandedCategory === courseData.courseId && courseData.videoAccess === false
+            ) ? (
+            <div className="video-access-block">
+              <h2>Access Denied</h2>
+              <p>Your access to this course's videos is pending admin approval.</p>
+            </div>
+          ) : (
+            selectedVideo?.map((courseData, i) =>
+              expandedCategory === courseData.courseId && courseData.videoAccess === true && (
+                <div className="video-player-container" key={i}>
+                  <h2 className="video-title">{courseData?.courseName}</h2>
+                  {currentCourse && (
+                    <div className="video-info">
+                      <p className="video-instructor">
+                        <strong>Instructor:</strong> <span>{currentCourse.instructor}</span>
+                      </p>
+                      <p className="video-total">
+                        <strong>Total Videos in this Course:</strong> <span>{courseData.videos?.length || 0}</span>
+                      </p>
                     </div>
-                  ))}
+                  )}
+                  <div className="video-player">
+                    {courseData.videos.map((video, index) => (
+                      <div key={index}>
+                        {video?.title === 'Live-class' ? (
+                          <div className="live-meet-wrapper">
+                            <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" className="join-meet-btn">
+                              Join Live Class
+                            </a>
+                            <p style={{ marginTop: "10px" }}>
+                              Click the button above to join the live session in a new tab.
+                            </p>
+                          </div>
+                        ) : (
+                          !iframeError ? (
+                            <div className="video-thumbnail-container">
+                              <img
+                                src={getYouTubeThumbnail(video.videoUrl)}
+                                alt={video.title}
+                                className="video-thumbnail"
+                                onClick={() => {
+                                  axios.post(`${API_BASE_URL}/api/track-video`, {
+                                    userId: user?.uid,
+                                    videoId: video._id,
+                                    courseId: courseData.courseId,
+                                    timestamp: new Date().toISOString(),
+                                  }).catch((error) => {
+                                    console.error('Tracking error:', error);
+                                  });
+                                  window.open(video.videoUrl, '_blank');
+                                }}
+                              />
+                              {video.pdfUrl && (
+                                <div className="pdf-download-section">
+                                  <a href={video.pdfUrl} target="_blank" rel="noopener noreferrer" className="download-pdf-btn">
+                                    📄 Download PDF
+                                  </a>
+                                </div>
+                              )}
+                              <p className="video-title">{video.title}</p>
+                            </div>
+                          ) : (
+                            <div className="video-error">
+                              <p>Sorry, this video cannot be played (embedding may be disabled).</p>
+                            </div>
+                          )
+                        )}
+                        {video.description && (
+                          <p className="video-description">
+                            <strong>Description:</strong> {video.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )
             )
           )}
 

@@ -1291,7 +1291,7 @@ a {
 .course-item h3 {
     font-size: 1.5rem; /* text-2xl */
     font-weight: 700; /* font-bold */
-    color: #111827; /* text-gray-900 */
+    color:#1d4ed8; /* text-gray-900 */
     margin-bottom: 0.5rem; /* mb-2 */
 }
 
@@ -1368,27 +1368,28 @@ a {
 }
 
 .edit-video-btn {
-    background-color: #f59e0b; /* bg-yellow-500 */
-    color: #ffffff; /* text-white */
+    background-color: #f59e0b;
+    color: #ffffff; 
 }
 
 .edit-video-btn:hover {
-    background-color: #d97706; /* hover:bg-yellow-600 */
+    background-color: #d97706; 
 }
 
 .delete-video-btn {
-    background-color: #ef4444; /* bg-red-500 */
-    color: #ffffff; /* text-white */
+    background-color: #ef4444; 
+    color: #ffffff; 
 }
 
 .delete-video-btn:hover {
-    background-color: #dc2626; /* hover:bg-red-600 */
+    background-color: #dc2626;
 }
 
 /* Actions for the entire course */
 .course-actions {
     display: flex;
-    justify-content: flex-end; /* justify-end */
+    flex-wrap: nowrap;
+    /* justify-content: flex-end; justify-end */
     /* gap: 0.75rem; space-x-3 */
     margin-top: 1.5rem; /* mt-6 */
     padding-top: 1rem; /* pt-4 */
@@ -1408,22 +1409,30 @@ a {
 }
 
 .edit-course-btn {
-    background-color: #4f46e5; /* bg-indigo-600 */
-    color: #ffffff; /* text-white */
+    background-color: #4f46e5; 
+    color: #ffffff; 
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
 .edit-course-btn:hover {
-    background-color: #4338ca; /* hover:bg-indigo-700 */
+    background-color: #4338ca; 
 }
 
 .delete-course-btn {
-    background-color: #dc2626; /* bg-red-600 */
-    color: #ffffff; /* text-white */
+    background-color: #dc2626; 
+    color: #ffffff;
+    display: flex; 
+    align-items: center;
+    gap: 2px; 
 }
 
 .delete-course-btn:hover {
-    background-color: #b91c1c; /* hover:bg-red-700 */
+    background-color: #b91c1c;
 }
+/* Modal Styles */
+
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1439,8 +1448,26 @@ a {
   border-radius: 1.25rem;
   padding: 2.5rem 2rem;
   box-shadow: 0 10px 32px rgba(0,0,0,0.13);
-  max-width: 900px;
+  max-width: 1200px;
+  max-height: 800px;
+  overflow-y: auto; /* Scroll when content overflows */
+  overflow-x: hidden;
   animation: modalPopIn 0.25s ease-in-out;
+  scrollbar-width: thin;         
+  scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 8px;
 }
 
 @keyframes modalPopIn {
@@ -1527,13 +1554,17 @@ a {
 }
 
 .add-video-to-course-btn {
-  background:darkgreen;
+  background: darkgreen;
+  /* width: 120px; */
   color: white;
   border: none;
   border-radius: 8px;
   padding: 6px 14px;
   font-weight: 600;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .modal-actions {

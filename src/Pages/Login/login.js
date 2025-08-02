@@ -4,6 +4,8 @@ import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, googleProvider } from '../../Pages/Firebase/firebase';
 import './login.css';
 
+const API_BASE_URL = "http://localhost:5000";
+
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -81,7 +83,7 @@ const Login = () => {
       localStorage.removeItem('token');
 
       // 1. Login to backend
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,6 +97,7 @@ const Login = () => {
       let data;
       try {
         data = await response.json();
+        console.log('data', data);
       } catch (jsonError) {
         const text = await response.text();
         throw new Error(text || 'Invalid server response');
@@ -138,7 +141,7 @@ const Login = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      const response = await fetch('http://localhost:5000/api/auth/google-auth', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google-auth`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -186,7 +189,7 @@ const Login = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

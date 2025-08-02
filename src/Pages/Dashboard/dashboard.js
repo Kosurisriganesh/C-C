@@ -7,7 +7,7 @@ import profilepic from '../../Assets/profilepic.jpg';
 import Footer from '../../Components/Footer/footer';
 import Logo from '../../Assets/Logo2.png';
 
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = "http://localhost:5000";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ const Dashboard = () => {
       return;
     }
     setLoading(true);
-    fetch(`${API_BASE}/api/enrollments/users/${user.email}/enrolled-courses`, {
+    fetch(`${API_BASE_URL}/api/enrollments/users/${user.email}/enrolled-courses`, {
       credentials: 'include',
     })
       .then(res => res.json())
@@ -61,89 +61,97 @@ const Dashboard = () => {
       });
   }, [user]);
 
-  // Fetch all courses from DB, and filter out enrolled
   useEffect(() => {
-    fetch(`${API_BASE}/api/courses/recommended-courses`, {
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(response => {
-        const enrolledIds = enrolledCourses.map(c => c.courseId);
-        console.log('response',response)
-        const allCourses = response.data || response.courses || [];
-        setRecommendedCourses(
-          allCourses.filter(
-            course => !enrolledIds.includes(course._id)
-          )
+    const fetchRecommendedCourses = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/courses/recommended-courses`, {
+          credentials: 'include',
+        });
+
+        const response = await res.json();
+        const allCourses = response?.data || [];
+
+        // remove enrolled courses
+        const enrolledIds = enrolledCourses.map(c => c.courseId?.toString());
+
+        const filtered = allCourses.filter(
+          course => !enrolledIds.includes(course._id?.toString())
         );
-      })
-      .catch((error) => {
+
+        setRecommendedCourses(filtered);
+      } catch (error) {
         console.error('Error fetching recommended courses:', error);
-      });
+      }
+    };
+
+    fetchRecommendedCourses();
   }, [enrolledCourses]);
 
+
+
+
   // Enroll in course using DB course info
-const enrollInCourse = async (courseId) => {
-  if (!user) return;
+  const enrollInCourse = async (courseId) => {
+    if (!user) return;
 
-  const courseDetails = recommendedCourses.find(
-    c => (c._id || c.id) === courseId
-  );
+    const courseDetails = recommendedCourses.find(
+      c => (c._id || c.id) === courseId
+    );
 
-  if (!courseDetails) {
-    alert("Course information not found.");
-    return;
-  }
+    if (!courseDetails) {
+      alert("Course information not found.");
+      return;
+    }
 
-  try {
-    const res = await fetch(`${API_BASE}/api/enrollments/enroll`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({
-        userId: user.uid,
-        email: user.email,
-        courseId: courseDetails._id || courseDetails.id,
-        courseName: courseDetails.title,
-        completedModules: 0,
-        totalModules: courseDetails.totalModules || 1,
-        enrolledAt: new Date().toISOString(),
-        instructor: courseDetails.instructor || 'Instructor',
-        thumbnail: courseDetails.thumbnail || '',
-        progress: 0
-      })
-    });
-
-    const data = await res.json();
-    console.log("Enrollment API response:", data); // optional debug
-
-    if (data.success) {
-      setEnrolledCourses(prev => [
-        ...prev,
-        {
-          ...courseDetails,
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/enrollments/enroll`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          userId: user.uid,
+          email: user.email,
+          courseId: courseDetails._id || courseDetails.id,
+          courseName: courseDetails.title,
           completedModules: 0,
           totalModules: courseDetails.totalModules || 1,
           enrolledAt: new Date().toISOString(),
-          courseName: courseDetails.title,
-          courseInstructor: courseDetails.instructor,
-          id: courseDetails._id || courseDetails.id
-        }
-      ]);
-      alert("Enrolled successfully!");
-    } else {
-      // ✅ Show specific alert if already enrolled
-      if (data.message === "User already enrolled in this course") {
-        alert("You have already enrolled in this course.");
+          instructor: courseDetails.instructor || 'Instructor',
+          thumbnail: courseDetails.thumbnail || '',
+          progress: 0
+        })
+      });
+
+      const data = await res.json();
+      console.log("Enrollment API response:", data); // optional debug
+
+      if (data.success) {
+        setEnrolledCourses(prev => [
+          ...prev,
+          {
+            ...courseDetails,
+            completedModules: 0,
+            totalModules: courseDetails.totalModules || 1,
+            enrolledAt: new Date().toISOString(),
+            courseName: courseDetails.title,
+            courseInstructor: courseDetails.instructor,
+            id: courseDetails._id || courseDetails.id
+          }
+        ]);
+        alert("Enrolled successfully!");
       } else {
-        alert(data.message || "Enrollment failed");
+        // ✅ Show specific alert if already enrolled
+        if (data.message === "User already enrolled in this course") {
+          alert("You have already enrolled in this course.");
+        } else {
+          alert(data.message || "Enrollment failed");
+        }
       }
+    } catch (e) {
+      console.error('Enrollment error:', e);
+      alert("Enrollment failed: " + e.message);
     }
-  } catch (e) {
-    console.error('Enrollment error:', e);
-    alert("Enrollment failed: " + e.message);
-  }
-};
+  };
 
 
   const handleProfileClick = () => setShowProfileDropdown(!showProfileDropdown);
@@ -282,15 +290,24 @@ const enrollInCourse = async (courseId) => {
               {enrolledCourses.map(course => (
                 <div key={course._id || course.id} className="course-card">
                   <div className="course-thumbnail">
-                    <img
+                    {/* <img
                       src={course.thumbnail || process.env.PUBLIC_URL + ''}
                       alt={course.courseName || course.title}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = process.env.PUBLIC_URL + '/c&c2 (2).jpg';
                       }}
+                    /> */}
+                    <img
+                      src={course.thumbnail || process.env.PUBLIC_URL + '/c&c2 (2).jpg'}
+                      alt={course.title}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = process.env.PUBLIC_URL + '/c&c2 (2).jpg';
+                      }}
                     />
                   </div>
+
                   <div className="course-details">
                     <h3>{course.courseName || course.title}</h3>
                     <p className="instructor">Instructor: {course.courseInstructor || course.instructor}</p>
@@ -306,21 +323,31 @@ const enrollInCourse = async (courseId) => {
                           style={{ width: `${courseProgress[course._id || course.id] || 0}%` }}
                         ></div>
                       </div>
+
                       <span className="progress-text">
                         {courseProgress[course._id || course.id] || 0}% Complete
                       </span>
                     </div>
+
                     <div className="course-modules-info">
                       <span>
                         {course.completedModules || 0}/{course.totalModules || 1} modules completed
                       </span>
                     </div>
+
                     <Link
-                      to={`/Course?video=${getCourseFirstVideo(course._id || course.id)}`}
+                      to={`/course?video=${getCourseFirstVideo(course._id || course.id)}`}
                       className="continue-course-button"
+                      onClick={() => {
+                        // Force full page reload
+                        setTimeout(() => {
+                          window.location.reload();
+                        }, 0);
+                      }}
                     >
                       {(course.completedModules || 0) === 0 ? 'Start Course' : 'Continue Learning'}
                     </Link>
+
                   </div>
                 </div>
               ))}

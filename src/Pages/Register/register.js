@@ -4,8 +4,10 @@ import { signInWithPopup, createUserWithEmailAndPassword, updateProfile } from "
 import { auth, googleProvider } from '../../Pages/Firebase/firebase';
 import './register.css';
 import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
+// import FormControlLabel from '@mui/material/FormControlLabel';
+// import Switch from '@mui/material/Switch';
+
+const API_BASE_URL = "http://localhost:5000";
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -77,7 +79,7 @@ const Registration = () => {
       });
 
       // 3. Register user in your backend API
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -123,7 +125,7 @@ const Registration = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       // Register/verify user in backend as well
-      const response = await fetch('http://localhost:5000/api/auth/google-auth', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google-auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -248,7 +250,7 @@ const Registration = () => {
               </div>
 
               <FormGroup className="form-group checkbox-group"> {/* Keeping your existing class for styling if needed */}
-                <FormControlLabel
+                {/* <FormControlLabel
                   control={
                     <Switch
                       checked={formData.isAdmin}
@@ -259,8 +261,9 @@ const Registration = () => {
                     />
                   }
                   label="Register as Administrator"
-                />
+                /> */}
               </FormGroup>
+              
 
               <button
                 type="submit"
